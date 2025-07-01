@@ -44,11 +44,65 @@
         }
 
         [data-theme="dark"] {
-            --light-blue: #1a1a1a;
-            --white: #2d2d2d;
-            --text-dark: #f0f0f0;
+            --light-blue: #2a2a2a;
+            --white: #3a3a3a;
+            --text-dark: #ffffff;
             --text-light: #cccccc;
-            --border-color: #444;
+            --border-color: #555;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+        }
+
+        [data-theme="dark"] .login-card {
+            background: var(--white);
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] .form-input {
+            background: #4a4a4a;
+            color: var(--text-dark);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .form-input:focus {
+            border-color: #004899;
+            background: #4a4a4a;
+        }
+
+        [data-theme="dark"] .users-table th {
+            background: #4a4a4a;
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] .users-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .stat-item {
+            background: #4a4a4a;
+        }
+
+        [data-theme="dark"] .notification-info {
+            background: rgba(0, 123, 255, 0.2);
+            color: #66b3ff;
+        }
+
+        [data-theme="dark"] .notification-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffd700;
+        }
+
+        [data-theme="dark"] .notification-success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #66d966;
+        }
+
+        [data-theme="dark"] .notification-error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
         }
 
         body {
@@ -636,6 +690,15 @@
             background: #c82333;
         }
 
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #003a7a;
+        }
+
         .sync-status {
             padding: 0.5rem 1rem;
             border-radius: 8px;
@@ -662,6 +725,45 @@
             background: rgba(220, 53, 69, 0.1);
             color: var(--danger);
             border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         @media (max-width: 768px) {
@@ -1022,6 +1124,77 @@
         </div>
     </main>
 
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditUserModal()">&times;</span>
+            <h2 style="color: var(--text-dark); margin-bottom: 1.5rem;">Uredi uporabnika</h2>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserOriginalUsername">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="editFirstName">Ime *</label>
+                        <input type="text" class="form-input" id="editFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editLastName">Priimek *</label>
+                        <input type="text" class="form-input" id="editLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editUsername">Uporabniško ime *</label>
+                    <input type="text" class="form-input" id="editUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editPassword">Novo geslo (pustite prazno za ohranitev)</label>
+                    <input type="password" class="form-input" id="editPassword" placeholder="Vnesite novo geslo">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editRole">Vloga *</label>
+                    <select class="form-input" id="editRole" required>
+                        <option value="admin">Administrator</option>
+                        <option value="serviser">Serviser</option>
+                        <option value="student">Študent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sistemi za dostop *</label>
+                    <div id="editSystemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editSystems" value="KolesCE">
+                            <span>KolesCE</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editSystems" value="LUR">
+                            <span>LUR</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editSystems" value="GO2GO">
+                            <span>GO2GO</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editSystems" value="KOR">
+                            <span>KOR</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                            <input type="checkbox" name="editSystems" value="ZaNaprej">
+                            <span>ZaNaprej</span>
+                        </label>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <span class="loading-spinner" id="editUserSpinner" style="display: none;"></span>
+                        <span id="editUserText">Posodobi uporabnika</span>
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="closeEditUserModal()" style="flex: 1;">
+                        Prekliči
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Firebase Integration Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -1041,7 +1214,7 @@
             apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
             authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
             projectId: "nomago-bikes-portal-f33da",
-            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            storageBucket: "nomago-bikes-portal-f33da.appspot.com",
             messagingSenderId: "647987655592",
             appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
             measurementId: "G-D1CBD3V7ZV"
@@ -1076,7 +1249,7 @@
             'ZaNaprej': 'ZANAPREJ'
         };
 
-        // All bike stations data
+        // All bike stations data with COMPLETE municipalities
         const ALL_LOCATIONS = [
             // Ljubljana in Medvode sistem
             { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Prešernov trg", terminal: "87001", racks: 10 },
@@ -1128,7 +1301,7 @@
             { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901", racks: 8 },
             { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903", racks: 6 },
             { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905", racks: 10 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
+            { system: "GO2GO", municipality: "Šempeter-Vrtojba", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
             { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - jug", terminal: "59108", racks: 6 },
             { system: "GO2GO", municipality: "Nova Gorica", name: "Prvomajska ul. - Supernova", terminal: "59109", racks: 10 },
             { system: "GO2GO", municipality: "Nova Gorica", name: "EPIC - Železniška postaja", terminal: "59110", racks: 10 },
@@ -1162,7 +1335,16 @@
             { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Helfar", terminal: "5996", racks: 10 },
             { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Evropark", terminal: "5997", racks: 10 },
             { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Kisovec", terminal: "5998", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 }
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 },
+            
+            // KOR sistem (Koroška - dodano)
+            { system: "KOR", municipality: "Slovenj Gradec", name: "Glavni trg", terminal: "6001", racks: 8 },
+            { system: "KOR", municipality: "Slovenj Gradec", name: "Avtobusna postaja", terminal: "6002", racks: 6 },
+            { system: "KOR", municipality: "Slovenj Gradec", name: "Športni center", terminal: "6003", racks: 5 },
+            { system: "KOR", municipality: "Ravne na Koroškem", name: "Koroški muzej", terminal: "6004", racks: 6 },
+            { system: "KOR", municipality: "Ravne na Koroškem", name: "Center Ravne", terminal: "6005", racks: 8 },
+            { system: "KOR", municipality: "Dravograd", name: "Trg 4. julija", terminal: "6006", racks: 5 },
+            { system: "KOR", municipality: "Radlje ob Dravi", name: "Občina Radlje", terminal: "6007", racks: 4 }
         ];
 
         // Global variables
@@ -1375,7 +1557,7 @@
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
                 );
                 
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+                const notifications = notificationsDoc.data().data || [];
                 
                 const recentAlerts = notifications.filter(n => 
                     n.title.includes('Sistem pregledov') && 
@@ -1443,731 +1625,4 @@
             }
             
             if (currentUser.vloga === 'student') {
-                alert('Nimate dovoljenja za dostop do aplikacije za preglede.');
-                return;
-            }
-            
-            // Store user data for serviser app with system access info
-            const userDataForApp = {
-                ...currentUser,
-                accessibleSystems: getUserAccessibleSystems(currentUser),
-                accessibleLocations: getUserAccessibleLocations(currentUser)
-            };
-            
-            // Store in sessionStorage for the new window
-            sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(userDataForApp));
-            
-            // Open inspection app
-            window.open('nomago_pregledi_kljucavnic.html', '_blank');
-        }
-
-        // Theme management
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('themeIcon');
-            
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.textContent = '🌙';
-                sessionStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️';
-                sessionStorage.setItem('theme', 'dark');
-            }
-        }
-
-        function loadTheme() {
-            const savedTheme = sessionStorage.getItem('theme');
-            const themeIcon = document.getElementById('themeIcon');
-            
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️';
-            }
-        }
-
-        // Login handling with Firebase
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const loginButton = document.getElementById('loginButton');
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            if (!username || !password) {
-                showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
-                return;
-            }
-            
-            loginButton.textContent = 'Prijavljanje...';
-            loginButton.disabled = true;
-            
-            try {
-                updateSyncStatus('syncing', '🔄 Preverjanje podatkov...');
-                
-                // Get user from Firebase
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                if (userDoc.exists()) {
-                    const user = userDoc.data();
-                    if (user.geslo === password) {
-                        currentUser = user;
-                        sessionStorage.setItem('currentUser', JSON.stringify(user));
-                        showMessage('Uspešna prijava!', 'success');
-                        updateSyncStatus('synced', '✅ Prijavljen');
-                        setTimeout(() => showDashboard(user), 1000);
-                    } else {
-                        showMessage('Napačno geslo.', 'error');
-                        updateSyncStatus('error', '❌ Napačni podatki');
-                    }
-                } else {
-                    showMessage('Uporabnik ne obstaja.', 'error');
-                    updateSyncStatus('error', '❌ Uporabnik ne obstaja');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                showMessage('Prišlo je do napake pri prijavi.', 'error');
-                updateSyncStatus('error', '❌ Napaka pri prijavi');
-            } finally {
-                loginButton.textContent = 'Prijavi se';
-                loginButton.disabled = false;
-            }
-        }
-
-        function showMessage(message, type) {
-            const errorMsg = document.getElementById('errorMessage');
-            const successMsg = document.getElementById('successMessage');
-            
-            // Hide both messages first
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
-            
-            if (type === 'error') {
-                errorMsg.textContent = message;
-                errorMsg.style.display = 'block';
-            } else if (type === 'success') {
-                successMsg.textContent = message;
-                successMsg.style.display = 'block';
-            }
-        }
-
-        function showDashboard(user) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('headerLogoutBtn').style.display = 'flex';
-            document.getElementById('headerCenter').style.display = 'block';
-            document.getElementById('userInfo').textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
-            
-            // Show/hide menu items based on user role
-            const addUserMenu = document.getElementById('addUserMenu').closest('.menu-item');
-            const serviserMenuItem = document.getElementById('serviserMenuItem');
-            const userSettingsMenu = document.getElementById('userSettingsMenu').closest('.menu-item');
-            const notificationsMenu = document.getElementById('notificationsMenu').closest('.menu-item');
-            const generalSettingsMenu = document.querySelector('[onclick="showContent(\'generalSettings\')"]').closest('.menu-item');
-            
-            if (user.vloga === 'admin') {
-                addUserMenu.style.display = 'block';
-                serviserMenuItem.style.display = 'block';
-                userSettingsMenu.style.display = 'block';
-                notificationsMenu.style.display = 'block';
-                generalSettingsMenu.style.display = 'block';
-            } else if (user.vloga === 'serviser') {
-                addUserMenu.style.display = 'none';
-                serviserMenuItem.style.display = 'block';
-                userSettingsMenu.style.display = 'none';
-                notificationsMenu.style.display = 'none';
-                generalSettingsMenu.style.display = 'none';
-            } else {
-                addUserMenu.style.display = 'none';
-                serviserMenuItem.style.display = 'block';
-                userSettingsMenu.style.display = 'none';
-                notificationsMenu.style.display = 'none';
-                generalSettingsMenu.style.display = 'none';
-            }
-            
-            checkInspectionAlerts();
-            updateInspectionWidget();
-            loadNotificationsDisplay();
-            updateWelcomeMessage(user);
-        }
-        
-        function updateWelcomeMessage(user) {
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            if (welcomeMessage) {
-                const accessibleSystems = getUserAccessibleSystems(user);
-                const systemsText = accessibleSystems.length > 0 ? 
-                    ` Dostop imate do sistemov: ${accessibleSystems.join(', ')}.` : '';
-                
-                if (user.vloga === 'admin') {
-                    welcomeMessage.textContent = 'Kot administrator imate dostop do vseh funkcij portala. Upravljajte uporabnike, obvestila in sistemske nastavitve. Preverite stanje pregledov ključavnic.' + systemsText;
-                } else if (user.vloga === 'serviser') {
-                    welcomeMessage.textContent = 'Kot serviser imate dostop do aplikacije za preglede ključavnic. Preverite obvestila in opravite potrebne preglede.' + systemsText;
-                } else {
-                    welcomeMessage.textContent = 'Kot študent imate dostop do osnovnih funkcij portala. Preverite obvestila in sledite svojim nalogam.' + systemsText;
-                }
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            sessionStorage.removeItem('serviserApp_currentUser');
-            
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('headerLogoutBtn').style.display = 'none';
-            document.getElementById('headerCenter').style.display = 'none';
-            
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.style.display = 'block';
-            });
-            
-            document.getElementById('loginForm').reset();
-            hideMessages();
-            updateSyncStatus('synced', '🔄 Sinhronizirano z Firebase');
-        }
-
-        function hideMessages() {
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-        }
-
-        // Content management
-        function showContent(contentType) {
-            if (!currentUser) {
-                alert('Niste prijavljeni.');
-                return;
-            }
-            
-            const adminOnlySections = ['addUser', 'userSettings', 'notifications', 'generalSettings'];
-            
-            if (adminOnlySections.includes(contentType) && currentUser.vloga !== 'admin') {
-                alert('Nimate dovoljenja za dostop do te sekcije.');
-                return;
-            }
-            
-            const sections = ['dashboardContent', 'addUserContent', 'userSettingsContent', 'notificationsContent', 'generalSettingsContent'];
-            sections.forEach(section => {
-                const el = document.getElementById(section);
-                if (el) el.style.display = 'none';
-            });
-
-            document.querySelectorAll('.menu-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            switch(contentType) {
-                case 'dashboard':
-                    document.getElementById('dashboardContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'dashboard\')"]').classList.add('active');
-                    updateInspectionWidget();
-                    loadNotificationsDisplay();
-                    break;
-                case 'addUser':
-                    document.getElementById('addUserContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'addUser\')"]').classList.add('active');
-                    break;
-                case 'userSettings':
-                    document.getElementById('userSettingsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'userSettings\')"]').classList.add('active');
-                    loadUsersList();
-                    break;
-                case 'notifications':
-                    document.getElementById('notificationsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'notifications\')"]').classList.add('active');
-                    loadNotificationsList();
-                    break;
-                case 'generalSettings':
-                    document.getElementById('generalSettingsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'generalSettings\')"]').classList.add('active');
-                    break;
-            }
-        }
-
-        // User management functions
-        async function loadUsersList() {
-            try {
-                const usersCollection = await window.firebaseFunctions.getDocs(
-                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
-                );
-                
-                const users = [];
-                usersCollection.forEach((doc) => {
-                    const userData = doc.data();
-                    delete userData.createdAt; // Remove Firebase timestamp for display
-                    users.push(userData);
-                });
-                
-                const container = document.getElementById('usersList');
-                
-                if (users.length === 0) {
-                    container.innerHTML = '<p>Ni uporabnikov za prikaz.</p>';
-                    return;
-                }
-                
-                let html = '<div style="overflow-x: auto;"><table class="users-table">';
-                html += '<thead><tr>';
-                html += '<th>Ime</th>';
-                html += '<th>Priimek</th>';
-                html += '<th>Uporabniško ime</th>';
-                html += '<th>Vloga</th>';
-                html += '<th>Sistemi</th>';
-                html += '<th style="text-align: center;">Dejanja</th>';
-                html += '</tr></thead><tbody>';
-                
-                users.forEach((user) => {
-                    html += `<tr>`;
-                    html += `<td>${user.ime}</td>`;
-                    html += `<td>${user.priimek}</td>`;
-                    html += `<td>${user.uporabniskoIme}</td>`;
-                    html += `<td>${user.vloga}</td>`;
-                    html += `<td>${(user.sistemi || []).join(', ')}</td>`;
-                    html += `<td style="text-align: center;">`;
-                    html += `<button onclick="deleteUser('${user.uporabniskoIme}')" class="btn btn-danger">Izbriši</button>`;
-                    html += `</td></tr>`;
-                });
-                
-                html += '</tbody></table></div>';
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading users:', error);
-                document.getElementById('usersList').innerHTML = '<p>Napaka pri nalaganju uporabnikov.</p>';
-            }
-        }
-
-        async function deleteUser(username) {
-            if (!confirm('Ali ste prepričani, da želite izbrisati tega uporabnika?')) {
-                return;
-            }
-
-            if (username === 'admin') {
-                alert('Admin uporabnika ni mogoče izbrisati!');
-                return;
-            }
-
-            try {
-                await window.firebaseFunctions.deleteDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                loadUsersList();
-                alert('Uporabnik je bil uspešno izbrisan!');
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Napaka pri brisanju uporabnika: ' + error.message);
-            }
-        }
-
-        // Add user form handler with Firebase
-        async function handleAddUser(event) {
-            event.preventDefault();
-            
-            const addButton = document.getElementById('addUserText');
-            const addSpinner = document.getElementById('addUserSpinner');
-            
-            const firstName = document.getElementById('newFirstName').value.trim();
-            const lastName = document.getElementById('newLastName').value.trim();
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            const role = document.getElementById('newRole').value;
-            
-            const systemCheckboxes = document.querySelectorAll('input[name="newSystems"]:checked');
-            const systems = Array.from(systemCheckboxes).map(cb => cb.value);
-            
-            if (!firstName || !lastName || !username || !password || !role || systems.length === 0) {
-                alert('Prosimo, izpolnite vsa obvezna polja.');
-                return;
-            }
-            
-            try {
-                addButton.textContent = 'Ustvarjam...';
-                addSpinner.style.display = 'inline-block';
-                
-                // Check if username already exists
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                if (userDoc.exists()) {
-                    alert('Uporabniško ime že obstaja. Izberite drugo.');
-                    return;
-                }
-                
-                const newUser = {
-                    ime: firstName,
-                    priimek: lastName,
-                    uporabniskoIme: username,
-                    geslo: password,
-                    vloga: role,
-                    sistemi: systems,
-                    createdAt: window.firebaseFunctions.serverTimestamp()
-                };
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username),
-                    newUser
-                );
-                
-                alert('Uporabnik je bil uspešno dodan!');
-                document.getElementById('addUserForm').reset();
-                
-            } catch (error) {
-                console.error('Error adding user:', error);
-                alert('Napaka pri dodajanju uporabnika: ' + error.message);
-            } finally {
-                addButton.textContent = 'Ustvari uporabnika';
-                addSpinner.style.display = 'none';
-            }
-        }
-
-        // Notifications display
-        async function loadNotificationsDisplay() {
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                const activeNotifications = notifications.filter(n => n.active);
-                const container = document.getElementById('notificationsDisplay');
-                
-                if (activeNotifications.length === 0) {
-                    container.innerHTML = '';
-                    return;
-                }
-                
-                let html = '';
-                activeNotifications.forEach(notification => {
-                    const priorityClass = `priority-${notification.priority}`;
-                    const typeClass = `notification-${notification.type}`;
-                    
-                    html += `
-                        <div class="notification-card ${typeClass}">
-                            <div class="notification-header">
-                                <h4 class="notification-title">${notification.title}</h4>
-                                <span class="notification-priority ${priorityClass}">${getPriorityText(notification.priority)}</span>
-                            </div>
-                            <p class="notification-message">${notification.message}</p>
-                            <div class="notification-meta">
-                                Objavljeno: ${formatDate(notification.createdAt)} • Avtor: ${notification.createdBy}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading notifications display:', error);
-            }
-        }
-
-        async function loadNotificationsList() {
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                const container = document.getElementById('notificationsList');
-                
-                if (notifications.length === 0) {
-                    container.innerHTML = '<p>Ni obvestil za prikaz.</p>';
-                    return;
-                }
-                
-                let html = '';
-                notifications.forEach((notification, index) => {
-                    const priorityClass = `priority-${notification.priority}`;
-                    const typeClass = `notification-${notification.type}`;
-                    const statusText = notification.active ? 'Aktivno' : 'Neaktivno';
-                    const statusColor = notification.active ? 'var(--success)' : 'var(--text-light)';
-                    
-                    html += `
-                        <div class="notification-card ${typeClass}" style="position: relative;">
-                            <div class="notification-header">
-                                <h4 class="notification-title">${notification.title}</h4>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <span class="notification-priority ${priorityClass}">${getPriorityText(notification.priority)}</span>
-                                    <span style="color: ${statusColor}; font-size: 0.8rem; font-weight: 500;">${statusText}</span>
-                                </div>
-                            </div>
-                            <p class="notification-message">${notification.message}</p>
-                            <div class="notification-meta">
-                                Objavljeno: ${formatDate(notification.createdAt)} • Avtor: ${notification.createdBy}
-                            </div>
-                            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                                <button onclick="toggleNotification(${notification.id})" class="btn" style="background: ${notification.active ? 'var(--warning)' : 'var(--success)'}; color: white;">
-                                    ${notification.active ? 'Deaktiviraj' : 'Aktiviraj'}
-                                </button>
-                                <button onclick="deleteNotification(${notification.id})" class="btn btn-danger">
-                                    Izbriši
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading notifications list:', error);
-                document.getElementById('notificationsList').innerHTML = '<p>Napaka pri nalaganju obvestil.</p>';
-            }
-        }
-
-        async function toggleNotification(notificationId) {
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                if (!notificationsDoc.exists()) return;
-                
-                const notifications = notificationsDoc.data().data;
-                const notificationIndex = notifications.findIndex(n => n.id === notificationId);
-                
-                if (notificationIndex === -1) return;
-                
-                notifications[notificationIndex].active = !notifications[notificationIndex].active;
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: notifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                loadNotificationsList();
-                loadNotificationsDisplay();
-            } catch (error) {
-                console.error('Error toggling notification:', error);
-                alert('Napaka pri posodabljanju obvestila: ' + error.message);
-            }
-        }
-
-        async function deleteNotification(notificationId) {
-            if (!confirm('Ali ste prepričani, da želite izbrisati to obvestilo?')) {
-                return;
-            }
-            
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                if (!notificationsDoc.exists()) return;
-                
-                const notifications = notificationsDoc.data().data;
-                const filteredNotifications = notifications.filter(n => n.id !== notificationId);
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: filteredNotifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                loadNotificationsList();
-                loadNotificationsDisplay();
-            } catch (error) {
-                console.error('Error deleting notification:', error);
-                alert('Napaka pri brisanju obvestila: ' + error.message);
-            }
-        }
-
-        async function handleAddNotification(event) {
-            event.preventDefault();
-            
-            const notificationButton = document.getElementById('notificationText');
-            const notificationSpinner = document.getElementById('notificationSpinner');
-            
-            const title = document.getElementById('notificationTitle').value.trim();
-            const message = document.getElementById('notificationMessage').value.trim();
-            const type = document.getElementById('notificationType').value;
-            const priority = document.getElementById('notificationPriority').value;
-            const active = document.getElementById('notificationActive').checked;
-            
-            if (!title || !message || !type) {
-                alert('Prosimo, izpolnite vsa obvezna polja.');
-                return;
-            }
-            
-            try {
-                notificationButton.textContent = 'Dodajam...';
-                notificationSpinner.style.display = 'inline-block';
-                
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                
-                const newNotification = {
-                    id: Date.now(),
-                    title: title,
-                    message: message,
-                    type: type,
-                    priority: priority,
-                    active: active,
-                    createdAt: new Date().toISOString(),
-                    createdBy: currentUser.uporabniskoIme
-                };
-                
-                notifications.unshift(newNotification);
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: notifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                alert('Obvestilo je bilo uspešno dodano!');
-                document.getElementById('addNotificationForm').reset();
-                loadNotificationsList();
-                loadNotificationsDisplay();
-                
-            } catch (error) {
-                console.error('Error adding notification:', error);
-                alert('Napaka pri dodajanju obvestila: ' + error.message);
-            } finally {
-                notificationButton.textContent = 'Dodaj obvestilo';
-                notificationSpinner.style.display = 'none';
-            }
-        }
-
-        function getPriorityText(priority) {
-            switch(priority) {
-                case 'high': return 'Visoka';
-                case 'urgent': return 'Nujna';
-                default: return 'Normalna';
-            }
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('sl-SI') + ' ' + date.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'});
-        }
-
-        function checkLoginStatus() {
-            const savedUser = sessionStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showDashboard(currentUser);
-            }
-        }
-
-        // Sync status helper
-        function updateSyncStatus(status, message) {
-            const syncStatus = document.getElementById('syncStatus');
-            syncStatus.className = `sync-status ${status}`;
-            syncStatus.innerHTML = `<span>${status === 'synced' ? '🔄' : status === 'syncing' ? '⏳' : '❌'}</span><span>${message}</span>`;
-        }
-
-        // Firebase connection check
-        async function checkFirebaseConnection() {
-            const connectButton = document.getElementById('connectText');
-            const connectSpinner = document.getElementById('connectSpinner');
-            
-            try {
-                connectButton.textContent = 'Preverjam...';
-                connectSpinner.style.display = 'inline-block';
-                updateSyncStatus('syncing', '🔄 Preverjanje povezave...');
-                
-                // Try to read a document to test connection
-                const testDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                updateSyncStatus('synced', '✅ Povezava uspešna');
-                alert('Povezava z Firebase je uspešna!');
-                
-            } catch (error) {
-                console.error('Firebase connection error:', error);
-                updateSyncStatus('error', '❌ Napaka pri povezavi');
-                alert('Napaka pri povezavi z Firebase: ' + error.message);
-            } finally {
-                connectButton.textContent = 'Preveri povezavo';
-                connectSpinner.style.display = 'none';
-            }
-        }
-
-        // Reinitialize default data
-        async function reinitializeDefaultData() {
-            if (!confirm('Ali ste prepričani? To bo ustvarilo osnovni admin račun če ga ni.')) {
-                return;
-            }
-
-            const initButton = document.getElementById('initText');
-            const initSpinner = document.getElementById('initSpinner');
-            
-            try {
-                initButton.textContent = 'Inicializiram...';
-                initSpinner.style.display = 'inline-block';
-                updateSyncStatus('syncing', '🔄 Inicializacija...');
-                
-                await initializeDefaultData();
-                
-                alert('Inicializacija uspešna!');
-                updateSyncStatus('synced', '✅ Inicializirano');
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                updateSyncStatus('error', '❌ Napaka pri inicializaciji');
-                alert('Napaka pri inicializaciji: ' + error.message);
-            } finally {
-                initButton.textContent = 'Ponastavi začetne podatke';
-                initSpinner.style.display = 'none';
-            }
-        }
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTheme();
-            
-            // Initialize Firebase and default data
-            setTimeout(() => {
-                initializeDefaultData();
-                checkLoginStatus();
-            }, 1000);
-            
-            // Event listeners
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
-            document.getElementById('addNotificationForm').addEventListener('submit', handleAddNotification);
-            
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleLogin(e);
-                }
-            });
-
-            // Set up automatic inspection checks (every hour)
-            setInterval(() => {
-                if (currentUser && (currentUser.vloga === 'admin' || currentUser.vloga === 'serviser')) {
-                    checkInspectionAlerts();
-                    updateInspectionWidget();
-                }
-            }, 60 * 60 * 1000);
-        });
-
-        // Global functions for access from HTML
-        window.toggleTheme = toggleTheme;
-        window.logout = logout;
-        window.showContent = showContent;
-        window.openServiserApp = openServiserApp;
-        window.deleteUser = deleteUser;
-        window.toggleNotification = toggleNotification;
-        window.deleteNotification = deleteNotification;
-        window.checkFirebaseConnection = checkFirebaseConnection;
-        window.reinitializeDefaultData = reinitializeDefaultData;
-    </script>
-</body>
-</html>
+                alert('Nimate dovoljenja za dost
