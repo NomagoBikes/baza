@@ -372,6 +372,34 @@
       font-size: 1.1rem;
     }
 
+    /* Update notification */
+    .update-notification {
+      background: linear-gradient(135deg, #4caf50, #45a049);
+      color: white;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .update-notification::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
     @media (max-width: 600px) {
       .rack-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -403,6 +431,11 @@
   </header>
   
   <div class="container">
+    <!-- Update notification -->
+    <div class="update-notification" id="updateNotification" style="display: none;">
+      <strong>✅ Posodobljeno!</strong> Dodane manjkajoče občine in izboljšano filtriranje lokacij.
+    </div>
+
     <!-- User access info -->
     <div class="access-info" id="accessInfo" style="display: none;">
       <!-- Access info will be shown here -->
@@ -528,7 +561,7 @@
         serverTimestamp
     };
 
-    console.log("Firebase initialized in inspection app");
+    console.log("Firebase initialized in inspection app - UPDATED VERSION");
   </script>
 
   <script>
@@ -584,6 +617,102 @@
         currentUser.accessibleSystems.forEach(system => {
           systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
         });
+      }
+    }
+
+    // Fix missing locations by reloading from Firebase
+    async function fixMissingLocations() {
+      try {
+        console.log('🔄 Popravljam manjkajoče lokacije...');
+        
+        const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+        
+        if (!currentUser.uporabniskoIme) {
+          console.error('Ni podatkov o uporabniku');
+          return false;
+        }
+        
+        // Load fresh data from Firebase
+        const usersDoc = await window.firebaseFunctions.getDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+        );
+        
+        const locationsDoc = await window.firebaseFunctions.getDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+        );
+        
+        if (!usersDoc.exists() || !locationsDoc.exists()) {
+          console.error('Ni podatkov v Firebase');
+          return false;
+        }
+        
+        const users = usersDoc.data().data || [];
+        const allLocations = locationsDoc.data().data || [];
+        
+        console.log(`📊 Naloženih ${allLocations.length} lokacij iz Firebase`);
+        
+        const user = users.find(u => u.uporabniskoIme === currentUser.uporabniskoIme);
+        
+        if (!user) {
+          console.error('Uporabnik ni najden v Firebase');
+          return false;
+        }
+        
+        // Determine accessible locations based on user role
+        let accessibleLocations = [];
+        
+        if (user.vloga === 'admin') {
+          accessibleLocations = allLocations; // Admin sees all
+          console.log('👑 Admin dostop - vse lokacije');
+        } else if (user.accessibleSystems && user.accessibleSystems.length > 0) {
+          accessibleLocations = allLocations.filter(location => 
+            user.accessibleSystems.includes(location.system)
+          );
+          console.log(`🔐 Omejeni dostop - sistemi: ${user.accessibleSystems.join(', ')}`);
+        } else {
+          // If no specific systems, give access to all
+          accessibleLocations = allLocations;
+          console.log('🌐 Dostop do vseh sistemov');
+        }
+        
+        // Check for missing municipalities
+        const municipalities = [...new Set(accessibleLocations.map(l => l.municipality))].sort();
+        const expectedMunicipalities = ['Laško', 'Žalec', 'Polzela', 'Gorizia', 'Sevnica'];
+        const missingMunicipalities = expectedMunicipalities.filter(m => !municipalities.includes(m));
+        
+        console.log(`🏛️ Najdene občine: ${municipalities.join(', ')}`);
+        
+        if (missingMunicipalities.length > 0) {
+          console.log(`⚠️ Manjkajoče občine: ${missingMunicipalities.join(', ')}`);
+          
+          // Try to find missing locations in all data
+          const missingLocations = allLocations.filter(loc => 
+            missingMunicipalities.includes(loc.municipality)
+          );
+          
+          if (missingLocations.length > 0) {
+            console.log(`📍 Najdenih ${missingLocations.length} manjkajočih lokacij`);
+            accessibleLocations = [...accessibleLocations, ...missingLocations];
+          }
+        }
+        
+        // Update sessionStorage with corrected data
+        const updatedUser = {
+          ...currentUser,
+          accessibleLocations: accessibleLocations,
+          accessibleSystems: user.accessibleSystems || [],
+          dataRefreshed: new Date().toISOString()
+        };
+        
+        sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(updatedUser));
+        
+        console.log(`✅ Podatki popravljeni: ${accessibleLocations.length} lokacij, ${municipalities.length} občin`);
+        
+        return true;
+        
+      } catch (error) {
+        console.error('❌ Napaka pri popravljanju lokacij:', error);
+        return false;
       }
     }
 
@@ -817,9 +946,12 @@
       const overdue = [];
       const dueSoon = [];
       
-      if (!currentUser.accessibleLocations) return;
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
       
-      currentUser.accessibleLocations.forEach(location => {
+      if (!freshUser.accessibleLocations) return;
+      
+      freshUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           const status = getInspectionStatus(location.terminal, i);
           if (status === 'overdue') {
@@ -861,9 +993,12 @@
       let ok = 0;
       let needsMaintenance = 0;
       
-      if (!currentUser.accessibleLocations) return;
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
       
-      currentUser.accessibleLocations.forEach(location => {
+      if (!freshUser.accessibleLocations) return;
+      
+      freshUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           total++;
           const status = getInspectionStatus(location.terminal, i);
@@ -917,16 +1052,30 @@
       filterLocations();
     }
 
-    // Enhanced location rendering with inspection status and access control
+    // Enhanced location rendering with fresh data and access control
     function renderLocations() {
       const container = document.getElementById("locationsContainer");
       container.innerHTML = "";
       
-      if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      
+      if (!freshUser.accessibleLocations || freshUser.accessibleLocations.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; background: white; border-radius: 8px; margin: 1rem 0;">
+            <h3>⚠️ Ni dostopnih lokacij</h3>
+            <p>Poskušam osvežiti podatke...</p>
+            <button onclick="location.reload()" style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+              🔄 Osveži stran
+            </button>
+          </div>
+        `;
         return;
       }
       
-      currentUser.accessibleLocations.forEach(location => {
+      console.log(`🖥️ Prikazujem ${freshUser.accessibleLocations.length} lokacij`);
+      
+      freshUser.accessibleLocations.forEach(location => {
         // Check if location has any overdue or due soon racks
         let hasOverdue = false;
         let hasDueSoon = false;
@@ -1019,12 +1168,63 @@
           rackContainer.appendChild(rackItem);
         }
       });
+      
+      console.log(`✅ Prikazanih ${container.children.length} lokacijskih kartic`);
     }
 
     function getLastInspectionDate(terminal, rackNumber) {
       const key = `${terminal}-${rackNumber}`;
       const rackData = inspectionData[key];
       return rackData ? rackData.lastInspection : null;
+    }
+
+    // ENHANCED: Better municipalities filtering with improved sorting
+    function updateMunicipalities() {
+      const system = document.getElementById("systemFilter").value;
+      const municipalitySelect = document.getElementById("municipalityFilter");
+      
+      municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
+      
+      // Get fresh user data (might have been updated by fixMissingLocations)
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      
+      if (!freshUser.accessibleLocations) {
+        console.warn('Ni dostopnih lokacij - poskušam osvežiti...');
+        return;
+      }
+      
+      console.log(`📊 Posodabljam občine za ${freshUser.accessibleLocations.length} lokacij`);
+      
+      // Create a Set to store unique municipalities
+      const municipalities = new Set();
+      
+      // Filter locations based on selected system
+      const filteredLocations = freshUser.accessibleLocations.filter(location => {
+        return !system || location.system === system;
+      });
+      
+      // Add all municipalities from filtered locations
+      filteredLocations.forEach(location => {
+        municipalities.add(location.municipality);
+      });
+      
+      // Sort and add options to select (using localeCompare for proper Slovenian sorting)
+      Array.from(municipalities)
+        .sort((a, b) => a.localeCompare(b, 'sl', { sensitivity: 'base' }))
+        .forEach(municipality => {
+          municipalitySelect.innerHTML += `<option value="${municipality}">${municipality}</option>`;
+        });
+      
+      // Log which municipalities are available
+      const sortedMunicipalities = Array.from(municipalities).sort();
+      if (system) {
+        console.log(`🔍 Za sistem ${system}: ${municipalities.size} občin`);
+      } else {
+        console.log(`🌐 Vse občine: ${municipalities.size}`);
+      }
+      console.log(`🏛️ Dostopne občine: ${sortedMunicipalities.join(', ')}`);
+      
+      filterLocations();
     }
 
     // Enhanced filtering with access control - FIXED MUNICIPALITIES
@@ -1055,7 +1255,10 @@
         if (matches && statusFilter) {
           let hasMatchingStatus = false;
           const terminal = card.dataset.terminal;
-          const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
+          
+          // Get fresh user data
+          const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+          const location = freshUser.accessibleLocations?.find(loc => loc.terminal === terminal);
           
           if (location) {
             for (let i = 1; i <= location.racks; i++) {
@@ -1105,9 +1308,12 @@
       let csvContent = "data:text/csv;charset=utf-8,";
       csvContent += "Terminal,Lokacija,Ključavnica,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
       
-      if (!currentUser.accessibleLocations) return;
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
       
-      currentUser.accessibleLocations.forEach(location => {
+      if (!freshUser.accessibleLocations) return;
+      
+      freshUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           const key = `${location.terminal}-${i}`;
           const rackData = inspectionData[key] || {};
@@ -1152,8 +1358,10 @@
     }
 
     function populateLogFilters() {
-      const accessibleTerminals = currentUser.accessibleLocations ? 
-        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      const accessibleTerminals = freshUser.accessibleLocations ? 
+        freshUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
@@ -1163,15 +1371,17 @@
       terminalFilter.innerHTML = '<option value="">Vsi terminali</option>';
       
       terminals.forEach(terminal => {
-        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
+        const location = freshUser.accessibleLocations.find(loc => loc.terminal === terminal);
         const locationName = location ? location.name : terminal;
         terminalFilter.innerHTML += `<option value="${terminal}">${terminal} - ${locationName}</option>`;
       });
     }
 
     function loadInspectionLogs() {
-      const accessibleTerminals = currentUser.accessibleLocations ? 
-        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      const accessibleTerminals = freshUser.accessibleLocations ? 
+        freshUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
@@ -1189,12 +1399,15 @@
     function displayLogs(logs) {
       const logsContent = document.getElementById('logsContent');
       
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      
       // Sort logs by timestamp (newest first)
       const sortedLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       let html = '';
       sortedLogs.forEach((log, index) => {
-        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const location = freshUser.accessibleLocations?.find(loc => loc.terminal === log.terminal);
         const locationName = location ? location.name : 'Neznana lokacija';
         const date = new Date(log.timestamp);
         const statusColor = getStatusColor(log.newStatus);
@@ -1252,14 +1465,16 @@
       const statusFilter = document.getElementById('logStatusFilter').value;
       const dateFilter = document.getElementById('logDateFilter').value;
       
-      const accessibleTerminals = currentUser.accessibleLocations ? 
-        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
+      // Get fresh user data
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      const accessibleTerminals = freshUser.accessibleLocations ? 
+        freshUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       let filteredLogs = inspectionLog.filter(log => {
         if (!accessibleTerminals.includes(log.terminal)) return false;
         
-        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const location = freshUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
         const locationName = location ? location.name.toLowerCase() : '';
         
         // Search filter
@@ -1314,7 +1529,11 @@
     function updateLocationDisplay() {
       const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
       
+      // Get fresh data before rendering
+      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      
       renderLocations();
+      updateMunicipalities(); // This will use fresh data
       
       if (savedFilters.system) {
         document.getElementById("systemFilter").value = savedFilters.system;
@@ -1338,40 +1557,11 @@
       filterLocations();
     }
 
-    // FIXED: Enhanced municipalities update with ALL municipalities for each system
-    function updateMunicipalities() {
-      const system = document.getElementById("systemFilter").value;
-      const municipalitySelect = document.getElementById("municipalityFilter");
-      
-      municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
-      
-      if (!currentUser.accessibleLocations) return;
-      
-      if (system) {
-        const municipalities = new Set();
-        currentUser.accessibleLocations.forEach(loc => {
-          if (loc.system === system) {
-            municipalities.add(loc.municipality);
-          }
-        });
-        
-        Array.from(municipalities).sort().forEach(m => {
-          municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
-        });
-      } else {
-        const allMunicipalities = new Set();
-        currentUser.accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
-        
-        Array.from(allMunicipalities).sort().forEach(m => {
-          municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
-        });
-      }
-      
-      filterLocations();
-    }
-
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async () => {
+      // First try to fix missing locations
+      const dataFixed = await fixMissingLocations();
+      
       if (!initializeUserDisplay()) {
         return; // Stop if no access
       }
@@ -1396,6 +1586,32 @@
       
       // Restore filters if they exist
       restoreFilters();
+      
+      // Show success message if data was fixed
+      if (dataFixed) {
+        const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+        const municipalities = [...new Set(currentUser.accessibleLocations?.map(l => l.municipality) || [])];
+        
+        // Check if previously missing municipalities are now found
+        const foundMissing = ['Laško', 'Žalec', 'Polzela', 'Gorizia', 'Sevnica'].filter(m => 
+          municipalities.includes(m)
+        );
+        
+        if (foundMissing.length > 0) {
+          // Show update notification
+          const updateNotification = document.getElementById('updateNotification');
+          updateNotification.style.display = 'block';
+          updateNotification.innerHTML = `
+            <strong>✅ Posodobljeno!</strong> Dodane občine: ${foundMissing.join(', ')} 
+            (${currentUser.accessibleLocations?.length || 0} lokacij, ${municipalities.length} občin)
+          `;
+          
+          // Hide notification after 5 seconds
+          setTimeout(() => {
+            updateNotification.style.display = 'none';
+          }, 5000);
+        }
+      }
     });
 
     // Global functions
