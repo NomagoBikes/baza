@@ -372,34 +372,6 @@
       font-size: 1.1rem;
     }
 
-    /* Update notification */
-    .update-notification {
-      background: linear-gradient(135deg, #4caf50, #45a049);
-      color: white;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .update-notification::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-
     @media (max-width: 600px) {
       .rack-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -418,6 +390,43 @@
       }
     }
   </style>
+  
+  <!-- Modal for inspection logs -->
+  <div id="logsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+    <div style="background: white; margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
+        <h2 style="color: var(--text-dark); margin: 0;">📋 Logi pregledov</h2>
+        <button onclick="closeLogsModal()" style="background: var(--fail); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Zapri</button>
+      </div>
+      
+      <div style="margin-bottom: 1rem;">
+        <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;" oninput="filterLogs()">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <select id="logTerminalFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi terminali</option>
+          </select>
+          <select id="logStatusFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi statusi</option>
+            <option value="BP">BP</option>
+            <option value="X">X</option>
+            <option value="NP">NP</option>
+            <option value="NZ">NZ</option>
+            <option value="NO">NO</option>
+          </select>
+          <select id="logDateFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi datumi</option>
+            <option value="today">Danes</option>
+            <option value="week">Zadnjih 7 dni</option>
+            <option value="month">Zadnjih 30 dni</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
+        <!-- Logs will be loaded here -->
+      </div>
+    </div>
+  </div>
 </head>
 <body>
   <header>
@@ -431,11 +440,6 @@
   </header>
   
   <div class="container">
-    <!-- Update notification -->
-    <div class="update-notification" id="updateNotification" style="display: none;">
-      <strong>✅ Posodobljeno!</strong> Dodane manjkajoče občine in izboljšano filtriranje lokacij.
-    </div>
-
     <!-- User access info -->
     <div class="access-info" id="accessInfo" style="display: none;">
       <!-- Access info will be shown here -->
@@ -483,43 +487,6 @@
     <div id="locationsContainer"></div>
   </div>
 
-  <!-- Modal for inspection logs -->
-  <div id="logsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
-    <div style="background: white; margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
-        <h2 style="color: var(--text-dark); margin: 0;">📋 Logi pregledov</h2>
-        <button onclick="closeLogsModal()" style="background: var(--fail); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Zapri</button>
-      </div>
-      
-      <div style="margin-bottom: 1rem;">
-        <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;" oninput="filterLogs()">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <select id="logTerminalFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
-            <option value="">Vsi terminali</option>
-          </select>
-          <select id="logStatusFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
-            <option value="">Vsi statusi</option>
-            <option value="BP">BP</option>
-            <option value="X">X</option>
-            <option value="NP">NP</option>
-            <option value="NZ">NZ</option>
-            <option value="NO">NO</option>
-          </select>
-          <select id="logDateFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
-            <option value="">Vsi datumi</option>
-            <option value="today">Danes</option>
-            <option value="week">Zadnjih 7 dni</option>
-            <option value="month">Zadnjih 30 dni</option>
-          </select>
-        </div>
-      </div>
-      
-      <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
-        <!-- Logs will be loaded here -->
-      </div>
-    </div>
-  </div>
-
   <!-- Firebase Integration Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -539,7 +506,7 @@
         apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
         authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
         projectId: "nomago-bikes-portal-f33da",
-        storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+        storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
         messagingSenderId: "647987655592",
         appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
         measurementId: "G-D1CBD3V7ZV"
@@ -561,12 +528,192 @@
         serverTimestamp
     };
 
-    console.log("Firebase initialized in inspection app - UPDATED VERSION");
+    console.log("Firebase initialized in inspection app");
   </script>
 
   <script>
+    // All bike stations data
+    const ALL_LOCATIONS = [
+      // KolesCE system
+      { system: "KolesCE", municipality: "Braslovče", name: "Braslovče trg", terminal: "5953", racks: 6 },
+      { system: "KolesCE", municipality: "Celje", name: "Krekov trg", terminal: "3250", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Prešernova ulica", terminal: "3251", racks: 14 },
+      { system: "KolesCE", municipality: "Celje", name: "Ljubljanska cesta", terminal: "3252", racks: 8 },
+      { system: "KolesCE", municipality: "Celje", name: "Na zelenici - TUŠ", terminal: "3253", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Bolnica Celje", terminal: "3254", racks: 12 },
+      { system: "KolesCE", municipality: "Celje", name: "Avtobusna postaja", terminal: "3255", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Mariborska cesta – TUŠ", terminal: "3256", racks: 8 },
+      { system: "KolesCE", municipality: "Celje", name: "Dvorana Zlatorog Celje", terminal: "3257", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Hudinja", terminal: "3258", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Nova vas", terminal: "3259", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Lava", terminal: "3260", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Ostrožno", terminal: "3261", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Dečkova cesta", terminal: "3262", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Levstikova ulica", terminal: "3263", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Tkalska ulica", terminal: "3264", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Citycenter", terminal: "3265", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Muzejski trg", terminal: "3266", racks: 8 },
+      { system: "KolesCE", municipality: "Celje", name: "Kladivar", terminal: "3290", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Mariborska cesta - Lidl", terminal: "3291", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Spodnji grad", terminal: "3292", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "P+R Ulica XIV. divizije", terminal: "3293", racks: 36 },
+      { system: "KolesCE", municipality: "Celje", name: "Zagrad", terminal: "3294", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Skalna klet", terminal: "5939", racks: 8 },
+      { system: "KolesCE", municipality: "Celje", name: "Plava Laguna", terminal: "5940", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Trubarjeva ulica", terminal: "5941", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Dečkova cesta - Ingrad", terminal: "5942", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Ribarjeva ulica", terminal: "5943", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Ulica Mesta Grevenbroich - Drapšinova ul.", terminal: "5944", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Pod lipami", terminal: "5945", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Milčinskega ulica", terminal: "5946", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Celjski sejem", terminal: "5947", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Polule", terminal: "5948", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Mirna pot - pokopališče", terminal: "5949", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Teharje", terminal: "5950", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Ljubečna", terminal: "5951", racks: 10 },
+      { system: "KolesCE", municipality: "Celje", name: "Lopata", terminal: "5954", racks: 5 },
+      { system: "KolesCE", municipality: "Celje", name: "Škofja vas", terminal: "5955", racks: 6 },
+      { system: "KolesCE", municipality: "Celje", name: "Šmartno v R. dolini", terminal: "5956", racks: 5 },
+      { system: "KolesCE", municipality: "Celje", name: "Trnovlje", terminal: "5957", racks: 4 },
+      { system: "KolesCE", municipality: "Celje", name: "Trnovlje - cesta A", terminal: "5966", racks: 10 },
+      { system: "KolesCE", municipality: "Laško", name: "Rečica", terminal: "3246", racks: 4 },
+      { system: "KolesCE", municipality: "Laško", name: "Trubarjevo nabrežje", terminal: "3267", racks: 6 },
+      { system: "KolesCE", municipality: "Laško", name: "Železniška postaja Laško", terminal: "3268", racks: 8 },
+      { system: "KolesCE", municipality: "Laško", name: "Thermana Laško", terminal: "3269", racks: 6 },
+      { system: "KolesCE", municipality: "Laško", name: "Dvorana Tri Lilije", terminal: "3270", racks: 6 },
+      { system: "KolesCE", municipality: "Laško", name: "TIC Rimske Toplice", terminal: "3271", racks: 6 },
+      { system: "KolesCE", municipality: "Laško", name: "Šentrupert", terminal: "5960", racks: 4 },
+      { system: "KolesCE", municipality: "Laško", name: "Jurklošter", terminal: "5961", racks: 4 },
+      { system: "KolesCE", municipality: "Polzela", name: "Polzela", terminal: "3277", racks: 5 },
+      { system: "KolesCE", municipality: "Polzela", name: "Športna dvorana Polzela", terminal: "3278", racks: 5 },
+      { system: "KolesCE", municipality: "Sevnica", name: "Občina Sevnica", terminal: "5962", racks: 5 },
+      { system: "KolesCE", municipality: "Sevnica", name: "Trg Svobode", terminal: "5964", racks: 5 },
+      { system: "KolesCE", municipality: "Sevnica", name: "OŠ Boštanj", terminal: "5969", racks: 5 },
+      { system: "KolesCE", municipality: "Slovenske Konjice", name: "AP Slovenske Konjice", terminal: "3283", racks: 6 },
+      { system: "KolesCE", municipality: "Slovenske Konjice", name: "Mizarska cesta", terminal: "3284", racks: 6 },
+      { system: "KolesCE", municipality: "Slovenske Konjice", name: "Gimnazija Slovenske Konjice", terminal: "3285", racks: 6 },
+      { system: "KolesCE", municipality: "Slovenske Konjice", name: "Poslovna cona LIP", terminal: "3286", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Železniška postaja Šentjur", terminal: "3241", racks: 16 },
+      { system: "KolesCE", municipality: "Šentjur", name: "IKC Šentjur", terminal: "3242", racks: 8 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Zgornji trg", terminal: "3243", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Mestni trg", terminal: "3295", racks: 10 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Zdravstveni dom Šentjur", terminal: "3296", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Osnovna šola Hruševec", terminal: "3297", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Športni park Rifnik", terminal: "3298", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "AP Miloša Zidanška", terminal: "3299", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Grobelno", terminal: "5967", racks: 6 },
+      { system: "KolesCE", municipality: "Šentjur", name: "Proseniško", terminal: "59559", racks: 6 },
+      { system: "KolesCE", municipality: "Štore", name: "Lipa - Mercator", terminal: "3287", racks: 5 },
+      { system: "KolesCE", municipality: "Vojnik", name: "Vojnik", terminal: "5952", racks: 6 },
+      { system: "KolesCE", municipality: "Zreče", name: "Občina Zreče", terminal: "3279", racks: 6 },
+      { system: "KolesCE", municipality: "Zreče", name: "Hotel Dobrava", terminal: "3280", racks: 6 },
+      { system: "KolesCE", municipality: "Zreče", name: "Unior", terminal: "3281", racks: 6 },
+      { system: "KolesCE", municipality: "Zreče", name: "Večgeneracijski center", terminal: "3282", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Petrovče", terminal: "3248", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Šempeter", terminal: "3249", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Čopova ulica", terminal: "3272", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "AP Žalec", terminal: "3273", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Pokopališče", terminal: "3274", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "I. osnovna šola", terminal: "3275", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Občina Žalec", terminal: "3276", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Levec", terminal: "5958", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Arnovski Gozd", terminal: "5965", racks: 6 },
+      { system: "KolesCE", municipality: "Žalec", name: "Vrbje", terminal: "5968", racks: 6 },
+
+      // GO2GO system
+      { system: "GO2GO", municipality: "Gorizia", name: "Stazione FS – piazzale Martiri della Libertà d'Italia", terminal: "5931", racks: 2 },
+      { system: "GO2GO", municipality: "Gorizia", name: "Piazza della Vittoria", terminal: "5932", racks: 2 },
+      { system: "GO2GO", municipality: "Gorizia", name: "Università degli studi di Udine – via Armando Diaz", terminal: "5933", racks: 2 },
+      { system: "GO2GO", municipality: "Gorizia", name: "Comune", terminal: "5934", racks: 7 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - most", terminal: "5900", racks: 8 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901", racks: 8 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Bratov Hvalič", terminal: "5902", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "OŠ Milojke Štrukelj", terminal: "5904", racks: 10 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905", racks: 10 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - jug", terminal: "5906", racks: 8 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - jug", terminal: "59108", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Prvomajska ul. - Supernova", terminal: "59109", racks: 10 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Železniška postaja", terminal: "59110", racks: 12 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Hotel Sabotin", terminal: "59111", racks: 7 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Erjavčeva ulica - Športni park", terminal: "59112", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Kajak center", terminal: "59113", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Ul. Milojke Štrukelj", terminal: "59114", racks: 7 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - sever", terminal: "59115", racks: 8 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk KS", terminal: "59116", racks: 5 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Loke", terminal: "59117", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Pristava", terminal: "59118", racks: 6 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna dolina - vzhod", terminal: "59119", racks: 7 },
+      { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - Šolski center", terminal: "59120", racks: 10 },
+      { system: "GO2GO", municipality: "Šempeter", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
+      { system: "GO2GO", municipality: "Šempeter", name: "Šempeter - polje", terminal: "59301", racks: 8 },
+
+      // ZaNaprej system
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Toplice", terminal: "5963", racks: 10 },
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Mestna ploščad", terminal: "5994", racks: 10 },
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Železniška postaja Zagorje", terminal: "5995", racks: 10 },
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Helfar", terminal: "5996", racks: 10 },
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Evropark", terminal: "5997", racks: 10 },
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Kisovec", terminal: "5998", racks: 10 },
+      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 },
+
+      // Ljubljana system
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Hotel Lev - Equinox", terminal: "87001", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "uHotel - Equinox", terminal: "87002", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Zavarovalnica Triglav - Verovškova cesta", terminal: "87003", racks: 10 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Triglav Lab - Dunajska cesta", terminal: "87004", racks: 10 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "P+R Barje", terminal: "87005", racks: 8 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "P+R Dolgi most", terminal: "87006", racks: 8 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Linhartova cesta - Topniška cesta", terminal: "87007", racks: 7 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Emona - Litijska cesta", terminal: "87008", racks: 7 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Trg OF - Železniška postaja", terminal: "87009", racks: 7 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Špica", terminal: "87010", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "P+R Stanežiče", terminal: "87011", racks: 4 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Aleja", terminal: "87012", racks: 7 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Kino Šiška", terminal: "87013", racks: 10 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Njegoševa - Šentpeter", terminal: "87014", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Škrabčeva ulica", terminal: "87015", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Kongresni trg", terminal: "87016", racks: 8 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Tacen - Parkirišče pod Šmarno goro", terminal: "87017", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Trg MDB", terminal: "87018", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Preglov trg", terminal: "87019", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Ekonomska fakulteta", terminal: "87030", racks: 8 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Kristalna palača", terminal: "87020", racks: 3 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Dvorana A", terminal: "87021", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Atlantis", terminal: "87022", racks: 3 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Dvorana 18", terminal: "87023", racks: 6 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Stolpnica Delo - Equinox", terminal: "87024", racks: 4 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Big Bang - Trg mladih", terminal: "87025", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Big Bang - Francoska ulica", terminal: "87026", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Nomago - Središka ulica", terminal: "87027", racks: 3 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Črnuče", terminal: "87028", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Zalog", terminal: "87029", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Heineken - Pivovarna Laško Union", terminal: "87099", racks: 2 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "ISIC - Trg Ajdovščina", terminal: "87031", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Pop TV - Kranjčeva ulica", terminal: "87032", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Supernova Šiška", terminal: "87033", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Rotonda", terminal: "87034", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Glince - Tržaška c.", terminal: "87035", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Four Points by Sheraton Ljubljana Mons", terminal: "87036", racks: 3 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "Stara cerkev - Celovška cesta", terminal: "87037", racks: 5 },
+      { system: "Ljubljana", municipality: "Ljubljana", name: "E. Leclerc vhod", terminal: "87038", racks: 5 }
+    ];
+
     // Get current user from BAZA portal
-    const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+    const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || {};
+    
+    // If no user data in sessionStorage, try to get it from URL parameters
+    if (!currentUser.uporabniskoIme) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userParam = urlParams.get('user');
+      if (userParam) {
+        try {
+          Object.assign(currentUser, JSON.parse(decodeURIComponent(userParam)));
+        } catch (e) {
+          console.error('Error parsing user data from URL', e);
+        }
+      }
+    }
     
     // Global variables for inspection data
     let inspectionData = {};
@@ -577,6 +724,12 @@
       if (currentUser.ime) {
         document.getElementById('userDisplay').textContent = 
           `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
+        
+        // For admin users, show all locations
+        if (currentUser.vloga === 'admin') {
+          currentUser.accessibleLocations = ALL_LOCATIONS;
+          currentUser.accessibleSystems = ['KolesCE', 'GO2GO', 'ZaNaprej', 'Ljubljana'];
+        }
         
         if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
           const accessInfo = document.getElementById('accessInfo');
@@ -613,107 +766,12 @@
       const systemFilter = document.getElementById('systemFilter');
       systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
       
-      if (currentUser.accessibleSystems) {
-        currentUser.accessibleSystems.forEach(system => {
-          systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
-        });
-      }
-    }
-
-    // Fix missing locations by reloading from Firebase
-    async function fixMissingLocations() {
-      try {
-        console.log('🔄 Popravljam manjkajoče lokacije...');
-        
-        const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-        
-        if (!currentUser.uporabniskoIme) {
-          console.error('Ni podatkov o uporabniku');
-          return false;
-        }
-        
-        // Load fresh data from Firebase
-        const usersDoc = await window.firebaseFunctions.getDoc(
-          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
-        );
-        
-        const locationsDoc = await window.firebaseFunctions.getDoc(
-          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
-        );
-        
-        if (!usersDoc.exists() || !locationsDoc.exists()) {
-          console.error('Ni podatkov v Firebase');
-          return false;
-        }
-        
-        const users = usersDoc.data().data || [];
-        const allLocations = locationsDoc.data().data || [];
-        
-        console.log(`📊 Naloženih ${allLocations.length} lokacij iz Firebase`);
-        
-        const user = users.find(u => u.uporabniskoIme === currentUser.uporabniskoIme);
-        
-        if (!user) {
-          console.error('Uporabnik ni najden v Firebase');
-          return false;
-        }
-        
-        // Determine accessible locations based on user role
-        let accessibleLocations = [];
-        
-        if (user.vloga === 'admin') {
-          accessibleLocations = allLocations; // Admin sees all
-          console.log('👑 Admin dostop - vse lokacije');
-        } else if (user.accessibleSystems && user.accessibleSystems.length > 0) {
-          accessibleLocations = allLocations.filter(location => 
-            user.accessibleSystems.includes(location.system)
-          );
-          console.log(`🔐 Omejeni dostop - sistemi: ${user.accessibleSystems.join(', ')}`);
-        } else {
-          // If no specific systems, give access to all
-          accessibleLocations = allLocations;
-          console.log('🌐 Dostop do vseh sistemov');
-        }
-        
-        // Check for missing municipalities
-        const municipalities = [...new Set(accessibleLocations.map(l => l.municipality))].sort();
-        const expectedMunicipalities = ['Laško', 'Žalec', 'Polzela', 'Gorizia', 'Sevnica'];
-        const missingMunicipalities = expectedMunicipalities.filter(m => !municipalities.includes(m));
-        
-        console.log(`🏛️ Najdene občine: ${municipalities.join(', ')}`);
-        
-        if (missingMunicipalities.length > 0) {
-          console.log(`⚠️ Manjkajoče občine: ${missingMunicipalities.join(', ')}`);
-          
-          // Try to find missing locations in all data
-          const missingLocations = allLocations.filter(loc => 
-            missingMunicipalities.includes(loc.municipality)
-          );
-          
-          if (missingLocations.length > 0) {
-            console.log(`📍 Najdenih ${missingLocations.length} manjkajočih lokacij`);
-            accessibleLocations = [...accessibleLocations, ...missingLocations];
-          }
-        }
-        
-        // Update sessionStorage with corrected data
-        const updatedUser = {
-          ...currentUser,
-          accessibleLocations: accessibleLocations,
-          accessibleSystems: user.accessibleSystems || [],
-          dataRefreshed: new Date().toISOString()
-        };
-        
-        sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(updatedUser));
-        
-        console.log(`✅ Podatki popravljeni: ${accessibleLocations.length} lokacij, ${municipalities.length} občin`);
-        
-        return true;
-        
-      } catch (error) {
-        console.error('❌ Napaka pri popravljanju lokacij:', error);
-        return false;
-      }
+      // Get unique systems from accessible locations
+      const systems = [...new Set(currentUser.accessibleLocations.map(loc => loc.system))];
+      
+      systems.forEach(system => {
+        systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
+      });
     }
 
     // Load inspection data from Firebase
@@ -946,12 +1004,9 @@
       const overdue = [];
       const dueSoon = [];
       
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      if (!currentUser.accessibleLocations) return;
       
-      if (!freshUser.accessibleLocations) return;
-      
-      freshUser.accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           const status = getInspectionStatus(location.terminal, i);
           if (status === 'overdue') {
@@ -993,12 +1048,9 @@
       let ok = 0;
       let needsMaintenance = 0;
       
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      if (!currentUser.accessibleLocations) return;
       
-      if (!freshUser.accessibleLocations) return;
-      
-      freshUser.accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           total++;
           const status = getInspectionStatus(location.terminal, i);
@@ -1052,30 +1104,16 @@
       filterLocations();
     }
 
-    // Enhanced location rendering with fresh data and access control
+    // Enhanced location rendering with inspection status and access control
     function renderLocations() {
       const container = document.getElementById("locationsContainer");
       container.innerHTML = "";
       
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      
-      if (!freshUser.accessibleLocations || freshUser.accessibleLocations.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 2rem; background: white; border-radius: 8px; margin: 1rem 0;">
-            <h3>⚠️ Ni dostopnih lokacij</h3>
-            <p>Poskušam osvežiti podatke...</p>
-            <button onclick="location.reload()" style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-              🔄 Osveži stran
-            </button>
-          </div>
-        `;
+      if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
         return;
       }
       
-      console.log(`🖥️ Prikazujem ${freshUser.accessibleLocations.length} lokacij`);
-      
-      freshUser.accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         // Check if location has any overdue or due soon racks
         let hasOverdue = false;
         let hasDueSoon = false;
@@ -1168,8 +1206,6 @@
           rackContainer.appendChild(rackItem);
         }
       });
-      
-      console.log(`✅ Prikazanih ${container.children.length} lokacijskih kartic`);
     }
 
     function getLastInspectionDate(terminal, rackNumber) {
@@ -1178,56 +1214,7 @@
       return rackData ? rackData.lastInspection : null;
     }
 
-    // ENHANCED: Better municipalities filtering with improved sorting
-    function updateMunicipalities() {
-      const system = document.getElementById("systemFilter").value;
-      const municipalitySelect = document.getElementById("municipalityFilter");
-      
-      municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
-      
-      // Get fresh user data (might have been updated by fixMissingLocations)
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      
-      if (!freshUser.accessibleLocations) {
-        console.warn('Ni dostopnih lokacij - poskušam osvežiti...');
-        return;
-      }
-      
-      console.log(`📊 Posodabljam občine za ${freshUser.accessibleLocations.length} lokacij`);
-      
-      // Create a Set to store unique municipalities
-      const municipalities = new Set();
-      
-      // Filter locations based on selected system
-      const filteredLocations = freshUser.accessibleLocations.filter(location => {
-        return !system || location.system === system;
-      });
-      
-      // Add all municipalities from filtered locations
-      filteredLocations.forEach(location => {
-        municipalities.add(location.municipality);
-      });
-      
-      // Sort and add options to select (using localeCompare for proper Slovenian sorting)
-      Array.from(municipalities)
-        .sort((a, b) => a.localeCompare(b, 'sl', { sensitivity: 'base' }))
-        .forEach(municipality => {
-          municipalitySelect.innerHTML += `<option value="${municipality}">${municipality}</option>`;
-        });
-      
-      // Log which municipalities are available
-      const sortedMunicipalities = Array.from(municipalities).sort();
-      if (system) {
-        console.log(`🔍 Za sistem ${system}: ${municipalities.size} občin`);
-      } else {
-        console.log(`🌐 Vse občine: ${municipalities.size}`);
-      }
-      console.log(`🏛️ Dostopne občine: ${sortedMunicipalities.join(', ')}`);
-      
-      filterLocations();
-    }
-
-    // Enhanced filtering with access control - FIXED MUNICIPALITIES
+    // Simple filtering with access control
     function filterLocations() {
       const system = document.getElementById("systemFilter").value;
       const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
@@ -1255,10 +1242,7 @@
         if (matches && statusFilter) {
           let hasMatchingStatus = false;
           const terminal = card.dataset.terminal;
-          
-          // Get fresh user data
-          const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-          const location = freshUser.accessibleLocations?.find(loc => loc.terminal === terminal);
+          const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
           
           if (location) {
             for (let i = 1; i <= location.racks; i++) {
@@ -1308,12 +1292,9 @@
       let csvContent = "data:text/csv;charset=utf-8,";
       csvContent += "Terminal,Lokacija,Ključavnica,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
       
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+      if (!currentUser.accessibleLocations) return;
       
-      if (!freshUser.accessibleLocations) return;
-      
-      freshUser.accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           const key = `${location.terminal}-${i}`;
           const rackData = inspectionData[key] || {};
@@ -1358,10 +1339,8 @@
     }
 
     function populateLogFilters() {
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      const accessibleTerminals = freshUser.accessibleLocations ? 
-        freshUser.accessibleLocations.map(loc => loc.terminal) : [];
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
@@ -1371,17 +1350,15 @@
       terminalFilter.innerHTML = '<option value="">Vsi terminali</option>';
       
       terminals.forEach(terminal => {
-        const location = freshUser.accessibleLocations.find(loc => loc.terminal === terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
         const locationName = location ? location.name : terminal;
         terminalFilter.innerHTML += `<option value="${terminal}">${terminal} - ${locationName}</option>`;
       });
     }
 
     function loadInspectionLogs() {
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      const accessibleTerminals = freshUser.accessibleLocations ? 
-        freshUser.accessibleLocations.map(loc => loc.terminal) : [];
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
@@ -1399,15 +1376,12 @@
     function displayLogs(logs) {
       const logsContent = document.getElementById('logsContent');
       
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      
       // Sort logs by timestamp (newest first)
       const sortedLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       let html = '';
       sortedLogs.forEach((log, index) => {
-        const location = freshUser.accessibleLocations?.find(loc => loc.terminal === log.terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
         const locationName = location ? location.name : 'Neznana lokacija';
         const date = new Date(log.timestamp);
         const statusColor = getStatusColor(log.newStatus);
@@ -1465,16 +1439,14 @@
       const statusFilter = document.getElementById('logStatusFilter').value;
       const dateFilter = document.getElementById('logDateFilter').value;
       
-      // Get fresh user data
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      const accessibleTerminals = freshUser.accessibleLocations ? 
-        freshUser.accessibleLocations.map(loc => loc.terminal) : [];
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       let filteredLogs = inspectionLog.filter(log => {
         if (!accessibleTerminals.includes(log.terminal)) return false;
         
-        const location = freshUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
         const locationName = location ? location.name.toLowerCase() : '';
         
         // Search filter
@@ -1529,11 +1501,7 @@
     function updateLocationDisplay() {
       const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
       
-      // Get fresh data before rendering
-      const freshUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-      
       renderLocations();
-      updateMunicipalities(); // This will use fresh data
       
       if (savedFilters.system) {
         document.getElementById("systemFilter").value = savedFilters.system;
@@ -1557,11 +1525,40 @@
       filterLocations();
     }
 
+    // Enhanced municipalities update with access control
+    function updateMunicipalities() {
+      const system = document.getElementById("systemFilter").value;
+      const municipalitySelect = document.getElementById("municipalityFilter");
+      
+      municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
+      
+      if (!currentUser.accessibleLocations) return;
+      
+      if (system) {
+        const municipalities = new Set();
+        currentUser.accessibleLocations.forEach(loc => {
+          if (loc.system === system) {
+            municipalities.add(loc.municipality);
+          }
+        });
+        
+        Array.from(municipalities).sort().forEach(m => {
+          municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
+        });
+      } else {
+        const allMunicipalities = new Set();
+        currentUser.accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
+        
+        Array.from(allMunicipalities).sort().forEach(m => {
+          municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
+        });
+      }
+      
+      filterLocations();
+    }
+
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async () => {
-      // First try to fix missing locations
-      const dataFixed = await fixMissingLocations();
-      
       if (!initializeUserDisplay()) {
         return; // Stop if no access
       }
@@ -1586,32 +1583,6 @@
       
       // Restore filters if they exist
       restoreFilters();
-      
-      // Show success message if data was fixed
-      if (dataFixed) {
-        const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
-        const municipalities = [...new Set(currentUser.accessibleLocations?.map(l => l.municipality) || [])];
-        
-        // Check if previously missing municipalities are now found
-        const foundMissing = ['Laško', 'Žalec', 'Polzela', 'Gorizia', 'Sevnica'].filter(m => 
-          municipalities.includes(m)
-        );
-        
-        if (foundMissing.length > 0) {
-          // Show update notification
-          const updateNotification = document.getElementById('updateNotification');
-          updateNotification.style.display = 'block';
-          updateNotification.innerHTML = `
-            <strong>✅ Posodobljeno!</strong> Dodane občine: ${foundMissing.join(', ')} 
-            (${currentUser.accessibleLocations?.length || 0} lokacij, ${municipalities.length} občin)
-          `;
-          
-          // Hide notification after 5 seconds
-          setTimeout(() => {
-            updateNotification.style.display = 'none';
-          }, 5000);
-        }
-      }
     });
 
     // Global functions
