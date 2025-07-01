@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nomago Baza – Preglej me!</title>
+  <style>
+    :root {
+      --primary: #ffbb33;
+      --primary-dark: #223957;
+      --ok: #4caf50;
+      --fail: #e53935;
+      --warn: #fb8c00;
+      --lockfail: #3f51b5;
+      --unlockfail: #9c27b0;
+      --overdue: #d32f2f;
+      --due-soon: #f57c00;
+      --radius: 8px;
+      --shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    
+    header {
+      background: var(--primary);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-button {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .user-display {
+      color: white;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.1);
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+    
+    .container {
+      padding: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .access-info {
+      background: rgba(255, 187, 51, 0.1);
+      border: 1px solid rgba(255, 187, 51, 0.3);
+      padding: 12px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      color: #856404;
+      font-size: 0.9rem;
+    }
+    
+    .alerts-bar {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .alert {
+      padding: 12px;
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+    }
+    
+    .alert-overdue {
+      background: rgba(211, 47, 47, 0.1);
+      color: var(--overdue);
+      border: 1px solid rgba(211, 47, 47, 0.3);
+    }
+    
+    .alert-due-soon {
+      background: rgba(245, 124, 0, 0.1);
+      color: var(--due-soon);
+      border: 1px solid rgba(245, 124, 0, 0.3);
+    }
+    
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      background: white;
+      padding: 12px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    
+    select, input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      min-width: 160px;
+    }
+    
+    .location-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .location-card.has-overdue {
+      border-left: 4px solid var(--overdue);
+    }
+    
+    .location-card.has-due-soon {
+      border-left: 4px solid var(--due-soon);
+    }
+    
+    .location-header {
+      background: var(--primary-dark);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .location-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .location-alerts {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .alert-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .alert-badge.overdue {
+      background: var(--overdue);
+      color: white;
+    }
+    
+    .alert-badge.due-soon {
+      background: var(--due-soon);
+      color: white;
+    }
+    
+    .location-body {
+      padding: 12px;
+    }
+    
+    .rack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    
+    .rack-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 10px;
+      border: 2px solid #eee;
+      border-radius: var(--radius);
+      position: relative;
+      transition: all 0.3s ease;
+      min-width: 140px;
+    }
+    
+    .rack-item.overdue {
+      border-color: var(--overdue);
+      background: rgba(211, 47, 47, 0.05);
+      animation: pulse-red 2s infinite;
+    }
+    
+    .rack-item.due-soon {
+      border-color: var(--due-soon);
+      background: rgba(245, 124, 0, 0.05);
+    }
+    
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(211, 47, 47, 0); }
+    }
+    
+    .rack-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    
+    .rack-number {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    .inspection-due {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .inspection-due.overdue {
+      background: var(--overdue);
+      color: white;
+    }
+    
+    .inspection-due.due-soon {
+      background: var(--due-soon);
+      color: white;
+    }
+    
+    .inspection-due.ok {
+      background: var(--ok);
+      color: white;
+    }
+    
+    .last-inspection {
+      font-size: 0.7rem;
+      color: #666;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    
+    .rack-select {
+      width: 100%;
+      max-width: 120px;
+      padding: 6px 8px;
+      border-radius: var(--radius);
+      border: 2px solid #ddd;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      background: white;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      background-size: 14px;
+      padding-right: 24px;
+      transition: all 0.3s ease;
+    }
+    
+    .rack-select:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(255, 187, 51, 0.2);
+    }
+    
+    .rack-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.3);
+    }
+    
+    .inspection-notes {
+      width: 100%;
+      padding: 4px 6px;
+      border-radius: var(--radius);
+      border: 1px solid #ddd;
+      font-size: 0.8rem;
+      resize: vertical;
+      height: 40px;
+    }
+    
+    /* Status barve */
+    .status-BP { background: var(--ok); color: white; }
+    .status-X { background: var(--fail); color: white; }
+    .status-NP { background: var(--warn); color: white; }
+    .status-NZ { background: var(--lockfail); color: white; }
+    .status-NO { background: var(--unlockfail); color: white; }
+    
+    .export-button {
+      background: var(--primary-dark);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    
+    .summary-card {
+      background: white;
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    
+    .summary-item {
+      text-align: center;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid #eee;
+    }
+    
+    .summary-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    
+    .summary-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    .no-access {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin: 2rem 0;
+    }
+    
+    .no-access h2 {
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+    }
+    
+    .no-access p {
+      color: var(--text-light);
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 600px) {
+      .rack-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+      
+      .filter-bar {
+        flex-direction: column;
+      }
+      
+      select, input {
+        width: 100%;
+      }
+      
+      .summary-card {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+  
+  <!-- Modal for inspection logs -->
+  <div id="logsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+    <div style="background: white; margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
+        <h2 style="color: var(--text-dark); margin: 0;">📋 Logi pregledov</h2>
+        <button onclick="closeLogsModal()" style="background: var(--fail); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Zapri</button>
+      </div>
+      
+      <div style="margin-bottom: 1rem;">
+        <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;" oninput="filterLogs()">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <select id="logTerminalFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi terminali</option>
+          </select>
+          <select id="logStatusFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi statusi</option>
+            <option value="BP">BP</option>
+            <option value="X">X</option>
+            <option value="NP">NP</option>
+            <option value="NZ">NZ</option>
+            <option value="NO">NO</option>
+          </select>
+          <select id="logDateFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi datumi</option>
+            <option value="today">Danes</option>
+            <option value="week">Zadnjih 7 dni</option>
+            <option value="month">Zadnjih 30 dni</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
+        <!-- Logs will be loaded here -->
+      </div>
+    </div>
+  </div>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="#" class="back-button" onclick="goBackToBaza()">← Nazaj v BAZO</a>
+      <h1>Preglej me!</h1>
+    </div>
+    <div class="user-display" id="userDisplay">
+      Uporabnik: Loading...
+    </div>
+  </header>
+  
+  <div class="container">
+    <!-- User access info -->
+    <div class="access-info" id="accessInfo" style="display: none;">
+      <!-- Access info will be shown here -->
+    </div>
+
+    <!-- No access message -->
+    <div class="no-access" id="noAccessMessage" style="display: none;">
+      <h2>🚫 Ni dostopa</h2>
+      <p>Nimate dostopa do nobenih sistemov za preglede ključavnic. Kontaktirajte administratorja.</p>
+    </div>
+    
+    <!-- Alerts for overdue and due soon inspections -->
+    <div class="alerts-bar" id="alertsBar"></div>
+    
+    <!-- Summary statistics -->
+    <div class="summary-card" id="summaryCard"></div>
+    
+    <div class="filter-bar" id="filterBar" style="display: none;">
+      <select id="systemFilter">
+        <option value="">Vsi sistemi</option>
+      </select>
+      
+      <select id="municipalityFilter">
+        <option value="">Vse občine</option>
+      </select>
+      
+      <select id="statusFilter">
+        <option value="">Vsi statusi</option>
+        <option value="overdue">Zamujeni pregledi</option>
+        <option value="due-soon">Pregledi kmalu</option>
+        <option value="ok">V redu</option>
+      </select>
+      
+      <input type="text" id="searchInput" placeholder="Iskanje...">
+      
+      <button class="export-button" onclick="exportInspectionReport()">
+        📊 Izvozi poročilo
+      </button>
+      
+      <button class="export-button" onclick="showInspectionLogs()" style="background: var(--primary); margin-left: 8px;">
+        📋 Ogled logov
+      </button>
+    </div>
+
+    <div id="locationsContainer"></div>
+  </div>
+
+  <!-- Firebase Integration Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { 
+        getFirestore, 
+        collection, 
+        doc, 
+        setDoc, 
+        getDoc, 
+        getDocs, 
+        deleteDoc,
+        updateDoc,
+        serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+        authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+        projectId: "nomago-bikes-portal-f33da",
+        storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+        messagingSenderId: "647987655592",
+        appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+        measurementId: "G-D1CBD3V7ZV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make Firebase functions globally available
+    window.firebaseDb = db;
+    window.firebaseFunctions = {
+        collection,
+        doc,
+        setDoc,
+        getDoc,
+        getDocs,
+        deleteDoc,
+        updateDoc,
+        serverTimestamp
+    };
+
+    console.log("Firebase initialized in inspection app");
+  </script>
+
+  <script>
+    // Get current user from BAZA portal
+    const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+    
+    // Global variables for inspection data
+    let inspectionData = {};
+    let inspectionLog = [];
+    
+    // Display current user and access info
+    function initializeUserDisplay() {
+      if (currentUser.ime) {
+        document.getElementById('userDisplay').textContent = 
+          `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
+        
+        if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
+          const accessInfo = document.getElementById('accessInfo');
+          accessInfo.style.display = 'block';
+          accessInfo.innerHTML = `
+            🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+            (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
+          `;
+          
+          // Show main interface
+          document.getElementById('filterBar').style.display = 'flex';
+          
+          // Populate system filter with user's accessible systems
+          populateSystemFilter();
+          
+        } else {
+          // No access
+          document.getElementById('noAccessMessage').style.display = 'block';
+          return false;
+        }
+      } else {
+        // No user data
+        document.getElementById('noAccessMessage').style.display = 'block';
+        document.getElementById('noAccessMessage').innerHTML = `
+          <h2>⚠️ Napaka</h2>
+          <p>Ni podatkov o uporabniku. Prosimo, se ponovno prijavite preko BAZA portala.</p>
+        `;
+        return false;
+      }
+      return true;
+    }
+
+    function populateSystemFilter() {
+      const systemFilter = document.getElementById('systemFilter');
+      systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
+      
+      if (currentUser.accessibleSystems) {
+        currentUser.accessibleSystems.forEach(system => {
+          systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
+        });
+      }
+    }
+
+    // Load inspection data from Firebase
+    async function loadInspectionData() {
+      try {
+        const inspectionDataDoc = await window.firebaseFunctions.getDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+        );
+        
+        if (inspectionDataDoc.exists()) {
+          inspectionData = inspectionDataDoc.data().data || {};
+        }
+        
+        const inspectionLogDoc = await window.firebaseFunctions.getDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+        );
+        
+        if (inspectionLogDoc.exists()) {
+          inspectionLog = inspectionLogDoc.data().data || [];
+        }
+        
+        console.log('Inspection data loaded from Firebase');
+      } catch (error) {
+        console.error('Error loading inspection data:', error);
+      }
+    }
+
+    // Save inspection data to Firebase
+    async function saveInspectionData() {
+      try {
+        await window.firebaseFunctions.setDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
+          {
+            data: inspectionData,
+            lastUpdated: window.firebaseFunctions.serverTimestamp()
+          }
+        );
+        
+        await window.firebaseFunctions.setDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
+          {
+            data: inspectionLog,
+            lastUpdated: window.firebaseFunctions.serverTimestamp()
+          }
+        );
+        
+        console.log('Inspection data saved to Firebase');
+      } catch (error) {
+        console.error('Error saving inspection data:', error);
+      }
+    }
+
+    // Calculate next inspection date (every 3 months)
+    function getNextInspectionDate(lastInspection) {
+      if (!lastInspection) {
+        return new Date(); // If never inspected, it's overdue
+      }
+      
+      const lastDate = new Date(lastInspection);
+      const nextDate = new Date(lastDate);
+      nextDate.setMonth(nextDate.getMonth() + 3);
+      return nextDate;
+    }
+
+    // Get inspection status for a rack
+    function getInspectionStatus(terminal, rackNumber) {
+      const key = `${terminal}-${rackNumber}`;
+      const rackData = inspectionData[key];
+      
+      if (!rackData || !rackData.lastInspection) {
+        return 'overdue';
+      }
+      
+      const nextDue = getNextInspectionDate(rackData.lastInspection);
+      const now = new Date();
+      const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+      
+      if (daysUntilDue < 0) {
+        return 'overdue';
+      } else if (daysUntilDue <= 14) {
+        return 'due-soon';
+      } else {
+        return 'ok';
+      }
+    }
+
+    // Format inspection status display
+    function formatInspectionStatus(status, nextDue) {
+      const now = new Date();
+      const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+      
+      switch (status) {
+        case 'overdue':
+          const overdueDays = Math.abs(daysUntilDue);
+          return { text: `${overdueDays}d ZAMUDA`, class: 'overdue' };
+        case 'due-soon':
+          return { text: `${daysUntilDue}d DO`, class: 'due-soon' };
+        case 'ok':
+          return { text: `${daysUntilDue}d`, class: 'ok' };
+        default:
+          return { text: 'N/A', class: 'ok' };
+      }
+    }
+
+    // Update rack status and log the change
+    async function updateRackStatus(select) {
+      const terminal = select.dataset.terminal;
+      const rackNumber = select.dataset.rack;
+      const newStatus = select.value;
+      const notes = document.querySelector(`[data-terminal="${terminal}"][data-rack="${rackNumber}"].notes-input`).value;
+      
+      // Remove all status classes
+      select.className = "rack-select";
+      
+      // Add current status class if selected
+      if (newStatus) {
+        select.classList.add(`status-${newStatus}`);
+      }
+      
+      // Get old status for logging
+      const key = `${terminal}-${rackNumber}`;
+      const oldData = inspectionData[key] || {};
+      const oldStatus = oldData.currentStatus || '';
+      
+      // Only update and log if there's actually a status change to something real
+      if (newStatus) {
+        // Update inspection data only if new status is not empty
+        const now = new Date().toISOString();
+        inspectionData[key] = {
+          ...oldData,
+          currentStatus: newStatus,
+          lastInspection: now,
+          notes: notes,
+          inspector: currentUser.uporabniskoIme || 'unknown'
+        };
+        
+        // Log the change only if it's a real status (not empty)
+        inspectionLog.push({
+          timestamp: now,
+          terminal: terminal,
+          rackNumber: rackNumber,
+          oldStatus: oldStatus,
+          newStatus: newStatus,
+          inspector: currentUser.uporabniskoIme || 'unknown',
+          notes: notes
+        });
+        
+        // Create notification for BAZA if status changed
+        if (oldStatus !== newStatus) {
+          await createBazaNotification(terminal, rackNumber, oldStatus, newStatus, notes);
+        }
+      } else {
+        // If new status is empty, completely remove this rack's data
+        // This means it goes back to "never inspected" state
+        if (inspectionData[key]) {
+          delete inspectionData[key];
+        }
+      }
+      
+      // Save to Firebase
+      await saveInspectionData();
+      
+      // Update the display
+      updateLocationDisplay();
+      updateAlerts();
+      updateSummary();
+      
+      console.log(`Rack ${terminal}-${rackNumber} updated: ${oldStatus} → ${newStatus || 'reset to never inspected'}`);
+    }
+
+    // Create notification for BAZA portal
+    async function createBazaNotification(terminal, rackNumber, oldStatus, newStatus, notes) {
+      if (newStatus === 'BP') return; // Don't notify for "good" status
+      
+      try {
+        const notificationsDoc = await window.firebaseFunctions.getDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+        );
+        
+        const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
+        const locationName = location ? location.name : terminal;
+        
+        let priority = 'normal';
+        let type = 'warning';
+        
+        if (newStatus === 'X') {
+          priority = 'urgent';
+          type = 'error';
+        } else if (newStatus === 'NZ' || newStatus === 'NO') {
+          priority = 'high';
+        }
+        
+        const statusNames = {
+          'BP': 'V redu',
+          'X': 'Okvarjena',
+          'NP': 'Ne deluje pravilno',
+          'NZ': 'Ne zaklene',
+          'NO': 'Ne odklene'
+        };
+        
+        const notification = {
+          id: Date.now(),
+          title: `Servisno obvestilo - ${locationName}`,
+          message: `Ključavnica ${rackNumber} je označena kot "${statusNames[newStatus] || newStatus}". ${notes ? 'Opomba: ' + notes : ''}`,
+          type: type,
+          priority: priority,
+          active: true,
+          createdAt: new Date().toISOString(),
+          createdBy: currentUser.uporabniskoIme || 'serviser'
+        };
+        
+        notifications.unshift(notification);
+        
+        await window.firebaseFunctions.setDoc(
+          window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
+          {
+            data: notifications,
+            lastUpdated: window.firebaseFunctions.serverTimestamp()
+          }
+        );
+      } catch (error) {
+        console.error('Error creating BAZA notification:', error);
+      }
+    }
+
+    // Update alerts display
+    function updateAlerts() {
+      const alertsBar = document.getElementById('alertsBar');
+      const overdue = [];
+      const dueSoon = [];
+      
+      if (!currentUser.accessibleLocations) return;
+      
+      currentUser.accessibleLocations.forEach(location => {
+        for (let i = 1; i <= location.racks; i++) {
+          const status = getInspectionStatus(location.terminal, i);
+          if (status === 'overdue') {
+            overdue.push(`${location.name} - Ključavnica ${i}`);
+          } else if (status === 'due-soon') {
+            dueSoon.push(`${location.name} - Ključavnica ${i}`);
+          }
+        }
+      });
+      
+      let alertsHtml = '';
+      
+      if (overdue.length > 0) {
+        alertsHtml += `
+          <div class="alert alert-overdue">
+            <span>⚠️ <strong>${overdue.length} zamujenih pregledov:</strong> ${overdue.slice(0, 3).join(', ')}${overdue.length > 3 ? ` in ${overdue.length - 3} več...` : ''}</span>
+            <button onclick="filterOverdue()" style="background: var(--overdue); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
+          </div>
+        `;
+      }
+      
+      if (dueSoon.length > 0) {
+        alertsHtml += `
+          <div class="alert alert-due-soon">
+            <span>📅 <strong>${dueSoon.length} pregledov kmalu:</strong> ${dueSoon.slice(0, 3).join(', ')}${dueSoon.length > 3 ? ` in ${dueSoon.length - 3} več...` : ''}</span>
+            <button onclick="filterDueSoon()" style="background: var(--due-soon); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
+          </div>
+        `;
+      }
+      
+      alertsBar.innerHTML = alertsHtml;
+    }
+
+    // Update summary statistics
+    function updateSummary() {
+      let total = 0;
+      let overdue = 0;
+      let dueSoon = 0;
+      let ok = 0;
+      let needsMaintenance = 0;
+      
+      if (!currentUser.accessibleLocations) return;
+      
+      currentUser.accessibleLocations.forEach(location => {
+        for (let i = 1; i <= location.racks; i++) {
+          total++;
+          const status = getInspectionStatus(location.terminal, i);
+          
+          if (status === 'overdue') overdue++;
+          else if (status === 'due-soon') dueSoon++;
+          else ok++;
+          
+          // Check current maintenance status
+          const key = `${location.terminal}-${i}`;
+          const rackData = inspectionData[key];
+          if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
+            needsMaintenance++;
+          }
+        }
+      });
+      
+      const summaryCard = document.getElementById('summaryCard');
+      summaryCard.innerHTML = `
+        <div class="summary-item">
+          <div class="summary-number">${total}</div>
+          <div class="summary-label">Skupaj ključavnic</div>
+        </div>
+        <div class="summary-item" style="color: var(--overdue);">
+          <div class="summary-number">${overdue}</div>
+          <div class="summary-label">Zamujen pregled</div>
+        </div>
+        <div class="summary-item" style="color: var(--due-soon);">
+          <div class="summary-number">${dueSoon}</div>
+          <div class="summary-label">Pregled kmalu</div>
+        </div>
+        <div class="summary-item" style="color: var(--ok);">
+          <div class="summary-number">${ok}</div>
+          <div class="summary-label">V redu</div>
+        </div>
+        <div class="summary-item" style="color: var(--fail);">
+          <div class="summary-number">${needsMaintenance}</div>
+          <div class="summary-label">Potrebno vzdrževanje</div>
+        </div>
+      `;
+    }
+
+    // Filter functions
+    function filterOverdue() {
+      document.getElementById('statusFilter').value = 'overdue';
+      filterLocations();
+    }
+
+    function filterDueSoon() {
+      document.getElementById('statusFilter').value = 'due-soon';
+      filterLocations();
+    }
+
+    // Enhanced location rendering with inspection status and access control
+    function renderLocations() {
+      const container = document.getElementById("locationsContainer");
+      container.innerHTML = "";
+      
+      if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
+        return;
+      }
+      
+      currentUser.accessibleLocations.forEach(location => {
+        // Check if location has any overdue or due soon racks
+        let hasOverdue = false;
+        let hasDueSoon = false;
+        
+        for (let i = 1; i <= location.racks; i++) {
+          const status = getInspectionStatus(location.terminal, i);
+          if (status === 'overdue') hasOverdue = true;
+          if (status === 'due-soon') hasDueSoon = true;
+        }
+        
+        const card = document.createElement("div");
+        card.className = "location-card";
+        card.dataset.system = location.system;
+        card.dataset.municipality = location.municipality;
+        card.dataset.name = location.name.toLowerCase();
+        card.dataset.terminal = location.terminal;
+        
+        if (hasOverdue) card.classList.add('has-overdue');
+        else if (hasDueSoon) card.classList.add('has-due-soon');
+        
+        // Create alert badges
+        let alertBadges = '';
+        if (hasOverdue) {
+          const overdueCount = Array.from({length: location.racks}, (_, i) => 
+            getInspectionStatus(location.terminal, i + 1) === 'overdue').filter(Boolean).length;
+          alertBadges += `<span class="alert-badge overdue">${overdueCount} zamujenih</span>`;
+        }
+        if (hasDueSoon) {
+          const dueSoonCount = Array.from({length: location.racks}, (_, i) => 
+            getInspectionStatus(location.terminal, i + 1) === 'due-soon').filter(Boolean).length;
+          alertBadges += `<span class="alert-badge due-soon">${dueSoonCount} kmalu</span>`;
+        }
+        
+        card.innerHTML = `
+          <div class="location-header">
+            <div class="location-info">
+              <div style="font-weight: bold; font-size: 1.1rem;">${location.name}</div>
+              <div style="font-size: 0.9rem; opacity: 0.9;">Terminal: ${location.terminal}</div>
+            </div>
+            <div class="location-alerts">
+              ${alertBadges}
+            </div>
+          </div>
+          <div class="location-body">
+            <div style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">
+              ${location.system} • ${location.municipality}
+            </div>
+            <div class="rack-grid" id="racks-${location.terminal}"></div>
+          </div>
+        `;
+        
+        container.appendChild(card);
+        
+        const rackContainer = document.getElementById(`racks-${location.terminal}`);
+        for (let i = 1; i <= location.racks; i++) {
+          const inspectionStatus = getInspectionStatus(location.terminal, i);
+          const nextDue = getNextInspectionDate(getLastInspectionDate(location.terminal, i));
+          const statusInfo = formatInspectionStatus(inspectionStatus, nextDue);
+          
+          const key = `${location.terminal}-${i}`;
+          const rackData = inspectionData[key] || {};
+          
+          const rackItem = document.createElement("div");
+          rackItem.className = `rack-item ${inspectionStatus}`;
+          rackItem.innerHTML = `
+            <div class="rack-header">
+              <div class="rack-number">${i}</div>
+              <div class="inspection-due ${statusInfo.class}">${statusInfo.text}</div>
+            </div>
+            <div class="last-inspection">
+              Zadnji: ${rackData.lastInspection ? 
+                new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli'}
+            </div>
+            <select class="rack-select ${rackData.currentStatus ? `status-${rackData.currentStatus}` : ''}" 
+                    data-terminal="${location.terminal}" 
+                    data-rack="${i}"
+                    onchange="updateRackStatus(this)">
+              <option value=""></option>
+              <option value="BP" ${rackData.currentStatus === 'BP' ? 'selected' : ''}>BP</option>
+              <option value="X" ${rackData.currentStatus === 'X' ? 'selected' : ''}>X</option>
+              <option value="NP" ${rackData.currentStatus === 'NP' ? 'selected' : ''}>NP</option>
+              <option value="NZ" ${rackData.currentStatus === 'NZ' ? 'selected' : ''}>NZ</option>
+              <option value="NO" ${rackData.currentStatus === 'NO' ? 'selected' : ''}>NO</option>
+            </select>
+            <textarea class="inspection-notes notes-input" 
+                      data-terminal="${location.terminal}" 
+                      data-rack="${i}"
+                      placeholder="Opombe...">${rackData.notes || ''}</textarea>
+          `;
+          rackContainer.appendChild(rackItem);
+        }
+      });
+    }
+
+    function getLastInspectionDate(terminal, rackNumber) {
+      const key = `${terminal}-${rackNumber}`;
+      const rackData = inspectionData[key];
+      return rackData ? rackData.lastInspection : null;
+    }
+
+    // Simple filtering with access control
+    function filterLocations() {
+      const system = document.getElementById("systemFilter").value;
+      const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
+      const statusFilter = document.getElementById("statusFilter").value;
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      
+      // Store filters in sessionStorage
+      sessionStorage.setItem('currentFilters', JSON.stringify({
+        system, municipality, statusFilter, search
+      }));
+      
+      document.querySelectorAll(".location-card").forEach(card => {
+        const cardSystem = card.dataset.system;
+        const cardMunicipality = card.dataset.municipality.toLowerCase();
+        const cardName = card.dataset.name;
+        const cardTerminal = card.dataset.terminal.toLowerCase();
+        
+        let matches = (
+          (!system || cardSystem === system) &&
+          (!municipality || cardMunicipality.includes(municipality)) &&
+          (!search || cardName.includes(search) || cardTerminal.includes(search))
+        );
+        
+        // Filter by inspection status
+        if (matches && statusFilter) {
+          let hasMatchingStatus = false;
+          const terminal = card.dataset.terminal;
+          const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
+          
+          if (location) {
+            for (let i = 1; i <= location.racks; i++) {
+              const inspectionStatus = getInspectionStatus(terminal, i);
+              if (inspectionStatus === statusFilter) {
+                hasMatchingStatus = true;
+                break;
+              }
+            }
+          }
+          
+          matches = hasMatchingStatus;
+        }
+        
+        card.style.display = matches ? "block" : "none";
+      });
+    }
+
+    // Restore filters after update
+    function restoreFilters() {
+      const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
+      
+      if (Object.keys(savedFilters).length === 0) return;
+      
+      if (savedFilters.system) {
+        document.getElementById("systemFilter").value = savedFilters.system;
+        updateMunicipalities();
+      }
+      
+      if (savedFilters.municipality) {
+        document.getElementById("municipalityFilter").value = savedFilters.municipality;
+      }
+      
+      if (savedFilters.statusFilter) {
+        document.getElementById("statusFilter").value = savedFilters.statusFilter;
+      }
+      
+      if (savedFilters.search) {
+        document.getElementById("searchInput").value = savedFilters.search;
+      }
+      
+      filterLocations();
+    }
+
+    // Export inspection report with access control
+    function exportInspectionReport() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Terminal,Lokacija,Ključavnica,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
+      
+      if (!currentUser.accessibleLocations) return;
+      
+      currentUser.accessibleLocations.forEach(location => {
+        for (let i = 1; i <= location.racks; i++) {
+          const key = `${location.terminal}-${i}`;
+          const rackData = inspectionData[key] || {};
+          const inspectionStatus = getInspectionStatus(location.terminal, i);
+          const nextDue = getNextInspectionDate(rackData.lastInspection);
+          
+          const row = [
+            location.terminal,
+            location.name,
+            i,
+            inspectionStatus === 'overdue' ? 'ZAMUJEN' : 
+            inspectionStatus === 'due-soon' ? 'KMALU' : 'V REDU',
+            rackData.lastInspection ? new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
+            nextDue.toLocaleDateString('sl-SI'),
+            rackData.currentStatus || 'Ni podatka',
+            (rackData.notes || '').replace(/,/g, ';'),
+            rackData.inspector || 'Ni podatka'
+          ].map(field => `"${field}"`).join(',');
+          
+          csvContent += row + "\n";
+        }
+      });
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `pregled_porocilo_${currentUser.uporabniskoIme}_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Show inspection logs modal with access control
+    function showInspectionLogs() {
+      document.getElementById('logsModal').style.display = 'block';
+      loadInspectionLogs();
+      populateLogFilters();
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logsModal').style.display = 'none';
+    }
+
+    function populateLogFilters() {
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
+      
+      // Filter logs to only show user's accessible locations
+      const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
+      const terminals = [...new Set(accessibleLogs.map(log => log.terminal))].sort();
+      
+      const terminalFilter = document.getElementById('logTerminalFilter');
+      terminalFilter.innerHTML = '<option value="">Vsi terminali</option>';
+      
+      terminals.forEach(terminal => {
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
+        const locationName = location ? location.name : terminal;
+        terminalFilter.innerHTML += `<option value="${terminal}">${terminal} - ${locationName}</option>`;
+      });
+    }
+
+    function loadInspectionLogs() {
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
+      
+      // Filter logs to only show user's accessible locations
+      const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
+      
+      const logsContent = document.getElementById('logsContent');
+      
+      if (accessibleLogs.length === 0) {
+        logsContent.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 2rem;">Ni zapisov pregledov za vaše dostopne lokacije.</p>';
+        return;
+      }
+      
+      displayLogs(accessibleLogs);
+    }
+
+    function displayLogs(logs) {
+      const logsContent = document.getElementById('logsContent');
+      
+      // Sort logs by timestamp (newest first)
+      const sortedLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      let html = '';
+      sortedLogs.forEach((log, index) => {
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const locationName = location ? location.name : 'Neznana lokacija';
+        const date = new Date(log.timestamp);
+        const statusColor = getStatusColor(log.newStatus);
+        const oldStatusColor = getStatusColor(log.oldStatus);
+        
+        html += `
+          <div style="border: 1px solid #eee; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; background: #f9f9f9;" data-log-index="${index}">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+              <div>
+                <strong style="color: var(--text-dark);">${locationName}</strong>
+                <span style="color: var(--text-light); font-size: 0.9rem;">(${log.terminal})</span>
+                <div style="font-size: 0.9rem; color: var(--text-light);">
+                  Ključavnica ${log.rackNumber} • ${date.toLocaleDateString('sl-SI')} ${date.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'})}
+                </div>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-light);">
+                ${log.inspector}
+              </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; ${oldStatusColor}">
+                ${log.oldStatus || 'Brez statusa'}
+              </span>
+              <span style="color: var(--text-light);">→</span>
+              <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; ${statusColor}">
+                ${log.newStatus}
+              </span>
+            </div>
+            
+            ${log.notes ? `<div style="background: white; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid var(--primary);">
+              <strong>Opomba:</strong> ${log.notes}
+            </div>` : ''}
+          </div>
+        `;
+      });
+      
+      logsContent.innerHTML = html;
+    }
+
+    function getStatusColor(status) {
+      switch(status) {
+        case 'BP': return 'background: var(--ok); color: white;';
+        case 'X': return 'background: var(--fail); color: white;';
+        case 'NP': return 'background: var(--warn); color: white;';
+        case 'NZ': return 'background: var(--lockfail); color: white;';
+        case 'NO': return 'background: var(--unlockfail); color: white;';
+        default: return 'background: #ccc; color: black;';
+      }
+    }
+
+    function filterLogs() {
+      const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+      const terminalFilter = document.getElementById('logTerminalFilter').value;
+      const statusFilter = document.getElementById('logStatusFilter').value;
+      const dateFilter = document.getElementById('logDateFilter').value;
+      
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
+      
+      // Filter logs to only show user's accessible locations
+      let filteredLogs = inspectionLog.filter(log => {
+        if (!accessibleTerminals.includes(log.terminal)) return false;
+        
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const locationName = location ? location.name.toLowerCase() : '';
+        
+        // Search filter
+        const matchesSearch = !searchTerm || 
+          locationName.includes(searchTerm) ||
+          log.terminal.toLowerCase().includes(searchTerm) ||
+          log.inspector.toLowerCase().includes(searchTerm);
+        
+        // Terminal filter
+        const matchesTerminal = !terminalFilter || log.terminal === terminalFilter;
+        
+        // Status filter
+        const matchesStatus = !statusFilter || log.newStatus === statusFilter;
+        
+        // Date filter
+        let matchesDate = true;
+        if (dateFilter) {
+          const logDate = new Date(log.timestamp);
+          const now = new Date();
+          const daysDiff = Math.floor((now - logDate) / (1000 * 60 * 60 * 24));
+          
+          switch(dateFilter) {
+            case 'today':
+              matchesDate = daysDiff === 0;
+              break;
+            case 'week':
+              matchesDate = daysDiff <= 7;
+              break;
+            case 'month':
+              matchesDate = daysDiff <= 30;
+              break;
+          }
+        }
+        
+        return matchesSearch && matchesTerminal && matchesStatus && matchesDate;
+      });
+      
+      displayLogs(filteredLogs);
+    }
+
+    function goBackToBaza() {
+      if (window.opener && !window.opener.closed) {
+        window.opener.focus();
+        window.close();
+      } else if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function updateLocationDisplay() {
+      const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
+      
+      renderLocations();
+      
+      if (savedFilters.system) {
+        document.getElementById("systemFilter").value = savedFilters.system;
+      }
+      
+      if (savedFilters.municipality) {
+        const municipalitySelect = document.getElementById("municipalityFilter");
+        if (Array.from(municipalitySelect.options).some(opt => opt.value === savedFilters.municipality)) {
+          municipalitySelect.value = savedFilters.municipality;
+        }
+      }
+      
+      if (savedFilters.statusFilter) {
+        document.getElementById("statusFilter").value = savedFilters.statusFilter;
+      }
+      
+      if (savedFilters.search) {
+        document.getElementById("searchInput").value = savedFilters.search;
+      }
+      
+      filterLocations();
+    }
+
+    // Enhanced municipalities update with access control
+    function updateMunicipalities() {
+      const system = document.getElementById("systemFilter").value;
+      const municipalitySelect = document.getElementById("municipalityFilter");
+      
+      municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
+      
+      if (!currentUser.accessibleLocations) return;
+      
+      if (system) {
+        const municipalities = new Set();
+        currentUser.accessibleLocations.forEach(loc => {
+          if (loc.system === system) {
+            municipalities.add(loc.municipality);
+          }
+        });
+        
+        Array.from(municipalities).sort().forEach(m => {
+          municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
+        });
+      } else {
+        const allMunicipalities = new Set();
+        currentUser.accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
+        
+        Array.from(allMunicipalities).sort().forEach(m => {
+          municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
+        });
+      }
+      
+      filterLocations();
+    }
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!initializeUserDisplay()) {
+        return; // Stop if no access
+      }
+      
+      // Load inspection data from Firebase
+      await loadInspectionData();
+      
+      renderLocations();
+      updateMunicipalities();
+      updateAlerts();
+      updateSummary();
+      
+      // Add event listeners
+      document.getElementById('systemFilter').addEventListener('change', function() {
+        updateMunicipalities();
+        filterLocations();
+      });
+      
+      document.getElementById('municipalityFilter').addEventListener('change', filterLocations);
+      document.getElementById('statusFilter').addEventListener('change', filterLocations);
+      document.getElementById('searchInput').addEventListener('input', filterLocations);
+      
+      // Restore filters if they exist
+      restoreFilters();
+    });
+
+    // Global functions
+    window.updateRackStatus = updateRackStatus;
+    window.filterOverdue = filterOverdue;
+    window.filterDueSoon = filterDueSoon;
+    window.filterLocations = filterLocations;
+    window.exportInspectionReport = exportInspectionReport;
+    window.showInspectionLogs = showInspectionLogs;
+    window.closeLogsModal = closeLogsModal;
+    window.filterLogs = filterLogs;
+    window.goBackToBaza = goBackToBaza;
+  </script>
+</body>
+</html>
