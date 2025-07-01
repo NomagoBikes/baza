@@ -390,43 +390,6 @@
       }
     }
   </style>
-  
-  <!-- Modal for inspection logs -->
-  <div id="logsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
-    <div style="background: white; margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
-        <h2 style="color: var(--text-dark); margin: 0;">📋 Logi pregledov</h2>
-        <button onclick="closeLogsModal()" style="background: var(--fail); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Zapri</button>
-      </div>
-      
-      <div style="margin-bottom: 1rem;">
-        <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;" oninput="filterLogs()">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <select id="logTerminalFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
-            <option value="">Vsi terminali</option>
-          </select>
-          <select id="logStatusFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
-            <option value="">Vsi statusi</option>
-            <option value="BP">BP</option>
-            <option value="X">X</option>
-            <option value="NP">NP</option>
-            <option value="NZ">NZ</option>
-            <option value="NO">NO</option>
-          </select>
-          <select id="logDateFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
-            <option value="">Vsi datumi</option>
-            <option value="today">Danes</option>
-            <option value="week">Zadnjih 7 dni</option>
-            <option value="month">Zadnjih 30 dni</option>
-          </select>
-        </div>
-      </div>
-      
-      <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
-        <!-- Logs will be loaded here -->
-      </div>
-    </div>
-  </div>
 </head>
 <body>
   <header>
@@ -487,6 +450,43 @@
     <div id="locationsContainer"></div>
   </div>
 
+  <!-- Modal for inspection logs -->
+  <div id="logsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+    <div style="background: white; margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
+        <h2 style="color: var(--text-dark); margin: 0;">📋 Logi pregledov</h2>
+        <button onclick="closeLogsModal()" style="background: var(--fail); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Zapri</button>
+      </div>
+      
+      <div style="margin-bottom: 1rem;">
+        <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;" oninput="filterLogs()">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <select id="logTerminalFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi terminali</option>
+          </select>
+          <select id="logStatusFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi statusi</option>
+            <option value="BP">BP</option>
+            <option value="X">X</option>
+            <option value="NP">NP</option>
+            <option value="NZ">NZ</option>
+            <option value="NO">NO</option>
+          </select>
+          <select id="logDateFilter" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;" onchange="filterLogs()">
+            <option value="">Vsi datumi</option>
+            <option value="today">Danes</option>
+            <option value="week">Zadnjih 7 dni</option>
+            <option value="month">Zadnjih 30 dni</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
+        <!-- Logs will be loaded here -->
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase Integration Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -506,7 +506,7 @@
         apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
         authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
         projectId: "nomago-bikes-portal-f33da",
-        storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+        storageBucket: "nomago-bikes-portal-f33da.appspot.com",
         messagingSenderId: "647987655592",
         appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
         measurementId: "G-D1CBD3V7ZV"
@@ -1027,7 +1027,7 @@
       return rackData ? rackData.lastInspection : null;
     }
 
-    // Simple filtering with access control
+    // Enhanced filtering with access control - FIXED MUNICIPALITIES
     function filterLocations() {
       const system = document.getElementById("systemFilter").value;
       const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
@@ -1338,7 +1338,7 @@
       filterLocations();
     }
 
-    // Enhanced municipalities update with access control
+    // FIXED: Enhanced municipalities update with ALL municipalities for each system
     function updateMunicipalities() {
       const system = document.getElementById("systemFilter").value;
       const municipalitySelect = document.getElementById("municipalityFilter");
