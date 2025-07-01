@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomago Bikes - BAZA Portal</title>
+    <!-- Favicon - različne velikosti za različne naprave -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+    <!-- Apple Touch Icon za iOS naprave -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- MS Tiles za Windows -->
+    <meta name="msapplication-TileColor" content="#004899">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <!-- Theme color za mobile brskalnike -->
+    <meta name="theme-color" content="#004899">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --border-color: #ddd;
+            --shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+
+        [data-theme="dark"] {
+            --light-blue: #1a1a1a;
+            --white: #2d2d2d;
+            --text-dark: #f0f0f0;
+            --text-light: #cccccc;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background: #004899;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        .logo .nom { color: white; }
+        .logo .a { color: #fbb900; }
+        .logo .go { color: white; }
+        .logo .bikes { color: #fbb900; }
+
+        .header-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-controls .logout-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: var(--danger);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .header-controls .logout-button:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white);
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .user-info {
+            color: var(--white);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 72, 153, 0.15);
+        }
+
+        .bike-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-title {
+            color: var(--text-dark);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--text-dark);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #004899;
+            box-shadow: 0 0 0 3px rgba(0, 72, 153, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 0.875rem;
+            background: #004899;
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .login-button:hover {
+            background: #003a7a;
+            transform: translateY(-2px);
+        }
+
+        .login-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message, .success-message {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .success-message {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        /* Dashboard styles */
+        .dashboard {
+            display: none;
+            flex: 1;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem 0;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-title {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .menu-button:hover {
+            background: rgba(0, 72, 153, 0.05);
+            border-left-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .menu-button.active {
+            background: rgba(0, 72, 153, 0.1);
+            border-left-color: var(--primary-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .menu-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .alert-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .alert-badge.warning {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .logout-section {
+            margin-top: auto;
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .logout-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--danger);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            background: var(--light-blue);
+            overflow-y: auto;
+        }
+
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-title {
+            color: var(--text-dark);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .content-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .welcome-card {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-text {
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-description {
+            color: var(--text-light);
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Inspection Widget */
+        .inspection-widget {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .inspection-widget h3 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .inspection-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--light-blue);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item.danger {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .stat-item.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-number.danger { color: var(--danger); }
+        .stat-number.warning { color: #f57c00; }
+        .stat-number.success { color: var(--success); }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .inspection-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .inspection-button:hover {
+            background: #003a7a;
+            transform: translateY(-2px);
+        }
+
+        /* Notifications */
+        .notification-card {
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .notification-info {
+            background: rgba(0, 123, 255, 0.1);
+            border-left-color: #007bff;
+            color: #004085;
+        }
+
+        .notification-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .notification-success {
+            background: rgba(40, 167, 69, 0.1);
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .notification-error {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .notification-priority {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background: rgba(255, 193, 7, 0.2);
+            color: #856404;
+        }
+
+        .priority-urgent {
+            background: rgba(220, 53, 69, 0.2);
+            color: #721c24;
+        }
+
+        .priority-normal {
+            background: rgba(108, 117, 125, 0.2);
+            color: #495057;
+        }
+
+        .notification-message {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .notification-meta {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        /* User management table */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .users-table th {
+            background: var(--light-blue);
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .users-table tr:hover {
+            background: rgba(0, 72, 153, 0.05);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .sync-status {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .sync-status.synced {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .sync-status.syncing {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .sync-status.error {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            .main-content {
+                order: 1;
+                padding: 1rem;
+            }
+            .inspection-stats {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            header {
+                padding: 1rem;
+            }
+            .header-center h1 {
+                font-size: 1.4rem;
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hide content sections by default */
+        .content-section {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
+            </div>
+        </div>
+        <div class="header-center" id="headerCenter" style="display: none;">
+            <h1 style="color: white; font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; margin: 0;">BAZA</h1>
+        </div>
+        <div class="header-controls">
+            <div class="user-info" id="userInfo"></div>
+            <button class="logout-button" id="headerLogoutBtn" onclick="logout()" style="display: none;" title="Odjavi se">
+                <span class="menu-icon">🚪</span>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Preklopi temo">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Login Section -->
+        <div class="login-card" id="loginSection">
+            <div class="bike-icon">🚲</div>
+            <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Uporabniško ime</label>
+                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Geslo</label>
+                    <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
+                </div>
+                <button type="submit" class="login-button" id="loginButton">Prijavi se</button>
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+            </form>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="dashboard" id="dashboardSection">
+            <div class="dashboard-container">
+                <!-- Sidebar Menu -->
+                <nav class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Upravljanje</div>
+                        <div class="sidebar-subtitle">Nomago Bikes Portal</div>
+                    </div>
+                    <ul class="menu-list">
+                        <li class="menu-item">
+                            <button class="menu-button active" onclick="showContent('dashboard')">
+                                <span class="menu-icon">🏠</span>
+                                <span>Nadzorna plošča</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" id="addUserMenu" onclick="showContent('addUser')">
+                                <span class="menu-icon">👤➕</span>
+                                <span>Dodaj uporabnika</span>
+                            </button>
+                        </li>
+                        <li class="menu-item" id="serviserMenuItem">
+                            <button class="menu-button" id="serviserMenu" onclick="openServiserApp()">
+                                <span class="menu-icon">🔧</span>
+                                <span>Pregledi ključavnic</span>
+                                <span class="alert-badge" id="inspectionAlerts" style="display: none;">0</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" id="userSettingsMenu" onclick="showContent('userSettings')">
+                                <span class="menu-icon">👥</span>
+                                <span>Nastavitve uporabnikov</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" id="notificationsMenu" onclick="showContent('notifications')">
+                                <span class="menu-icon">📢</span>
+                                <span>Obvestila</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" onclick="showContent('generalSettings')">
+                                <span class="menu-icon">⚙️</span>
+                                <span>Splošne nastavitve</span>
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="logout-section">
+                        <button class="logout-button" onclick="logout()">
+                            <span class="menu-icon">🚪</span>
+                            <span>Odjavi se</span>
+                        </button>
+                    </div>
+                </nav>
+
+                <!-- Main Content Area -->
+                <main class="main-content">
+                    <!-- Dashboard Content -->
+                    <div class="content-section" id="dashboardContent" style="display: block;">
+                        <div class="content-header">
+                            <h1 class="content-title">Nadzorna plošča</h1>
+                            <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
+                        </div>
+
+                        <!-- Sync Status -->
+                        <div id="syncStatus" class="sync-status synced">
+                            <span>🔄</span>
+                            <span>Sinhronizirano z Firebase</span>
+                        </div>
+
+                        <!-- Inspection Widget -->
+                        <div class="inspection-widget" id="inspectionWidget">
+                            <h3>📋 Pregledi ključavnic</h3>
+                            <div class="inspection-stats" id="inspectionStats">
+                                <div class="stat-item" id="overdueStats">
+                                    <div class="stat-number danger" id="overdueCount">0</div>
+                                    <div class="stat-label">Zamujeni pregledi</div>
+                                </div>
+                                <div class="stat-item" id="dueSoonStats">
+                                    <div class="stat-number warning" id="dueSoonCount">0</div>
+                                    <div class="stat-label">Pregledi kmalu</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number success" id="totalCount">0</div>
+                                    <div class="stat-label">Skupaj ključavnic</div>
+                                </div>
+                            </div>
+                            <button class="inspection-button" onclick="openServiserApp()">
+                                🔧 Odpri aplikacijo za preglede
+                            </button>
+                        </div>
+
+                        <!-- Notifications Display -->
+                        <div id="notificationsDisplay"></div>
+
+                        <div class="content-card welcome-card">
+                            <div class="welcome-icon">🚴‍♂️</div>
+                            <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
+                            <p class="welcome-description" id="welcomeMessage">
+                                Uporabite levi meni za navigacijo po različnih funkcijah portala.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Add User Content -->
+                    <div class="content-section" id="addUserContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Dodaj uporabnika</h1>
+                            <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
+                        </div>
+                        <div class="content-card">
+                            <form id="addUserForm">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label" for="newFirstName">Ime *</label>
+                                        <input type="text" class="form-input" id="newFirstName" placeholder="Vnesite ime" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="newLastName">Priimek *</label>
+                                        <input type="text" class="form-input" id="newLastName" placeholder="Vnesite priimek" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="newUsername">Uporabniško ime *</label>
+                                    <input type="text" class="form-input" id="newUsername" placeholder="Vnesite uporabniško ime" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="newPassword">Geslo *</label>
+                                    <input type="password" class="form-input" id="newPassword" placeholder="Vnesite geslo" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="newRole">Vloga *</label>
+                                    <select class="form-input" id="newRole" required>
+                                        <option value="">Izberite vlogo</option>
+                                        <option value="admin">Administrator</option>
+                                        <option value="serviser">Serviser</option>
+                                        <option value="student">Študent</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sistemi za dostop *</label>
+                                    <div id="systemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                                            <input type="checkbox" name="newSystems" value="KolesCE">
+                                            <span>KolesCE</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                                            <input type="checkbox" name="newSystems" value="LUR">
+                                            <span>LUR</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                                            <input type="checkbox" name="newSystems" value="GO2GO">
+                                            <span>GO2GO</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                                            <input type="checkbox" name="newSystems" value="KOR">
+                                            <span>KOR</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+                                            <input type="checkbox" name="newSystems" value="ZaNaprej">
+                                            <span>ZaNaprej</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="login-button">
+                                    <span class="loading-spinner" id="addUserSpinner" style="display: none;"></span>
+                                    <span id="addUserText">Ustvari uporabnika</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- User Settings Content -->
+                    <div class="content-section" id="userSettingsContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Nastavitve uporabnikov</h1>
+                            <p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
+                        </div>
+                        <div class="content-card">
+                            <div id="usersList">
+                                <!-- Users will be loaded here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Content -->
+                    <div class="content-section" id="notificationsContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Upravljanje obvestil</h1>
+                            <p class="content-subtitle">Dodajte in upravljajte obvestila za vse uporabnike</p>
+                        </div>
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Dodaj novo obvestilo</h3>
+                            <form id="addNotificationForm">
+                                <div class="form-group">
+                                    <label class="form-label" for="notificationTitle">Naslov obvestila *</label>
+                                    <input type="text" class="form-input" id="notificationTitle" placeholder="Vnesite naslov obvestila" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="notificationMessage">Sporočilo *</label>
+                                    <textarea class="form-input" id="notificationMessage" rows="4" placeholder="Vnesite sporočilo obvestila" required style="resize: vertical; min-height: 100px;"></textarea>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label" for="notificationType">Tip obvestila *</label>
+                                        <select class="form-input" id="notificationType" required>
+                                            <option value="">Izberite tip</option>
+                                            <option value="info">Informacija (modra)</option>
+                                            <option value="warning">Opozorilo (rumena)</option>
+                                            <option value="success">Uspeh (zelena)</option>
+                                            <option value="error">Napaka (rdeča)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="notificationPriority">Prioriteta</label>
+                                        <select class="form-input" id="notificationPriority">
+                                            <option value="normal">Normalna</option>
+                                            <option value="high">Visoka</option>
+                                            <option value="urgent">Nujna</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <input type="checkbox" id="notificationActive" checked style="margin-right: 0.5rem;">
+                                        Aktivno obvestilo
+                                    </label>
+                                </div>
+                                <button type="submit" class="login-button">
+                                    <span class="loading-spinner" id="notificationSpinner" style="display: none;"></span>
+                                    <span id="notificationText">Dodaj obvestilo</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Obstoječa obvestila</h3>
+                            <div id="notificationsList">
+                                <!-- Notifications will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Settings Content -->
+                    <div class="content-section" id="generalSettingsContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Splošne nastavitve</h1>
+                            <p class="content-subtitle">Upravljajte sistemske nastavitve</p>
+                        </div>
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Firebase stanje</h3>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button class="login-button" onclick="checkFirebaseConnection()" style="flex: 1; min-width: 200px;">
+                                    <span class="loading-spinner" id="connectSpinner" style="display: none;"></span>
+                                    <span id="connectText">Preveri povezavo</span>
+                                </button>
+                                <button class="login-button" onclick="reinitializeDefaultData()" style="flex: 1; min-width: 200px; background: var(--warning);">
+                                    <span class="loading-spinner" id="initSpinner" style="display: none;"></span>
+                                    <span id="initText">Ponastavi začetne podatke</span>
+                                </button>
+                            </div>
+                            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">
+                                <p><strong>Preveri povezavo:</strong> Testira povezavo z Firebase</p>
+                                <p><strong>Ponastavi začetne podatke:</strong> Naredi osnovni admin račun če ga ni</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase Integration Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.firebaseDb = db;
+        window.firebaseFunctions = {
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            serverTimestamp
+        };
+
+        console.log("Firebase initialized successfully");
+    </script>
+
+    <script>
+        // System mapping for Firebase compatibility
+        const SYSTEM_MAPPING = {
+            'KolesCE': 'KOLESCE',
+            'LUR': 'Ljubljana in Medvode', 
+            'GO2GO': 'GO2GO',
+            'KOR': 'KOR',
+            'ZaNaprej': 'ZANAPREJ'
+        };
+
+        // All bike stations data
+        const ALL_LOCATIONS = [
+            // Ljubljana in Medvode sistem
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Prešernov trg", terminal: "87001", racks: 10 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Trubarjeva ulica", terminal: "87002", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Konzorcij", terminal: "87003", racks: 10 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Železniška postaja Ljubljana", terminal: "87004", racks: 15 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Slovenska cesta", terminal: "87005", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Miklošičeva cesta", terminal: "87006", racks: 10 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Cankarjeva ulica", terminal: "87007", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Tivoli", terminal: "87008", racks: 12 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Park Zvezda", terminal: "87009", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Mestni muzej Ljubljana", terminal: "87010", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Plečnikova hiša", terminal: "87011", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Križanke", terminal: "87012", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Poljanska cesta", terminal: "87013", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Rimska cesta", terminal: "87014", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Argentinski park", terminal: "87015", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Kongresni trg", terminal: "87016", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Kristalna palača", terminal: "87020", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Dvorana A", terminal: "87021", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Atlantis", terminal: "87022", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Dvorana 18", terminal: "87023", racks: 6 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Stolpnica Delo - Equinox", terminal: "87024", racks: 4 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Big Bang - Trg mladih", terminal: "87025", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Big Bang - Francoska ulica", terminal: "87026", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Nomago - Središka ulica", terminal: "87027", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Črnuče", terminal: "87028", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Zalog", terminal: "87029", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Ekonomska fakulteta", terminal: "87030", racks: 8 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "ISIC - Trg Ajdovščina", terminal: "87031", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Pop TV - Kranjčeva ulica", terminal: "87032", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Supernova Šiška", terminal: "87033", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Rotonda", terminal: "87034", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Glince - Tržaška c.", terminal: "87035", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Four Points by Sheraton Ljubljana Mons", terminal: "87036", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Stara cerkev - Celovška cesta", terminal: "87037", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "E. Leclerc vhod", terminal: "87038", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "E. Leclerc garaža", terminal: "87039", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Novartis", terminal: "87040", racks: 10 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Gimnazija Šiška", terminal: "87041", racks: 7 },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Čad", terminal: "87042", racks: 4 },
+            { system: "Ljubljana in Medvode", municipality: "Dobrova-Polhov Gradec", name: "P+R Dobrova", terminal: "87086", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Svetje", terminal: "87087", racks: 3 },
+            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Tržnica Medvode", terminal: "87088", racks: 4 },
+            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Železniška postaja Medvode", terminal: "87089", racks: 5 },
+            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Preska", terminal: "87090", racks: 3 },
+            
+            // GO2GO sistem
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905", racks: 10 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - jug", terminal: "59108", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Prvomajska ul. - Supernova", terminal: "59109", racks: 10 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "EPIC - Železniška postaja", terminal: "59110", racks: 10 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Hotel Sabotin", terminal: "59111", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Erjavčeva ulica - Športni park", terminal: "59112", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Kajak center", terminal: "59113", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Ul. Milojke Štrukelj", terminal: "59114", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - sever", terminal: "59115", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk KS", terminal: "59116", racks: 5 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Loke", terminal: "59117", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Pristava", terminal: "59118", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna dolina - vzhod", terminal: "59119", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - Šolski center", terminal: "59120", racks: 10 },
+            
+            // KOLESCE sistem
+            { system: "KOLESCE", municipality: "Celje", name: "Krekov trg", terminal: "3250", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Avtobusna postaja", terminal: "3255", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Mariborska cesta – TUŠ", terminal: "3256", racks: 8 },
+            { system: "KOLESCE", municipality: "Celje", name: "Lava", terminal: "3260", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Levstikova ulica", terminal: "3263", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Mariborska cesta - Lidl", terminal: "3291", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Zagrad", terminal: "3294", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Plava Laguna", terminal: "5940", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Trubarjeva ulica", terminal: "5941", racks: 10 },
+            { system: "KOLESCE", municipality: "Celje", name: "Ribarjeva ulica", terminal: "5943", racks: 10 },
+            
+            // ZANAPREJ sistem
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Toplice", terminal: "5963", racks: 10 },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Mestna ploščad", terminal: "5994", racks: 10 },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Železniška postaja Zagorje", terminal: "5995", racks: 10 },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Helfar", terminal: "5996", racks: 10 },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Evropark", terminal: "5997", racks: 10 },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Kisovec", terminal: "5998", racks: 10 },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 }
+        ];
+
+        // Global variables
+        let currentUser = null;
+
+        // Initialize default users and data in Firebase
+        async function initializeDefaultData() {
+            try {
+                // Check if admin user exists
+                const adminDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin')
+                );
+
+                if (!adminDoc.exists()) {
+                    // Create default admin user
+                    const defaultAdmin = {
+                        ime: 'Admin',
+                        priimek: 'Administrator',
+                        uporabniskoIme: 'admin',
+                        geslo: 'admin123',
+                        vloga: 'admin',
+                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej'],
+                        createdAt: window.firebaseFunctions.serverTimestamp()
+                    };
+
+                    await window.firebaseFunctions.setDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin'),
+                        defaultAdmin
+                    );
+
+                    console.log('Default admin user created');
+                }
+
+                // Check if default notification exists
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+
+                if (!notificationsDoc.exists()) {
+                    const defaultNotifications = [
+                        {
+                            id: Date.now(),
+                            title: 'Dobrodošli v BAZA portalu',
+                            message: 'Sistem je uspešno posodobljen na najnovejšo verzijo z Firebase integracijo. Vse funkcionalnosti so na voljo.',
+                            type: 'success',
+                            priority: 'normal',
+                            active: true,
+                            createdAt: new Date().toISOString(),
+                            createdBy: 'system'
+                        }
+                    ];
+
+                    await window.firebaseFunctions.setDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
+                        {
+                            data: defaultNotifications,
+                            lastUpdated: window.firebaseFunctions.serverTimestamp()
+                        }
+                    );
+
+                    console.log('Default notifications created');
+                }
+
+                // Initialize empty inspection data if not exists
+                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+
+                if (!inspectionDataDoc.exists()) {
+                    await window.firebaseFunctions.setDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
+                        {
+                            data: {},
+                            lastUpdated: window.firebaseFunctions.serverTimestamp()
+                        }
+                    );
+                }
+
+                // Initialize empty inspection log if not exists
+                const inspectionLogDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+                );
+
+                if (!inspectionLogDoc.exists()) {
+                    await window.firebaseFunctions.setDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
+                        {
+                            data: [],
+                            lastUpdated: window.firebaseFunctions.serverTimestamp()
+                        }
+                    );
+                }
+
+                updateSyncStatus('synced', '✅ Firebase inicializiran');
+
+            } catch (error) {
+                console.error('Error initializing default data:', error);
+                updateSyncStatus('error', '❌ Napaka pri inicializaciji');
+            }
+        }
+
+        // Check user permissions for systems
+        function getUserAccessibleSystems(user) {
+            if (!user || !user.sistemi) return [];
+            return user.sistemi.filter(system => SYSTEM_MAPPING[system]);
+        }
+
+        function getUserAccessibleLocations(user) {
+            const accessibleSystems = getUserAccessibleSystems(user);
+            return ALL_LOCATIONS.filter(location => 
+                accessibleSystems.some(userSystem => 
+                    SYSTEM_MAPPING[userSystem] === location.system
+                )
+            );
+        }
+
+        // Calculate inspection statistics based on user access
+        async function calculateInspectionStats() {
+            if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0 };
+
+            try {
+                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+
+                const inspectionData = inspectionDataDoc.exists() ? inspectionDataDoc.data().data : {};
+                let total = 0;
+                let overdue = 0;
+                let dueSoon = 0;
+
+                // Get locations user has access to
+                const accessibleLocations = currentUser.vloga === 'admin' ? 
+                    ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
+
+                accessibleLocations.forEach(location => {
+                    for (let i = 1; i <= location.racks; i++) {
+                        total++;
+                        const key = `${location.terminal}-${i}`;
+                        const rackData = inspectionData[key];
+                        
+                        if (!rackData || !rackData.lastInspection) {
+                            overdue++;
+                        } else {
+                            const lastDate = new Date(rackData.lastInspection);
+                            const nextDue = new Date(lastDate);
+                            nextDue.setMonth(nextDue.getMonth() + 3);
+                            const daysUntilDue = Math.ceil((nextDue - new Date()) / (1000 * 60 * 60 * 24));
+                            
+                            if (daysUntilDue < 0) {
+                                overdue++;
+                            } else if (daysUntilDue <= 14) {
+                                dueSoon++;
+                            }
+                        }
+                    }
+                });
+
+                return { total, overdue, dueSoon };
+            } catch (error) {
+                console.error('Error calculating inspection stats:', error);
+                return { total: 0, overdue: 0, dueSoon: 0 };
+            }
+        }
+
+        // Update inspection widget
+        async function updateInspectionWidget() {
+            const stats = await calculateInspectionStats();
+            
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('overdueCount').textContent = stats.overdue;
+            document.getElementById('dueSoonCount').textContent = stats.dueSoon;
+            
+            const overdueStats = document.getElementById('overdueStats');
+            const dueSoonStats = document.getElementById('dueSoonStats');
+            
+            if (stats.overdue > 0) {
+                overdueStats.classList.add('danger');
+            } else {
+                overdueStats.classList.remove('danger');
+            }
+            
+            if (stats.dueSoon > 0) {
+                dueSoonStats.classList.add('warning');
+            } else {
+                dueSoonStats.classList.remove('warning');
+            }
+            
+            const alertBadge = document.getElementById('inspectionAlerts');
+            const totalAlerts = stats.overdue + stats.dueSoon;
+            
+            if (totalAlerts > 0) {
+                alertBadge.textContent = totalAlerts;
+                alertBadge.style.display = 'block';
+                if (stats.overdue > 0) {
+                    alertBadge.classList.remove('warning');
+                } else {
+                    alertBadge.classList.add('warning');
+                }
+            } else {
+                alertBadge.style.display = 'none';
+            }
+        }
+
+        // Check and create inspection alerts
+        async function checkInspectionAlerts() {
+            const stats = await calculateInspectionStats();
+            
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+                
+                const recentAlerts = notifications.filter(n => 
+                    n.title.includes('Sistem pregledov') && 
+                    (Date.now() - new Date(n.createdAt).getTime()) < 24 * 60 * 60 * 1000
+                );
+                
+                if (recentAlerts.length === 0) {
+                    if (stats.overdue > 0) {
+                        await addSystemNotification(
+                            `${stats.overdue} ključavnic ima zamujen pregled! Takoj preglejte stanje.`,
+                            'urgent'
+                        );
+                    }
+                    
+                    if (stats.dueSoon > 0) {
+                        await addSystemNotification(
+                            `${stats.dueSoon} ključavnic potrebuje pregled v naslednjih 14 dneh.`,
+                            'high'
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking inspection alerts:', error);
+            }
+        }
+
+        async function addSystemNotification(message, priority) {
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+                
+                const notification = {
+                    id: Date.now(),
+                    title: 'Sistem pregledov ključavnic',
+                    message: message,
+                    type: priority === 'urgent' ? 'error' : 'warning',
+                    priority: priority,
+                    active: true,
+                    createdAt: new Date().toISOString(),
+                    createdBy: 'system'
+                };
+                
+                notifications.unshift(notification);
+                
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
+                    {
+                        data: notifications,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+            } catch (error) {
+                console.error('Error adding system notification:', error);
+            }
+        }
+
+        // Function to open Serviser app with system filtering
+        function openServiserApp() {
+            if (!currentUser) {
+                alert('Niste prijavljeni.');
+                return;
+            }
+            
+            if (currentUser.vloga === 'student') {
+                alert('Nimate dovoljenja za dostop do aplikacije za preglede.');
+                return;
+            }
+            
+            // Store user data for serviser app with system access info
+            const userDataForApp = {
+                ...currentUser,
+                accessibleSystems: getUserAccessibleSystems(currentUser),
+                accessibleLocations: getUserAccessibleLocations(currentUser)
+            };
+            
+            // Store in sessionStorage for the new window
+            sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(userDataForApp));
+            
+            // Open inspection app
+            window.open('nomago_pregledi_kljucavnic.html', '_blank');
+        }
+
+        // Theme management
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                sessionStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                sessionStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function loadTheme() {
+            const savedTheme = sessionStorage.getItem('theme');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+        }
+
+        // Login handling with Firebase
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const loginButton = document.getElementById('loginButton');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
+                return;
+            }
+            
+            loginButton.textContent = 'Prijavljanje...';
+            loginButton.disabled = true;
+            
+            try {
+                updateSyncStatus('syncing', '🔄 Preverjanje podatkov...');
+                
+                // Get user from Firebase
+                const userDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
+                );
+                
+                if (userDoc.exists()) {
+                    const user = userDoc.data();
+                    if (user.geslo === password) {
+                        currentUser = user;
+                        sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        showMessage('Uspešna prijava!', 'success');
+                        updateSyncStatus('synced', '✅ Prijavljen');
+                        setTimeout(() => showDashboard(user), 1000);
+                    } else {
+                        showMessage('Napačno geslo.', 'error');
+                        updateSyncStatus('error', '❌ Napačni podatki');
+                    }
+                } else {
+                    showMessage('Uporabnik ne obstaja.', 'error');
+                    updateSyncStatus('error', '❌ Uporabnik ne obstaja');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('Prišlo je do napake pri prijavi.', 'error');
+                updateSyncStatus('error', '❌ Napaka pri prijavi');
+            } finally {
+                loginButton.textContent = 'Prijavi se';
+                loginButton.disabled = false;
+            }
+        }
+
+        function showMessage(message, type) {
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            
+            // Hide both messages first
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            if (type === 'error') {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            } else if (type === 'success') {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+            }
+        }
+
+        function showDashboard(user) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('headerLogoutBtn').style.display = 'flex';
+            document.getElementById('headerCenter').style.display = 'block';
+            document.getElementById('userInfo').textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
+            
+            // Show/hide menu items based on user role
+            const addUserMenu = document.getElementById('addUserMenu').closest('.menu-item');
+            const serviserMenuItem = document.getElementById('serviserMenuItem');
+            const userSettingsMenu = document.getElementById('userSettingsMenu').closest('.menu-item');
+            const notificationsMenu = document.getElementById('notificationsMenu').closest('.menu-item');
+            const generalSettingsMenu = document.querySelector('[onclick="showContent(\'generalSettings\')"]').closest('.menu-item');
+            
+            if (user.vloga === 'admin') {
+                addUserMenu.style.display = 'block';
+                serviserMenuItem.style.display = 'block';
+                userSettingsMenu.style.display = 'block';
+                notificationsMenu.style.display = 'block';
+                generalSettingsMenu.style.display = 'block';
+            } else if (user.vloga === 'serviser') {
+                addUserMenu.style.display = 'none';
+                serviserMenuItem.style.display = 'block';
+                userSettingsMenu.style.display = 'none';
+                notificationsMenu.style.display = 'none';
+                generalSettingsMenu.style.display = 'none';
+            } else {
+                addUserMenu.style.display = 'none';
+                serviserMenuItem.style.display = 'block';
+                userSettingsMenu.style.display = 'none';
+                notificationsMenu.style.display = 'none';
+                generalSettingsMenu.style.display = 'none';
+            }
+            
+            checkInspectionAlerts();
+            updateInspectionWidget();
+            loadNotificationsDisplay();
+            updateWelcomeMessage(user);
+        }
+        
+        function updateWelcomeMessage(user) {
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                const accessibleSystems = getUserAccessibleSystems(user);
+                const systemsText = accessibleSystems.length > 0 ? 
+                    ` Dostop imate do sistemov: ${accessibleSystems.join(', ')}.` : '';
+                
+                if (user.vloga === 'admin') {
+                    welcomeMessage.textContent = 'Kot administrator imate dostop do vseh funkcij portala. Upravljajte uporabnike, obvestila in sistemske nastavitve. Preverite stanje pregledov ključavnic.' + systemsText;
+                } else if (user.vloga === 'serviser') {
+                    welcomeMessage.textContent = 'Kot serviser imate dostop do aplikacije za preglede ključavnic. Preverite obvestila in opravite potrebne preglede.' + systemsText;
+                } else {
+                    welcomeMessage.textContent = 'Kot študent imate dostop do osnovnih funkcij portala. Preverite obvestila in sledite svojim nalogam.' + systemsText;
+                }
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            sessionStorage.removeItem('serviserApp_currentUser');
+            
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('headerLogoutBtn').style.display = 'none';
+            document.getElementById('headerCenter').style.display = 'none';
+            
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.style.display = 'block';
+            });
+            
+            document.getElementById('loginForm').reset();
+            hideMessages();
+            updateSyncStatus('synced', '🔄 Sinhronizirano z Firebase');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Content management
+        function showContent(contentType) {
+            if (!currentUser) {
+                alert('Niste prijavljeni.');
+                return;
+            }
+            
+            const adminOnlySections = ['addUser', 'userSettings', 'notifications', 'generalSettings'];
+            
+            if (adminOnlySections.includes(contentType) && currentUser.vloga !== 'admin') {
+                alert('Nimate dovoljenja za dostop do te sekcije.');
+                return;
+            }
+            
+            const sections = ['dashboardContent', 'addUserContent', 'userSettingsContent', 'notificationsContent', 'generalSettingsContent'];
+            sections.forEach(section => {
+                const el = document.getElementById(section);
+                if (el) el.style.display = 'none';
+            });
+
+            document.querySelectorAll('.menu-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            switch(contentType) {
+                case 'dashboard':
+                    document.getElementById('dashboardContent').style.display = 'block';
+                    document.querySelector('[onclick="showContent(\'dashboard\')"]').classList.add('active');
+                    updateInspectionWidget();
+                    loadNotificationsDisplay();
+                    break;
+                case 'addUser':
+                    document.getElementById('addUserContent').style.display = 'block';
+                    document.querySelector('[onclick="showContent(\'addUser\')"]').classList.add('active');
+                    break;
+                case 'userSettings':
+                    document.getElementById('userSettingsContent').style.display = 'block';
+                    document.querySelector('[onclick="showContent(\'userSettings\')"]').classList.add('active');
+                    loadUsersList();
+                    break;
+                case 'notifications':
+                    document.getElementById('notificationsContent').style.display = 'block';
+                    document.querySelector('[onclick="showContent(\'notifications\')"]').classList.add('active');
+                    loadNotificationsList();
+                    break;
+                case 'generalSettings':
+                    document.getElementById('generalSettingsContent').style.display = 'block';
+                    document.querySelector('[onclick="showContent(\'generalSettings\')"]').classList.add('active');
+                    break;
+            }
+        }
+
+        // User management functions
+        async function loadUsersList() {
+            try {
+                const usersCollection = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
+                );
+                
+                const users = [];
+                usersCollection.forEach((doc) => {
+                    const userData = doc.data();
+                    delete userData.createdAt; // Remove Firebase timestamp for display
+                    users.push(userData);
+                });
+                
+                const container = document.getElementById('usersList');
+                
+                if (users.length === 0) {
+                    container.innerHTML = '<p>Ni uporabnikov za prikaz.</p>';
+                    return;
+                }
+                
+                let html = '<div style="overflow-x: auto;"><table class="users-table">';
+                html += '<thead><tr>';
+                html += '<th>Ime</th>';
+                html += '<th>Priimek</th>';
+                html += '<th>Uporabniško ime</th>';
+                html += '<th>Vloga</th>';
+                html += '<th>Sistemi</th>';
+                html += '<th style="text-align: center;">Dejanja</th>';
+                html += '</tr></thead><tbody>';
+                
+                users.forEach((user) => {
+                    html += `<tr>`;
+                    html += `<td>${user.ime}</td>`;
+                    html += `<td>${user.priimek}</td>`;
+                    html += `<td>${user.uporabniskoIme}</td>`;
+                    html += `<td>${user.vloga}</td>`;
+                    html += `<td>${(user.sistemi || []).join(', ')}</td>`;
+                    html += `<td style="text-align: center;">`;
+                    html += `<button onclick="deleteUser('${user.uporabniskoIme}')" class="btn btn-danger">Izbriši</button>`;
+                    html += `</td></tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersList').innerHTML = '<p>Napaka pri nalaganju uporabnikov.</p>';
+            }
+        }
+
+        async function deleteUser(username) {
+            if (!confirm('Ali ste prepričani, da želite izbrisati tega uporabnika?')) {
+                return;
+            }
+
+            if (username === 'admin') {
+                alert('Admin uporabnika ni mogoče izbrisati!');
+                return;
+            }
+
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
+                );
+                
+                loadUsersList();
+                alert('Uporabnik je bil uspešno izbrisan!');
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Napaka pri brisanju uporabnika: ' + error.message);
+            }
+        }
+
+        // Add user form handler with Firebase
+        async function handleAddUser(event) {
+            event.preventDefault();
+            
+            const addButton = document.getElementById('addUserText');
+            const addSpinner = document.getElementById('addUserSpinner');
+            
+            const firstName = document.getElementById('newFirstName').value.trim();
+            const lastName = document.getElementById('newLastName').value.trim();
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const role = document.getElementById('newRole').value;
+            
+            const systemCheckboxes = document.querySelectorAll('input[name="newSystems"]:checked');
+            const systems = Array.from(systemCheckboxes).map(cb => cb.value);
+            
+            if (!firstName || !lastName || !username || !password || !role || systems.length === 0) {
+                alert('Prosimo, izpolnite vsa obvezna polja.');
+                return;
+            }
+            
+            try {
+                addButton.textContent = 'Ustvarjam...';
+                addSpinner.style.display = 'inline-block';
+                
+                // Check if username already exists
+                const userDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
+                );
+                
+                if (userDoc.exists()) {
+                    alert('Uporabniško ime že obstaja. Izberite drugo.');
+                    return;
+                }
+                
+                const newUser = {
+                    ime: firstName,
+                    priimek: lastName,
+                    uporabniskoIme: username,
+                    geslo: password,
+                    vloga: role,
+                    sistemi: systems,
+                    createdAt: window.firebaseFunctions.serverTimestamp()
+                };
+                
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username),
+                    newUser
+                );
+                
+                alert('Uporabnik je bil uspešno dodan!');
+                document.getElementById('addUserForm').reset();
+                
+            } catch (error) {
+                console.error('Error adding user:', error);
+                alert('Napaka pri dodajanju uporabnika: ' + error.message);
+            } finally {
+                addButton.textContent = 'Ustvari uporabnika';
+                addSpinner.style.display = 'none';
+            }
+        }
+
+        // Notifications display
+        async function loadNotificationsDisplay() {
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+                const activeNotifications = notifications.filter(n => n.active);
+                const container = document.getElementById('notificationsDisplay');
+                
+                if (activeNotifications.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+                
+                let html = '';
+                activeNotifications.forEach(notification => {
+                    const priorityClass = `priority-${notification.priority}`;
+                    const typeClass = `notification-${notification.type}`;
+                    
+                    html += `
+                        <div class="notification-card ${typeClass}">
+                            <div class="notification-header">
+                                <h4 class="notification-title">${notification.title}</h4>
+                                <span class="notification-priority ${priorityClass}">${getPriorityText(notification.priority)}</span>
+                            </div>
+                            <p class="notification-message">${notification.message}</p>
+                            <div class="notification-meta">
+                                Objavljeno: ${formatDate(notification.createdAt)} • Avtor: ${notification.createdBy}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading notifications display:', error);
+            }
+        }
+
+        async function loadNotificationsList() {
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+                const container = document.getElementById('notificationsList');
+                
+                if (notifications.length === 0) {
+                    container.innerHTML = '<p>Ni obvestil za prikaz.</p>';
+                    return;
+                }
+                
+                let html = '';
+                notifications.forEach((notification, index) => {
+                    const priorityClass = `priority-${notification.priority}`;
+                    const typeClass = `notification-${notification.type}`;
+                    const statusText = notification.active ? 'Aktivno' : 'Neaktivno';
+                    const statusColor = notification.active ? 'var(--success)' : 'var(--text-light)';
+                    
+                    html += `
+                        <div class="notification-card ${typeClass}" style="position: relative;">
+                            <div class="notification-header">
+                                <h4 class="notification-title">${notification.title}</h4>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <span class="notification-priority ${priorityClass}">${getPriorityText(notification.priority)}</span>
+                                    <span style="color: ${statusColor}; font-size: 0.8rem; font-weight: 500;">${statusText}</span>
+                                </div>
+                            </div>
+                            <p class="notification-message">${notification.message}</p>
+                            <div class="notification-meta">
+                                Objavljeno: ${formatDate(notification.createdAt)} • Avtor: ${notification.createdBy}
+                            </div>
+                            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                                <button onclick="toggleNotification(${notification.id})" class="btn" style="background: ${notification.active ? 'var(--warning)' : 'var(--success)'}; color: white;">
+                                    ${notification.active ? 'Deaktiviraj' : 'Aktiviraj'}
+                                </button>
+                                <button onclick="deleteNotification(${notification.id})" class="btn btn-danger">
+                                    Izbriši
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading notifications list:', error);
+                document.getElementById('notificationsList').innerHTML = '<p>Napaka pri nalaganju obvestil.</p>';
+            }
+        }
+
+        async function toggleNotification(notificationId) {
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                if (!notificationsDoc.exists()) return;
+                
+                const notifications = notificationsDoc.data().data;
+                const notificationIndex = notifications.findIndex(n => n.id === notificationId);
+                
+                if (notificationIndex === -1) return;
+                
+                notifications[notificationIndex].active = !notifications[notificationIndex].active;
+                
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
+                    {
+                        data: notifications,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                loadNotificationsList();
+                loadNotificationsDisplay();
+            } catch (error) {
+                console.error('Error toggling notification:', error);
+                alert('Napaka pri posodabljanju obvestila: ' + error.message);
+            }
+        }
+
+        async function deleteNotification(notificationId) {
+            if (!confirm('Ali ste prepričani, da želite izbrisati to obvestilo?')) {
+                return;
+            }
+            
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                if (!notificationsDoc.exists()) return;
+                
+                const notifications = notificationsDoc.data().data;
+                const filteredNotifications = notifications.filter(n => n.id !== notificationId);
+                
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
+                    {
+                        data: filteredNotifications,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                loadNotificationsList();
+                loadNotificationsDisplay();
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+                alert('Napaka pri brisanju obvestila: ' + error.message);
+            }
+        }
+
+        async function handleAddNotification(event) {
+            event.preventDefault();
+            
+            const notificationButton = document.getElementById('notificationText');
+            const notificationSpinner = document.getElementById('notificationSpinner');
+            
+            const title = document.getElementById('notificationTitle').value.trim();
+            const message = document.getElementById('notificationMessage').value.trim();
+            const type = document.getElementById('notificationType').value;
+            const priority = document.getElementById('notificationPriority').value;
+            const active = document.getElementById('notificationActive').checked;
+            
+            if (!title || !message || !type) {
+                alert('Prosimo, izpolnite vsa obvezna polja.');
+                return;
+            }
+            
+            try {
+                notificationButton.textContent = 'Dodajam...';
+                notificationSpinner.style.display = 'inline-block';
+                
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
+                
+                const newNotification = {
+                    id: Date.now(),
+                    title: title,
+                    message: message,
+                    type: type,
+                    priority: priority,
+                    active: active,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.uporabniskoIme
+                };
+                
+                notifications.unshift(newNotification);
+                
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
+                    {
+                        data: notifications,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                alert('Obvestilo je bilo uspešno dodano!');
+                document.getElementById('addNotificationForm').reset();
+                loadNotificationsList();
+                loadNotificationsDisplay();
+                
+            } catch (error) {
+                console.error('Error adding notification:', error);
+                alert('Napaka pri dodajanju obvestila: ' + error.message);
+            } finally {
+                notificationButton.textContent = 'Dodaj obvestilo';
+                notificationSpinner.style.display = 'none';
+            }
+        }
+
+        function getPriorityText(priority) {
+            switch(priority) {
+                case 'high': return 'Visoka';
+                case 'urgent': return 'Nujna';
+                default: return 'Normalna';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('sl-SI') + ' ' + date.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        function checkLoginStatus() {
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showDashboard(currentUser);
+            }
+        }
+
+        // Sync status helper
+        function updateSyncStatus(status, message) {
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.className = `sync-status ${status}`;
+            syncStatus.innerHTML = `<span>${status === 'synced' ? '🔄' : status === 'syncing' ? '⏳' : '❌'}</span><span>${message}</span>`;
+        }
+
+        // Firebase connection check
+        async function checkFirebaseConnection() {
+            const connectButton = document.getElementById('connectText');
+            const connectSpinner = document.getElementById('connectSpinner');
+            
+            try {
+                connectButton.textContent = 'Preverjam...';
+                connectSpinner.style.display = 'inline-block';
+                updateSyncStatus('syncing', '🔄 Preverjanje povezave...');
+                
+                // Try to read a document to test connection
+                const testDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                updateSyncStatus('synced', '✅ Povezava uspešna');
+                alert('Povezava z Firebase je uspešna!');
+                
+            } catch (error) {
+                console.error('Firebase connection error:', error);
+                updateSyncStatus('error', '❌ Napaka pri povezavi');
+                alert('Napaka pri povezavi z Firebase: ' + error.message);
+            } finally {
+                connectButton.textContent = 'Preveri povezavo';
+                connectSpinner.style.display = 'none';
+            }
+        }
+
+        // Reinitialize default data
+        async function reinitializeDefaultData() {
+            if (!confirm('Ali ste prepričani? To bo ustvarilo osnovni admin račun če ga ni.')) {
+                return;
+            }
+
+            const initButton = document.getElementById('initText');
+            const initSpinner = document.getElementById('initSpinner');
+            
+            try {
+                initButton.textContent = 'Inicializiram...';
+                initSpinner.style.display = 'inline-block';
+                updateSyncStatus('syncing', '🔄 Inicializacija...');
+                
+                await initializeDefaultData();
+                
+                alert('Inicializacija uspešna!');
+                updateSyncStatus('synced', '✅ Inicializirano');
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                updateSyncStatus('error', '❌ Napaka pri inicializaciji');
+                alert('Napaka pri inicializaciji: ' + error.message);
+            } finally {
+                initButton.textContent = 'Ponastavi začetne podatke';
+                initSpinner.style.display = 'none';
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            
+            // Initialize Firebase and default data
+            setTimeout(() => {
+                initializeDefaultData();
+                checkLoginStatus();
+            }, 1000);
+            
+            // Event listeners
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+            document.getElementById('addNotificationForm').addEventListener('submit', handleAddNotification);
+            
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleLogin(e);
+                }
+            });
+
+            // Set up automatic inspection checks (every hour)
+            setInterval(() => {
+                if (currentUser && (currentUser.vloga === 'admin' || currentUser.vloga === 'serviser')) {
+                    checkInspectionAlerts();
+                    updateInspectionWidget();
+                }
+            }, 60 * 60 * 1000);
+        });
+
+        // Global functions for access from HTML
+        window.toggleTheme = toggleTheme;
+        window.logout = logout;
+        window.showContent = showContent;
+        window.openServiserApp = openServiserApp;
+        window.deleteUser = deleteUser;
+        window.toggleNotification = toggleNotification;
+        window.deleteNotification = deleteNotification;
+        window.checkFirebaseConnection = checkFirebaseConnection;
+        window.reinitializeDefaultData = reinitializeDefaultData;
+    </script>
+</body>
+</html>
