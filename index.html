@@ -1,4 +1,23 @@
-<!DOCTYPE html>
+                            
+                            <div class="inspection-stats" id="inspectionStats">
+                                <div class="stat-item" id="overdueStats">
+                                    <div class="stat-number danger" id="overdueCount">0</div>
+                                    <div class="stat-label">Zamujeni pregledi</div>
+                                </div>
+                                <div class="stat-item" id="dueSoonStats">
+                                    <div class="stat-number warning" id="dueSoonCount">0</div>
+                                    <div class="stat-label">Pregledi kmalu</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number success" id="totalCount">0</div>
+                                    <div class="stat-label">Skupaj ključavnic</div>
+                                </div>
+                            </div>
+                            
+                            <button class="inspection-button" onclick="openServiserApp()">
+                                🔧 Odpri aplikacijo za preglede
+                            </button>
+                        </div><!DOCTYPE html>
 <html lang="sl">
 <head>
     <meta charset="UTF-8">
@@ -1576,12 +1595,11 @@
             }
         }
 
-        // Calculate inspection statistics - EXACTLY MATCH INSPECTION APP LOGIC
+        // Calculate inspection statistics - CLEAN VERSION WITHOUT DEBUG
         async function calculateInspectionStats() {
-            if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0, debug: {} };
+            if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0 };
 
             try {
-                // Get inspection data from Firebase
                 const inspectionDataDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
                 );
@@ -1591,189 +1609,71 @@
                 let total = 0;
                 let overdue = 0;
                 let dueSoon = 0;
-                let debugInfo = {
-                    userRole: currentUser.vloga,
-                    userSystems: currentUser.sistemi,
-                    totalDataEntries: Object.keys(inspectionData).length,
-                    accessibleLocations: 0,
-                    sampleData: [],
-                    dateErrors: []
-                };
 
-                // Get locations user has access to - SAME AS INSPECTION APP
+                // Get locations user has access to
                 const accessibleLocations = currentUser.vloga === 'admin' ? 
                     ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
 
-                debugInfo.accessibleLocations = accessibleLocations.length;
-
-                // EXACT SAME LOGIC AS INSPECTION APP - getInspectionStatus function
-                const getInspectionStatus = (terminal, rackNumber) => {
-                    const key = `${terminal}-${rackNumber}`;
-                    const rackData = inspectionData[key];
-                    
-                    if (!rackData || !rackData.lastInspection) {
-                        return 'overdue';
-                    }
-                    
-                    // EXACT SAME DATE LOGIC AS INSPECTION APP
-                    const lastDate = new Date(rackData.lastInspection); // Direct parsing like in app
-                    const nextDate = new Date(lastDate);
-                    nextDate.setMonth(nextDate.getMonth() + 3); // Add 3 months like in app
-                    
-                    const now = new Date();
-                    const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
-                    
-                    if (daysUntilDue < 0) {
-                        return 'overdue';
-                    } else if (daysUntilDue <= 14) {
-                        return 'due-soon';
-                    } else {
-                        return 'ok';
-                    }
-                };
-
-                console.log('=== PORTAL CALCULATION (MATCHING APP) ===');
-                console.log('User role:', currentUser.vloga);
-                console.log('User systems:', currentUser.sistemi);
-                console.log('Available inspection data entries:', Object.keys(inspectionData).length);
-                console.log('Processing', accessibleLocations.length, 'accessible locations');
-
-                // Process each location and its racks - EXACTLY LIKE INSPECTION APP
-                accessibleLocations.forEach((location, locationIndex) => {
-                    if (locationIndex < 3) { // Debug first 3 locations
-                        console.log(`Processing location: ${location.name} (${location.terminal}) - ${location.racks} racks`);
-                    }
-                    
+                // Simple calculation matching inspection app logic
+                accessibleLocations.forEach(location => {
                     for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
                         total++;
                         
-                        const lockKey = `${location.terminal}-${rackNumber}`;
-                        const inspectionStatus = getInspectionStatus(location.terminal, rackNumber);
-                        
-                        // Store sample data for debugging (first 10 entries)
-                        if (debugInfo.sampleData.length < 10) {
-                            const rackData = inspectionData[lockKey];
-                            debugInfo.sampleData.push({
-                                key: lockKey,
-                                location: location.name,
-                                hasData: !!rackData,
-                                lastInspection: rackData?.lastInspection || 'N/A',
-                                status: inspectionStatus
-                            });
-                        }
-                        
-                        // Count by status - EXACTLY LIKE APP
-                        if (inspectionStatus === 'overdue') {
-                            overdue++;
-                        } else if (inspectionStatus === 'due-soon') {
-                            dueSoon++;
-                        }
-                        // else: 'ok' - no counting needed for our stats
-                    }
-                });
-
-                console.log('PORTAL FINAL STATS (MATCHING APP):', { total, overdue, dueSoon });
-                console.log('Sample data:', debugInfo.sampleData.slice(0, 5));
-                
-                // AUTOMATIC TEST: Also calculate for ALL locations to see the difference
-                console.log('\n=== AUTOMATIC TEST: ALL LOCATIONS ===');
-                let allTotal = 0, allOverdue = 0, allDueSoon = 0;
-                
-                ALL_LOCATIONS.forEach(location => {
-                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
-                        allTotal++;
                         const key = `${location.terminal}-${rackNumber}`;
                         const rackData = inspectionData[key];
                         
                         if (!rackData || !rackData.lastInspection) {
-                            allOverdue++;
+                            overdue++;
                         } else {
                             const lastDate = new Date(rackData.lastInspection);
                             const nextDate = new Date(lastDate);
                             nextDate.setMonth(nextDate.getMonth() + 3);
+                            
                             const now = new Date();
                             const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
                             
                             if (daysUntilDue < 0) {
-                                allOverdue++;
+                                overdue++;
                             } else if (daysUntilDue <= 14) {
-                                allDueSoon++;
+                                dueSoon++;
                             }
                         }
                     }
                 });
-                
-                console.log('ALL LOCATIONS STATS:', { 
-                    total: allTotal, 
-                    overdue: allOverdue, 
-                    dueSoon: allDueSoon 
-                });
-                
-                console.log('COMPARISON:');
-                console.log('Portal (filtered):', { total, overdue, dueSoon });
-                console.log('All locations:', { total: allTotal, overdue: allOverdue, dueSoon: allDueSoon });
-                console.log('App shows:', { total: 1193, overdue: 1189, dueSoon: 0 });
-                
-                if (allTotal === 1193 && allOverdue === 1189) {
-                    console.log('✅ SUCCESS: All locations calculation MATCHES the inspection app!');
-                    console.log('🔍 CONCLUSION: The inspection app shows ALL locations, not filtered by user access');
-                } else {
-                    console.log('❌ Still no match - there might be other differences');
-                }
-                
-                console.log('=== END PORTAL CALCULATION ===');
 
-                return { total, overdue, dueSoon, debug: debugInfo };
+                return { total, overdue, dueSoon };
                 
             } catch (error) {
                 console.error('Error calculating inspection stats:', error);
-                return { total: 0, overdue: 0, dueSoon: 0, debug: { error: error.message } };
+                return { total: 0, overdue: 0, dueSoon: 0 };
             }
         }
 
-        // Update inspection widget with debug info
+        // Update inspection widget - CLEAN VERSION
         async function updateInspectionWidget() {
-            const result = await calculateInspectionStats();
-            const { total, overdue, dueSoon, debug } = result;
+            const stats = await calculateInspectionStats();
             
             // Update numbers
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('overdueCount').textContent = overdue;
-            document.getElementById('dueSoonCount').textContent = dueSoon;
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('overdueCount').textContent = stats.overdue;
+            document.getElementById('dueSoonCount').textContent = stats.dueSoon;
             
             // Update last refresh time
             const now = new Date();
             document.getElementById('lastRefreshTime').textContent = 
                 now.toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            // Update debug info with enhanced details
-            if (debug) {
-                const debugText = `
-                    Uporabnik: ${debug.userRole} | Sistemi: ${debug.userSystems?.join(', ') || 'N/A'}<br>
-                    Dostopne lokacije: ${debug.accessibleLocations} | Firebase vnosi: ${debug.totalDataEntries}<br>
-                    Vzorec podatkov: ${debug.sampleData?.map(d => `${d.key}(${d.hasData ? 'DA' : 'NE'})`).join(', ')}<br>
-                    ${debug.dateErrors?.length > 0 ? `<strong style="color: var(--danger);">⚠️ Datum napake: ${debug.dateErrors.length}</strong><br>` : ''}
-                    ${debug.dateErrors?.slice(0, 3).map(e => `${e.key}: ${e.error}`).join('<br>') || ''}
-                    ${debug.error ? `<br><strong>Napaka:</strong> ${debug.error}` : ''}
-                    <br><br>
-                    <button onclick="calculateAllLocations()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
-                        🌍 Kalkuliraj VSE lokacije (kot aplikacija)
-                    </button>
-                `;
-                document.getElementById('debugText').innerHTML = debugText;
-            }
-            
             // Update styling
             const overdueStats = document.getElementById('overdueStats');
             const dueSoonStats = document.getElementById('dueSoonStats');
             
-            if (overdue > 0) {
+            if (stats.overdue > 0) {
                 overdueStats.classList.add('danger');
             } else {
                 overdueStats.classList.remove('danger');
             }
             
-            if (dueSoon > 0) {
+            if (stats.dueSoon > 0) {
                 dueSoonStats.classList.add('warning');
             } else {
                 dueSoonStats.classList.remove('warning');
@@ -1781,12 +1681,12 @@
             
             // Update alert badge
             const alertBadge = document.getElementById('inspectionAlerts');
-            const totalAlerts = overdue + dueSoon;
+            const totalAlerts = stats.overdue + stats.dueSoon;
             
             if (totalAlerts > 0) {
                 alertBadge.textContent = totalAlerts;
                 alertBadge.style.display = 'block';
-                if (overdue > 0) {
+                if (stats.overdue > 0) {
                     alertBadge.classList.remove('warning');
                 } else {
                     alertBadge.classList.add('warning');
