@@ -1576,7 +1576,7 @@
             }
         }
 
-        // Calculate inspection statistics with detailed debugging
+        // Calculate inspection statistics with FIXED date parsing
         async function calculateInspectionStats() {
             if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0, debug: {} };
 
@@ -1596,7 +1596,8 @@
                     userSystems: currentUser.sistemi,
                     totalDataEntries: Object.keys(inspectionData).length,
                     accessibleLocations: 0,
-                    sampleData: []
+                    sampleData: [],
+                    dateErrors: []
                 };
 
                 // Get locations user has access to
@@ -1629,21 +1630,78 @@
                         if (!lockData || !lockData.lastInspection) {
                             overdue++;
                         } else {
-                            const lastInspectionDate = lockData.lastInspection;
-                            const lastDate = new Date(lastInspectionDate + 'T00:00:00');
-                            const dueDate = new Date(lastDate);
-                            dueDate.setDate(dueDate.getDate() + 90);
-                            const dueDateString = dueDate.toISOString().split('T')[0];
-                            
-                            if (dueDateString < todayString) {
-                                overdue++;
-                            } else {
-                                const timeDiff = dueDate.getTime() - today.getTime();
-                                const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                            try {
+                                // FIXED: Better date parsing with validation
+                                const lastInspectionDate = lockData.lastInspection;
                                 
-                                if (daysUntilDue <= 14) {
-                                    dueSoon++;
+                                // Validate date format and create date safely
+                                let lastDate;
+                                if (typeof lastInspectionDate === 'string') {
+                                    // Handle different date formats
+                                    if (lastInspectionDate.includes('T')) {
+                                        // ISO format: 2024-01-15T10:30:00Z
+                                        lastDate = new Date(lastInspectionDate);
+                                    } else if (lastInspectionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                        // YYYY-MM-DD format
+                                        lastDate = new Date(lastInspectionDate + 'T00:00:00');
+                                    } else {
+                                        // Try direct parsing
+                                        lastDate = new Date(lastInspectionDate);
+                                    }
+                                } else {
+                                    // Might be timestamp or Date object
+                                    lastDate = new Date(lastInspectionDate);
                                 }
+                                
+                                // Validate the date
+                                if (isNaN(lastDate.getTime())) {
+                                    // Invalid date - treat as no inspection
+                                    overdue++;
+                                    debugInfo.dateErrors.push({
+                                        key: lockKey,
+                                        value: lastInspectionDate,
+                                        error: 'Invalid date format'
+                                    });
+                                    continue;
+                                }
+                                
+                                // Calculate due date (90 days after last inspection)
+                                const dueDate = new Date(lastDate);
+                                dueDate.setDate(dueDate.getDate() + 90);
+                                
+                                // Validate due date
+                                if (isNaN(dueDate.getTime())) {
+                                    overdue++;
+                                    debugInfo.dateErrors.push({
+                                        key: lockKey,
+                                        value: lastInspectionDate,
+                                        error: 'Invalid due date calculation'
+                                    });
+                                    continue;
+                                }
+                                
+                                const dueDateString = dueDate.toISOString().split('T')[0];
+                                
+                                if (dueDateString < todayString) {
+                                    overdue++;
+                                } else {
+                                    const timeDiff = dueDate.getTime() - today.getTime();
+                                    const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                                    
+                                    if (daysUntilDue <= 14) {
+                                        dueSoon++;
+                                    }
+                                }
+                                
+                            } catch (dateError) {
+                                // Error processing this date - treat as overdue
+                                overdue++;
+                                debugInfo.dateErrors.push({
+                                    key: lockKey,
+                                    value: lockData.lastInspection,
+                                    error: dateError.message
+                                });
+                                console.error(`Date error for ${lockKey}:`, dateError);
                             }
                         }
                     }
