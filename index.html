@@ -722,16 +722,19 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
         }
 
         .modal-content {
             background-color: var(--white);
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 2rem;
             border-radius: 12px;
             width: 90%;
             max-width: 600px;
             box-shadow: var(--shadow);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -755,6 +758,8 @@
             cursor: pointer;
             border: none;
             background: none;
+            padding: 0;
+            line-height: 1;
         }
 
         .close:hover {
@@ -1449,7 +1454,7 @@
             );
         }
 
-        // Calculate inspection statistics based on user access
+        // Calculate inspection statistics based on user access - FIXED VERSION
         async function calculateInspectionStats() {
             if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0 };
 
@@ -1458,7 +1463,7 @@
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
                 );
 
-                const inspectionData = inspectionDataDoc.exists() ? inspectionDataDoc.data().data : {};
+                const inspectionData = inspectionDataDoc.exists() ? inspectionDataDoc.data().data || {} : {};
                 let total = 0;
                 let overdue = 0;
                 let dueSoon = 0;
@@ -1467,6 +1472,9 @@
                 const accessibleLocations = currentUser.vloga === 'admin' ? 
                     ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
 
+                console.log('Calculating stats for', accessibleLocations.length, 'locations');
+                console.log('Inspection data keys:', Object.keys(inspectionData));
+
                 accessibleLocations.forEach(location => {
                     for (let i = 1; i <= location.racks; i++) {
                         total++;
@@ -1474,22 +1482,33 @@
                         const rackData = inspectionData[key];
                         
                         if (!rackData || !rackData.lastInspection) {
+                            // No inspection data = overdue
                             overdue++;
                         } else {
                             const lastDate = new Date(rackData.lastInspection);
+                            const today = new Date();
                             const nextDue = new Date(lastDate);
+                            
+                            // Add 3 months to last inspection date
                             nextDue.setMonth(nextDue.getMonth() + 3);
-                            const daysUntilDue = Math.ceil((nextDue - new Date()) / (1000 * 60 * 60 * 24));
+                            
+                            // Calculate days until due (can be negative if overdue)
+                            const msPerDay = 1000 * 60 * 60 * 24;
+                            const daysUntilDue = Math.ceil((nextDue.getTime() - today.getTime()) / msPerDay);
                             
                             if (daysUntilDue < 0) {
+                                // Past due date = overdue
                                 overdue++;
                             } else if (daysUntilDue <= 14) {
+                                // Due within 14 days = due soon
                                 dueSoon++;
                             }
+                            // else: still good (more than 14 days until due)
                         }
                     }
                 });
 
+                console.log('Final stats:', { total, overdue, dueSoon });
                 return { total, overdue, dueSoon };
             } catch (error) {
                 console.error('Error calculating inspection stats:', error);
@@ -2032,7 +2051,7 @@
             }
         }
 
-        // Notifications display - Only show admin-created notifications
+        // Notifications display - Only show admin-created notifications (exclude system-generated inspection alerts)
         async function loadNotificationsDisplay() {
             try {
                 const notificationsDoc = await window.firebaseFunctions.getDoc(
@@ -2040,9 +2059,14 @@
                 );
                 
                 const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                // Only show notifications that are not system-generated inspection alerts
+                // Filter out ALL system-generated notifications related to inspections
                 const activeNotifications = notifications.filter(n => 
-                    n.active && !n.title.includes('Sistem pregledov')
+                    n.active && 
+                    n.createdBy !== 'system' &&
+                    !n.title.toLowerCase().includes('pregled') &&
+                    !n.title.toLowerCase().includes('ključavnic') &&
+                    !n.message.toLowerCase().includes('pregled') &&
+                    !n.message.toLowerCase().includes('ključavnic')
                 );
                 const container = document.getElementById('notificationsDisplay');
                 
@@ -2372,8 +2396,13 @@
             // Event listeners
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
-            document.getElementById('editUserForm').addEventListener('submit', handleEditUser);
             document.getElementById('addNotificationForm').addEventListener('submit', handleAddNotification);
+            
+            // IMPORTANT: Add edit user form event listener
+            const editUserForm = document.getElementById('editUserForm');
+            if (editUserForm) {
+                editUserForm.addEventListener('submit', handleEditUser);
+            }
             
             document.getElementById('password').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -2385,6 +2414,13 @@
             window.addEventListener('click', function(event) {
                 const modal = document.getElementById('editUserModal');
                 if (event.target === modal) {
+                    closeEditModal();
+                }
+            });
+
+            // Close modal with ESC key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
                     closeEditModal();
                 }
             });
