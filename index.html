@@ -2076,12 +2076,13 @@
             }
         }
 
-        // Add user form handler with Firebase - FIXED: Reset form after success
+        // Add user form handler with Firebase - COMPLETELY FIXED RESET
         async function handleAddUser(event) {
             event.preventDefault();
             
             const addButton = document.getElementById('addUserText');
             const addSpinner = document.getElementById('addUserSpinner');
+            const form = document.getElementById('addUserForm');
             
             const firstName = document.getElementById('newFirstName').value.trim();
             const lastName = document.getElementById('newLastName').value.trim();
@@ -2118,7 +2119,6 @@
                     geslo: password,
                     vloga: role,
                     sistemi: systems
-                    // NOTE: Not including createdAt to avoid Firebase issues
                 };
                 
                 await window.firebaseFunctions.setDoc(
@@ -2128,17 +2128,22 @@
                 
                 alert('Uporabnik je bil uspešno dodan!');
                 
-                // IMPORTANT: Reset form completely
-                document.getElementById('addUserForm').reset();
+                // COMPLETE FORM RESET - manually clear each field
+                document.getElementById('newFirstName').value = '';
+                document.getElementById('newLastName').value = '';
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('newRole').value = '';
                 
-                // Also manually uncheck all checkboxes
-                const allCheckboxes = document.querySelectorAll('input[name="newSystems"]');
-                allCheckboxes.forEach(checkbox => {
+                // Uncheck all system checkboxes
+                document.querySelectorAll('input[name="newSystems"]').forEach(checkbox => {
                     checkbox.checked = false;
                 });
                 
-                // Reset select dropdown to default
-                document.getElementById('newRole').selectedIndex = 0;
+                // Also use form.reset() as backup
+                form.reset();
+                
+                console.log('Form reset completed');
                 
             } catch (error) {
                 console.error('Error adding user:', error);
