@@ -1674,6 +1674,53 @@
 
                 console.log('PORTAL FINAL STATS (MATCHING APP):', { total, overdue, dueSoon });
                 console.log('Sample data:', debugInfo.sampleData.slice(0, 5));
+                
+                // AUTOMATIC TEST: Also calculate for ALL locations to see the difference
+                console.log('\n=== AUTOMATIC TEST: ALL LOCATIONS ===');
+                let allTotal = 0, allOverdue = 0, allDueSoon = 0;
+                
+                ALL_LOCATIONS.forEach(location => {
+                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
+                        allTotal++;
+                        const key = `${location.terminal}-${rackNumber}`;
+                        const rackData = inspectionData[key];
+                        
+                        if (!rackData || !rackData.lastInspection) {
+                            allOverdue++;
+                        } else {
+                            const lastDate = new Date(rackData.lastInspection);
+                            const nextDate = new Date(lastDate);
+                            nextDate.setMonth(nextDate.getMonth() + 3);
+                            const now = new Date();
+                            const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
+                            
+                            if (daysUntilDue < 0) {
+                                allOverdue++;
+                            } else if (daysUntilDue <= 14) {
+                                allDueSoon++;
+                            }
+                        }
+                    }
+                });
+                
+                console.log('ALL LOCATIONS STATS:', { 
+                    total: allTotal, 
+                    overdue: allOverdue, 
+                    dueSoon: allDueSoon 
+                });
+                
+                console.log('COMPARISON:');
+                console.log('Portal (filtered):', { total, overdue, dueSoon });
+                console.log('All locations:', { total: allTotal, overdue: allOverdue, dueSoon: allDueSoon });
+                console.log('App shows:', { total: 1193, overdue: 1189, dueSoon: 0 });
+                
+                if (allTotal === 1193 && allOverdue === 1189) {
+                    console.log('✅ SUCCESS: All locations calculation MATCHES the inspection app!');
+                    console.log('🔍 CONCLUSION: The inspection app shows ALL locations, not filtered by user access');
+                } else {
+                    console.log('❌ Still no match - there might be other differences');
+                }
+                
                 console.log('=== END PORTAL CALCULATION ===');
 
                 return { total, overdue, dueSoon, debug: debugInfo };
@@ -1708,6 +1755,10 @@
                     ${debug.dateErrors?.length > 0 ? `<strong style="color: var(--danger);">⚠️ Datum napake: ${debug.dateErrors.length}</strong><br>` : ''}
                     ${debug.dateErrors?.slice(0, 3).map(e => `${e.key}: ${e.error}`).join('<br>') || ''}
                     ${debug.error ? `<br><strong>Napaka:</strong> ${debug.error}` : ''}
+                    <br><br>
+                    <button onclick="calculateAllLocations()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
+                        🌍 Kalkuliraj VSE lokacije (kot aplikacija)
+                    </button>
                 `;
                 document.getElementById('debugText').innerHTML = debugText;
             }
