@@ -1576,7 +1576,7 @@
             }
         }
 
-        // Calculate inspection statistics with FIXED date parsing
+        // Calculate inspection statistics - EXACTLY MATCH INSPECTION APP LOGIC
         async function calculateInspectionStats() {
             if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0, debug: {} };
 
@@ -1600,112 +1600,81 @@
                     dateErrors: []
                 };
 
-                // Get locations user has access to
+                // Get locations user has access to - SAME AS INSPECTION APP
                 const accessibleLocations = currentUser.vloga === 'admin' ? 
                     ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
 
                 debugInfo.accessibleLocations = accessibleLocations.length;
 
-                const today = new Date();
-                const todayString = today.toISOString().split('T')[0];
+                // EXACT SAME LOGIC AS INSPECTION APP - getInspectionStatus function
+                const getInspectionStatus = (terminal, rackNumber) => {
+                    const key = `${terminal}-${rackNumber}`;
+                    const rackData = inspectionData[key];
+                    
+                    if (!rackData || !rackData.lastInspection) {
+                        return 'overdue';
+                    }
+                    
+                    // EXACT SAME DATE LOGIC AS INSPECTION APP
+                    const lastDate = new Date(rackData.lastInspection); // Direct parsing like in app
+                    const nextDate = new Date(lastDate);
+                    nextDate.setMonth(nextDate.getMonth() + 3); // Add 3 months like in app
+                    
+                    const now = new Date();
+                    const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntilDue < 0) {
+                        return 'overdue';
+                    } else if (daysUntilDue <= 14) {
+                        return 'due-soon';
+                    } else {
+                        return 'ok';
+                    }
+                };
 
-                // Process each location and its racks
+                console.log('=== PORTAL CALCULATION (MATCHING APP) ===');
+                console.log('User role:', currentUser.vloga);
+                console.log('User systems:', currentUser.sistemi);
+                console.log('Available inspection data entries:', Object.keys(inspectionData).length);
+                console.log('Processing', accessibleLocations.length, 'accessible locations');
+
+                // Process each location and its racks - EXACTLY LIKE INSPECTION APP
                 accessibleLocations.forEach((location, locationIndex) => {
+                    if (locationIndex < 3) { // Debug first 3 locations
+                        console.log(`Processing location: ${location.name} (${location.terminal}) - ${location.racks} racks`);
+                    }
+                    
                     for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
                         total++;
                         
                         const lockKey = `${location.terminal}-${rackNumber}`;
-                        const lockData = inspectionData[lockKey];
+                        const inspectionStatus = getInspectionStatus(location.terminal, rackNumber);
                         
-                        // Store sample data for debugging
-                        if (debugInfo.sampleData.length < 5) {
+                        // Store sample data for debugging (first 10 entries)
+                        if (debugInfo.sampleData.length < 10) {
+                            const rackData = inspectionData[lockKey];
                             debugInfo.sampleData.push({
                                 key: lockKey,
                                 location: location.name,
-                                hasData: !!lockData,
-                                lastInspection: lockData?.lastInspection || 'N/A'
+                                hasData: !!rackData,
+                                lastInspection: rackData?.lastInspection || 'N/A',
+                                status: inspectionStatus
                             });
                         }
                         
-                        if (!lockData || !lockData.lastInspection) {
+                        // Count by status - EXACTLY LIKE APP
+                        if (inspectionStatus === 'overdue') {
                             overdue++;
-                        } else {
-                            try {
-                                // FIXED: Better date parsing with validation
-                                const lastInspectionDate = lockData.lastInspection;
-                                
-                                // Validate date format and create date safely
-                                let lastDate;
-                                if (typeof lastInspectionDate === 'string') {
-                                    // Handle different date formats
-                                    if (lastInspectionDate.includes('T')) {
-                                        // ISO format: 2024-01-15T10:30:00Z
-                                        lastDate = new Date(lastInspectionDate);
-                                    } else if (lastInspectionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                                        // YYYY-MM-DD format
-                                        lastDate = new Date(lastInspectionDate + 'T00:00:00');
-                                    } else {
-                                        // Try direct parsing
-                                        lastDate = new Date(lastInspectionDate);
-                                    }
-                                } else {
-                                    // Might be timestamp or Date object
-                                    lastDate = new Date(lastInspectionDate);
-                                }
-                                
-                                // Validate the date
-                                if (isNaN(lastDate.getTime())) {
-                                    // Invalid date - treat as no inspection
-                                    overdue++;
-                                    debugInfo.dateErrors.push({
-                                        key: lockKey,
-                                        value: lastInspectionDate,
-                                        error: 'Invalid date format'
-                                    });
-                                    continue;
-                                }
-                                
-                                // Calculate due date (90 days after last inspection)
-                                const dueDate = new Date(lastDate);
-                                dueDate.setDate(dueDate.getDate() + 90);
-                                
-                                // Validate due date
-                                if (isNaN(dueDate.getTime())) {
-                                    overdue++;
-                                    debugInfo.dateErrors.push({
-                                        key: lockKey,
-                                        value: lastInspectionDate,
-                                        error: 'Invalid due date calculation'
-                                    });
-                                    continue;
-                                }
-                                
-                                const dueDateString = dueDate.toISOString().split('T')[0];
-                                
-                                if (dueDateString < todayString) {
-                                    overdue++;
-                                } else {
-                                    const timeDiff = dueDate.getTime() - today.getTime();
-                                    const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                                    
-                                    if (daysUntilDue <= 14) {
-                                        dueSoon++;
-                                    }
-                                }
-                                
-                            } catch (dateError) {
-                                // Error processing this date - treat as overdue
-                                overdue++;
-                                debugInfo.dateErrors.push({
-                                    key: lockKey,
-                                    value: lockData.lastInspection,
-                                    error: dateError.message
-                                });
-                                console.error(`Date error for ${lockKey}:`, dateError);
-                            }
+                        } else if (inspectionStatus === 'due-soon') {
+                            dueSoon++;
                         }
+                        // else: 'ok' - no counting needed for our stats
                     }
                 });
+
+                console.log('PORTAL FINAL STATS (MATCHING APP):', { total, overdue, dueSoon });
+                console.log('Sample data:', debugInfo.sampleData.slice(0, 5));
+                console.log('=== END PORTAL CALCULATION ===');
 
                 return { total, overdue, dueSoon, debug: debugInfo };
                 
@@ -1730,12 +1699,14 @@
             document.getElementById('lastRefreshTime').textContent = 
                 now.toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            // Update debug info
+            // Update debug info with enhanced details
             if (debug) {
                 const debugText = `
                     Uporabnik: ${debug.userRole} | Sistemi: ${debug.userSystems?.join(', ') || 'N/A'}<br>
                     Dostopne lokacije: ${debug.accessibleLocations} | Firebase vnosi: ${debug.totalDataEntries}<br>
-                    Vzorec podatkov: ${debug.sampleData?.map(d => `${d.key}(${d.hasData ? 'DA' : 'NE'})`).join(', ')}
+                    Vzorec podatkov: ${debug.sampleData?.map(d => `${d.key}(${d.hasData ? 'DA' : 'NE'})`).join(', ')}<br>
+                    ${debug.dateErrors?.length > 0 ? `<strong style="color: var(--danger);">⚠️ Datum napake: ${debug.dateErrors.length}</strong><br>` : ''}
+                    ${debug.dateErrors?.slice(0, 3).map(e => `${e.key}: ${e.error}`).join('<br>') || ''}
                     ${debug.error ? `<br><strong>Napaka:</strong> ${debug.error}` : ''}
                 `;
                 document.getElementById('debugText').innerHTML = debugText;
