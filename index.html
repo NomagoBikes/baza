@@ -83,6 +83,12 @@
             font-weight: bold;
             font-size: 1.2rem;
             text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         .logo .nom { color: white; }
@@ -814,7 +820,7 @@
 <body>
     <header>
         <div class="logo-container">
-            <div class="logo">
+            <div class="logo" onclick="goToHomePage()">
                 <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
             </div>
         </div>
@@ -1756,8 +1762,42 @@
             document.getElementById('successMessage').style.display = 'none';
         }
 
-        // Content management
+        // Navigate to home page when logo is clicked
+        function goToHomePage() {
+            if (currentUser) {
+                showContent('dashboard');
+            }
+        }
+
+        // Enhanced session management to prevent automatic logouts
+        function refreshSession() {
+            if (currentUser) {
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                sessionStorage.setItem('lastActivity', Date.now().toString());
+            }
+        }
+
+        function checkSession() {
+            const lastActivity = sessionStorage.getItem('lastActivity');
+            if (lastActivity) {
+                const timeSinceActivity = Date.now() - parseInt(lastActivity);
+                // Auto logout after 2 hours of inactivity (7200000 ms)
+                if (timeSinceActivity > 7200000) {
+                    logout();
+                    alert('Seja je potekla. Prosimo, se ponovno prijavite.');
+                }
+            }
+        }
+
+        // Activity tracking to prevent unwanted logouts
+        function trackActivity() {
+            refreshSession();
+        }
+
+        // Content management with session refresh
         function showContent(contentType) {
+            refreshSession(); // Refresh session on every action
+            
             if (!currentUser) {
                 alert('Niste prijavljeni.');
                 return;
@@ -1818,8 +1858,15 @@
                 const users = [];
                 usersCollection.forEach((doc) => {
                     const userData = doc.data();
-                    delete userData.createdAt; // Remove Firebase timestamp for display
-                    users.push(userData);
+                    // Remove Firebase timestamp fields that might cause issues
+                    const cleanUserData = {
+                        ime: userData.ime || '',
+                        priimek: userData.priimek || '',
+                        uporabniskoIme: userData.uporabniskoIme || '',
+                        vloga: userData.vloga || '',
+                        sistemi: userData.sistemi || []
+                    };
+                    users.push(cleanUserData);
                 });
                 
                 const container = document.getElementById('usersList');
@@ -1845,7 +1892,7 @@
                     html += `<td>${user.priimek}</td>`;
                     html += `<td>${user.uporabniskoIme}</td>`;
                     html += `<td>${user.vloga}</td>`;
-                    html += `<td>${(user.sistemi || []).join(', ')}</td>`;
+                    html += `<td>${user.sistemi.join(', ')}</td>`;
                     html += `<td style="text-align: center;">`;
                     html += `<button onclick="editUser('${user.uporabniskoIme}')" class="btn btn-primary">Uredi</button>`;
                     html += `<button onclick="deleteUser('${user.uporabniskoIme}')" class="btn btn-danger">Izbriši</button>`;
@@ -1904,7 +1951,10 @@
         async function handleEditUser(event) {
             event.preventDefault();
             
-            if (!editingUser) return;
+            if (!editingUser) {
+                alert('Napaka: Ni izbranega uporabnika za urejanje.');
+                return;
+            }
             
             const editButton = document.getElementById('editUserText');
             const editSpinner = document.getElementById('editUserSpinner');
@@ -1936,16 +1986,17 @@
                     return;
                 }
                 
-                const currentUser = userDoc.data();
+                const currentUserData = userDoc.data();
                 
+                // Prepare updated user data - FIXED: Remove problematic fields
                 const updatedUser = {
                     ime: firstName,
                     priimek: lastName,
                     uporabniskoIme: editingUser,
-                    geslo: password || currentUser.geslo, // Keep old password if new one not provided
+                    geslo: password || currentUserData.geslo, // Keep old password if new one not provided
                     vloga: role,
-                    sistemi: systems,
-                    createdAt: currentUser.createdAt // Preserve creation timestamp
+                    sistemi: systems
+                    // NOTE: Removed createdAt to avoid Firebase timestamp issues
                 };
                 
                 await window.firebaseFunctions.setDoc(
@@ -1956,6 +2007,13 @@
                 alert('Uporabnik je bil uspešno posodobljen!');
                 closeEditModal();
                 loadUsersList();
+                
+                // Update current user data if editing own account
+                if (currentUser && currentUser.uporabniskoIme === editingUser) {
+                    currentUser = { ...currentUser, ...updatedUser };
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
+                }
                 
             } catch (error) {
                 console.error('Error updating user:', error);
