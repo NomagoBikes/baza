@@ -60,6 +60,13 @@
             flex-direction: column;
             transition: all 0.3s ease;
             color: var(--text-dark);
+            /* Use opacity instead of visibility for smoother loading */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        body.loaded {
+            opacity: 1;
         }
 
         header {
@@ -1460,62 +1467,84 @@
             );
         }
 
-        // Calculate inspection statistics based on user access - FIXED VERSION
+        // Calculate inspection statistics - COMPLETELY REWRITTEN FOR ACCURACY
         async function calculateInspectionStats() {
             if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0 };
 
             try {
+                // Get inspection data from Firebase
                 const inspectionDataDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
                 );
 
-                const inspectionData = inspectionDataDoc.exists() ? inspectionDataDoc.data().data || {} : {};
+                const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
+                
+                console.log('=== INSPECTION CALCULATION DEBUG ===');
+                console.log('User role:', currentUser.vloga);
+                console.log('User systems:', currentUser.sistemi);
+                console.log('Available inspection data keys:', Object.keys(inspectionData).length);
+                
                 let total = 0;
                 let overdue = 0;
                 let dueSoon = 0;
+                let processed = [];
 
                 // Get locations user has access to
                 const accessibleLocations = currentUser.vloga === 'admin' ? 
                     ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
 
-                console.log('Calculating stats for', accessibleLocations.length, 'locations');
-                console.log('Inspection data keys:', Object.keys(inspectionData));
+                console.log('Accessible locations count:', accessibleLocations.length);
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
 
                 accessibleLocations.forEach(location => {
-                    for (let i = 1; i <= location.racks; i++) {
+                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
                         total++;
-                        const key = `${location.terminal}-${i}`;
-                        const rackData = inspectionData[key];
+                        const lockKey = `${location.terminal}-${rackNumber}`;
+                        const lockData = inspectionData[lockKey];
                         
-                        if (!rackData || !rackData.lastInspection) {
-                            // No inspection data = overdue
+                        processed.push({
+                            key: lockKey,
+                            location: location.name,
+                            hasData: !!lockData,
+                            lastInspection: lockData?.lastInspection || null
+                        });
+                        
+                        if (!lockData || !lockData.lastInspection) {
+                            // No inspection data = immediately overdue
                             overdue++;
                         } else {
-                            const lastDate = new Date(rackData.lastInspection);
-                            const today = new Date();
-                            const nextDue = new Date(lastDate);
+                            // Parse last inspection date
+                            const lastInspectionDate = new Date(lockData.lastInspection);
+                            lastInspectionDate.setHours(0, 0, 0, 0);
                             
-                            // Add 3 months to last inspection date
-                            nextDue.setMonth(nextDue.getMonth() + 3);
+                            // Calculate due date (3 months after last inspection)
+                            const dueDate = new Date(lastInspectionDate);
+                            dueDate.setMonth(dueDate.getMonth() + 3);
                             
-                            // Calculate days until due (can be negative if overdue)
-                            const msPerDay = 1000 * 60 * 60 * 24;
-                            const daysUntilDue = Math.ceil((nextDue.getTime() - today.getTime()) / msPerDay);
+                            // Calculate days difference
+                            const timeDiff = dueDate.getTime() - today.getTime();
+                            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
                             
-                            if (daysUntilDue < 0) {
-                                // Past due date = overdue
+                            if (daysDiff < 0) {
+                                // Past due date
                                 overdue++;
-                            } else if (daysUntilDue <= 14) {
-                                // Due within 14 days = due soon
+                            } else if (daysDiff <= 14) {
+                                // Due within 14 days
                                 dueSoon++;
                             }
-                            // else: still good (more than 14 days until due)
+                            // else: still has time (more than 14 days)
                         }
                     }
                 });
 
-                console.log('Final stats:', { total, overdue, dueSoon });
+                console.log('Processed first 5 locks:', processed.slice(0, 5));
+                console.log('FINAL STATS:', { total, overdue, dueSoon });
+                console.log('=== END DEBUG ===');
+
                 return { total, overdue, dueSoon };
+                
             } catch (error) {
                 console.error('Error calculating inspection stats:', error);
                 return { total: 0, overdue: 0, dueSoon: 0 };
@@ -2047,7 +2076,7 @@
             }
         }
 
-        // Add user form handler with Firebase
+        // Add user form handler with Firebase - FIXED: Reset form after success
         async function handleAddUser(event) {
             event.preventDefault();
             
@@ -2088,8 +2117,8 @@
                     uporabniskoIme: username,
                     geslo: password,
                     vloga: role,
-                    sistemi: systems,
-                    createdAt: window.firebaseFunctions.serverTimestamp()
+                    sistemi: systems
+                    // NOTE: Not including createdAt to avoid Firebase issues
                 };
                 
                 await window.firebaseFunctions.setDoc(
@@ -2098,7 +2127,18 @@
                 );
                 
                 alert('Uporabnik je bil uspešno dodan!');
+                
+                // IMPORTANT: Reset form completely
                 document.getElementById('addUserForm').reset();
+                
+                // Also manually uncheck all checkboxes
+                const allCheckboxes = document.querySelectorAll('input[name="newSystems"]');
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Reset select dropdown to default
+                document.getElementById('newRole').selectedIndex = 0;
                 
             } catch (error) {
                 console.error('Error adding user:', error);
@@ -2351,8 +2391,19 @@
         function checkLoginStatus() {
             const savedUser = sessionStorage.getItem('currentUser');
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showDashboard(currentUser);
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    // Hide login section immediately if user is logged in
+                    document.getElementById('loginSection').style.display = 'none';
+                    showDashboard(currentUser);
+                } catch (error) {
+                    console.error('Error parsing saved user:', error);
+                    sessionStorage.removeItem('currentUser');
+                }
+            } else {
+                // Show login section if no saved user
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('dashboardSection').style.display = 'none';
             }
         }
 
@@ -2434,21 +2485,39 @@
             });
         }
 
-        // Initialize app
+        // Initialize app with proper loading sequence
         document.addEventListener('DOMContentLoaded', async function() {
-            loadTheme();
-            
             try {
+                // Show page immediately with fade-in effect
+                setTimeout(() => {
+                    document.body.classList.add('loaded');
+                }, 100);
+                
+                // First check if user is already logged in to avoid flash
+                const savedUser = sessionStorage.getItem('currentUser');
+                if (savedUser) {
+                    // User is logged in, hide login immediately
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('dashboardSection').style.display = 'block';
+                }
+                
+                loadTheme();
+                
                 // Wait for Firebase to be ready
                 await waitForFirebase();
                 console.log('Firebase is ready');
                 
                 // Initialize Firebase and default data
                 await initializeDefaultData();
+                
+                // Now properly check login status
                 checkLoginStatus();
+                
             } catch (error) {
                 console.error('Error during initialization:', error);
                 updateSyncStatus('error', '❌ Napaka pri inicializaciji Firebase');
+                // Ensure page is shown even with errors
+                document.body.classList.add('loaded');
             }
             
             // Event listeners
