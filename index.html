@@ -1773,13 +1773,111 @@
             }
         }
 
-        // Toggle debug info visibility
-        function toggleDebugInfo() {
-            const debugDiv = document.getElementById('debugInfo');
-            if (debugDiv.style.display === 'none') {
-                debugDiv.style.display = 'block';
-            } else {
-                debugDiv.style.display = 'none';
+        // Compare portal data with inspection app data
+        async function compareWithApp() {
+            try {
+                console.log('=== DETAILED COMPARISON WITH INSPECTION APP ===');
+                
+                // Get fresh data
+                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
+                
+                // Get accessible locations for current user
+                const accessibleLocations = currentUser.vloga === 'admin' ? 
+                    ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
+                
+                console.log('Portal user data:', {
+                    role: currentUser.vloga,
+                    systems: currentUser.sistemi,
+                    accessibleSystemsCount: getUserAccessibleSystems(currentUser).length,
+                    accessibleLocationsCount: accessibleLocations.length
+                });
+                
+                // Show first 10 accessible locations
+                console.log('First 10 accessible locations:', 
+                    accessibleLocations.slice(0, 10).map(loc => `${loc.name} (${loc.terminal}) - ${loc.racks} racks`)
+                );
+                
+                // Count total racks
+                const totalRacks = accessibleLocations.reduce((sum, loc) => sum + loc.racks, 0);
+                console.log('Total accessible racks:', totalRacks);
+                
+                // Show Firebase data samples
+                console.log('Firebase inspection data samples:');
+                const dataKeys = Object.keys(inspectionData);
+                console.log('Total Firebase entries:', dataKeys.length);
+                console.log('Sample keys:', dataKeys.slice(0, 10));
+                
+                // Check which locations have data vs which don't
+                let locationsWithData = 0;
+                let locationsWithoutData = 0;
+                let totalChecked = 0;
+                
+                accessibleLocations.forEach(location => {
+                    let hasAnyData = false;
+                    for (let i = 1; i <= location.racks; i++) {
+                        totalChecked++;
+                        const key = `${location.terminal}-${i}`;
+                        if (inspectionData[key]) {
+                            hasAnyData = true;
+                        }
+                    }
+                    if (hasAnyData) {
+                        locationsWithData++;
+                    } else {
+                        locationsWithoutData++;
+                    }
+                });
+                
+                console.log('Location analysis:', {
+                    totalLocations: accessibleLocations.length,
+                    locationsWithData,
+                    locationsWithoutData,
+                    totalRacksChecked: totalChecked
+                });
+                
+                // Show specific terminal analysis
+                const terminalAnalysis = {};
+                accessibleLocations.forEach(location => {
+                    const terminal = location.terminal;
+                    let dataCount = 0;
+                    for (let i = 1; i <= location.racks; i++) {
+                        const key = `${terminal}-${i}`;
+                        if (inspectionData[key]) {
+                            dataCount++;
+                        }
+                    }
+                    terminalAnalysis[terminal] = {
+                        name: location.name,
+                        totalRacks: location.racks,
+                        racksWithData: dataCount,
+                        percentage: Math.round((dataCount / location.racks) * 100)
+                    };
+                });
+                
+                console.log('Terminal analysis:', terminalAnalysis);
+                
+                // Show comparison result in UI
+                const comparisonDiv = document.getElementById('comparisonResult');
+                comparisonDiv.innerHTML = `
+                    <strong>Analiza razlik:</strong><br>
+                    Portal lokacije: ${accessibleLocations.length} | Skupaj ključavnic: ${totalRacks}<br>
+                    Firebase vnosi: ${dataKeys.length}<br>
+                    Lokacije z podatki: ${locationsWithData} | Brez podatkov: ${locationsWithoutData}<br>
+                    <br>
+                    <strong>Možni vzroki razlik:</strong><br>
+                    ${dataKeys.length === 0 ? '🚨 Ni Firebase podatkov!' : ''}
+                    ${locationsWithoutData > locationsWithData ? '🚨 Večina lokacij nima podatkov!' : ''}
+                    ${totalRacks !== totalChecked ? '🚨 Napaka pri štetju ključavnic!' : ''}
+                `;
+                
+                console.log('=== END COMPARISON ===');
+                
+            } catch (error) {
+                console.error('Error in comparison:', error);
+                document.getElementById('comparisonResult').innerHTML = `<span style="color: var(--danger);">Napaka: ${error.message}</span>`;
             }
         }
 
