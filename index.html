@@ -939,6 +939,14 @@
                         <!-- Inspection Widget -->
                         <div class="inspection-widget" id="inspectionWidget">
                             <h3>📋 Pregledi ključavnic</h3>
+                            
+                            <!-- Data Source Info -->
+                            <div style="background: rgba(0, 123, 255, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-dark);">
+                                <strong>📊 Vir podatkov:</strong> Firebase sistem | 
+                                <strong>Zadnja osvežitev:</strong> <span id="lastRefreshTime">Nalaganje...</span> |
+                                <button onclick="refreshInspectionData()" style="background: none; border: none; color: var(--primary-blue); cursor: pointer; text-decoration: underline;">🔄 Osveži zdaj</button>
+                            </div>
+                            
                             <div class="inspection-stats" id="inspectionStats">
                                 <div class="stat-item" id="overdueStats">
                                     <div class="stat-number danger" id="overdueCount">0</div>
@@ -953,9 +961,21 @@
                                     <div class="stat-label">Skupaj ključavnic</div>
                                 </div>
                             </div>
-                            <button class="inspection-button" onclick="openServiserApp()">
-                                🔧 Odpri aplikacijo za preglede
-                            </button>
+                            
+                            <!-- Debug Info for Admins -->
+                            <div id="debugInfo" style="display: none; background: rgba(108, 117, 125, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-light);">
+                                <strong>🔍 Debug podatki:</strong><br>
+                                <span id="debugText">Nalaganje debug informacij...</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="inspection-button" onclick="openServiserApp()" style="flex: 1;">
+                                    🔧 Odpri aplikacijo za preglede
+                                </button>
+                                <button onclick="toggleDebugInfo()" class="btn" style="background: var(--text-light); color: white; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem;">
+                                    🐛 Debug
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Notifications Display -->
@@ -977,24 +997,24 @@
                             <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
                         </div>
                         <div class="content-card">
-                            <form id="addUserForm">
+                            <form id="addUserForm" autocomplete="off">
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                     <div class="form-group">
                                         <label class="form-label" for="newFirstName">Ime *</label>
-                                        <input type="text" class="form-input" id="newFirstName" placeholder="Vnesite ime" required>
+                                        <input type="text" class="form-input" id="newFirstName" placeholder="Vnesite ime" required autocomplete="new-password">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="newLastName">Priimek *</label>
-                                        <input type="text" class="form-input" id="newLastName" placeholder="Vnesite priimek" required>
+                                        <input type="text" class="form-input" id="newLastName" placeholder="Vnesite priimek" required autocomplete="new-password">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="newUsername">Uporabniško ime *</label>
-                                    <input type="text" class="form-input" id="newUsername" placeholder="Vnesite uporabniško ime" required>
+                                    <input type="text" class="form-input" id="newUsername" placeholder="Vnesite uporabniško ime" required autocomplete="new-password">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="newPassword">Geslo *</label>
-                                    <input type="password" class="form-input" id="newPassword" placeholder="Vnesite geslo" required>
+                                    <input type="password" class="form-input" id="newPassword" placeholder="Vnesite geslo" required autocomplete="new-password">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="newRole">Vloga *</label>
@@ -1467,81 +1487,86 @@
             );
         }
 
-        // Calculate inspection statistics - COMPLETELY REWRITTEN FOR ACCURACY
+        // Calculate inspection statistics - SYNC WITH INSPECTION APP DATA STRUCTURE
         async function calculateInspectionStats() {
             if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0 };
 
             try {
-                // Get inspection data from Firebase
+                // Get inspection data from Firebase - same as in inspection app
                 const inspectionDataDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
                 );
 
                 const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
                 
-                console.log('=== INSPECTION CALCULATION DEBUG ===');
+                console.log('=== PORTAL INSPECTION CALCULATION ===');
                 console.log('User role:', currentUser.vloga);
                 console.log('User systems:', currentUser.sistemi);
-                console.log('Available inspection data keys:', Object.keys(inspectionData).length);
+                console.log('Available inspection data entries:', Object.keys(inspectionData).length);
                 
                 let total = 0;
                 let overdue = 0;
                 let dueSoon = 0;
-                let processed = [];
 
-                // Get locations user has access to
+                // Get locations user has access to - SAME LOGIC AS INSPECTION APP
                 const accessibleLocations = currentUser.vloga === 'admin' ? 
                     ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
 
-                console.log('Accessible locations count:', accessibleLocations.length);
+                console.log('Processing', accessibleLocations.length, 'accessible locations');
 
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
+                const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
 
+                // Process each location and its racks - EXACTLY LIKE INSPECTION APP
                 accessibleLocations.forEach(location => {
+                    console.log(`Processing location: ${location.name} (${location.terminal}) - ${location.racks} racks`);
+                    
                     for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
                         total++;
+                        
+                        // Create key exactly like in inspection app
                         const lockKey = `${location.terminal}-${rackNumber}`;
                         const lockData = inspectionData[lockKey];
                         
-                        processed.push({
-                            key: lockKey,
-                            location: location.name,
-                            hasData: !!lockData,
-                            lastInspection: lockData?.lastInspection || null
-                        });
-                        
                         if (!lockData || !lockData.lastInspection) {
-                            // No inspection data = immediately overdue
+                            // No inspection data = overdue immediately
                             overdue++;
+                            console.log(`${lockKey}: NO DATA - OVERDUE`);
                         } else {
-                            // Parse last inspection date
-                            const lastInspectionDate = new Date(lockData.lastInspection);
-                            lastInspectionDate.setHours(0, 0, 0, 0);
+                            // Parse last inspection date (should be YYYY-MM-DD format)
+                            const lastInspectionDate = lockData.lastInspection;
+                            const lastDate = new Date(lastInspectionDate + 'T00:00:00');
                             
-                            // Calculate due date (3 months after last inspection)
-                            const dueDate = new Date(lastInspectionDate);
-                            dueDate.setMonth(dueDate.getMonth() + 3);
+                            // Calculate due date (90 days = 3 months after last inspection)
+                            const dueDate = new Date(lastDate);
+                            dueDate.setDate(dueDate.getDate() + 90); // Exactly 90 days
                             
-                            // Calculate days difference
-                            const timeDiff = dueDate.getTime() - today.getTime();
-                            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                            const dueDateString = dueDate.toISOString().split('T')[0];
                             
-                            if (daysDiff < 0) {
-                                // Past due date
+                            // Compare dates as strings for accuracy
+                            if (dueDateString < todayString) {
+                                // Past due date = overdue
                                 overdue++;
-                            } else if (daysDiff <= 14) {
-                                // Due within 14 days
-                                dueSoon++;
+                                console.log(`${lockKey}: OVERDUE (due: ${dueDateString})`);
+                            } else {
+                                // Calculate days until due
+                                const timeDiff = dueDate.getTime() - today.getTime();
+                                const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                                
+                                if (daysUntilDue <= 14) {
+                                    // Due within 14 days = due soon
+                                    dueSoon++;
+                                    console.log(`${lockKey}: DUE SOON (${daysUntilDue} days)`);
+                                } else {
+                                    console.log(`${lockKey}: OK (${daysUntilDue} days)`);
+                                }
                             }
-                            // else: still has time (more than 14 days)
                         }
                     }
                 });
 
-                console.log('Processed first 5 locks:', processed.slice(0, 5));
-                console.log('FINAL STATS:', { total, overdue, dueSoon });
-                console.log('=== END DEBUG ===');
+                console.log('PORTAL FINAL STATS:', { total, overdue, dueSoon });
+                console.log('=== END PORTAL CALCULATION ===');
 
                 return { total, overdue, dueSoon };
                 
@@ -1551,42 +1576,181 @@
             }
         }
 
-        // Update inspection widget
+        // Calculate inspection statistics with detailed debugging
+        async function calculateInspectionStats() {
+            if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0, debug: {} };
+
+            try {
+                // Get inspection data from Firebase
+                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+
+                const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
+                
+                let total = 0;
+                let overdue = 0;
+                let dueSoon = 0;
+                let debugInfo = {
+                    userRole: currentUser.vloga,
+                    userSystems: currentUser.sistemi,
+                    totalDataEntries: Object.keys(inspectionData).length,
+                    accessibleLocations: 0,
+                    sampleData: []
+                };
+
+                // Get locations user has access to
+                const accessibleLocations = currentUser.vloga === 'admin' ? 
+                    ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
+
+                debugInfo.accessibleLocations = accessibleLocations.length;
+
+                const today = new Date();
+                const todayString = today.toISOString().split('T')[0];
+
+                // Process each location and its racks
+                accessibleLocations.forEach((location, locationIndex) => {
+                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
+                        total++;
+                        
+                        const lockKey = `${location.terminal}-${rackNumber}`;
+                        const lockData = inspectionData[lockKey];
+                        
+                        // Store sample data for debugging
+                        if (debugInfo.sampleData.length < 5) {
+                            debugInfo.sampleData.push({
+                                key: lockKey,
+                                location: location.name,
+                                hasData: !!lockData,
+                                lastInspection: lockData?.lastInspection || 'N/A'
+                            });
+                        }
+                        
+                        if (!lockData || !lockData.lastInspection) {
+                            overdue++;
+                        } else {
+                            const lastInspectionDate = lockData.lastInspection;
+                            const lastDate = new Date(lastInspectionDate + 'T00:00:00');
+                            const dueDate = new Date(lastDate);
+                            dueDate.setDate(dueDate.getDate() + 90);
+                            const dueDateString = dueDate.toISOString().split('T')[0];
+                            
+                            if (dueDateString < todayString) {
+                                overdue++;
+                            } else {
+                                const timeDiff = dueDate.getTime() - today.getTime();
+                                const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                                
+                                if (daysUntilDue <= 14) {
+                                    dueSoon++;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                return { total, overdue, dueSoon, debug: debugInfo };
+                
+            } catch (error) {
+                console.error('Error calculating inspection stats:', error);
+                return { total: 0, overdue: 0, dueSoon: 0, debug: { error: error.message } };
+            }
+        }
+
+        // Update inspection widget with debug info
         async function updateInspectionWidget() {
-            const stats = await calculateInspectionStats();
+            const result = await calculateInspectionStats();
+            const { total, overdue, dueSoon, debug } = result;
             
-            document.getElementById('totalCount').textContent = stats.total;
-            document.getElementById('overdueCount').textContent = stats.overdue;
-            document.getElementById('dueSoonCount').textContent = stats.dueSoon;
+            // Update numbers
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('overdueCount').textContent = overdue;
+            document.getElementById('dueSoonCount').textContent = dueSoon;
             
+            // Update last refresh time
+            const now = new Date();
+            document.getElementById('lastRefreshTime').textContent = 
+                now.toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            // Update debug info
+            if (debug) {
+                const debugText = `
+                    Uporabnik: ${debug.userRole} | Sistemi: ${debug.userSystems?.join(', ') || 'N/A'}<br>
+                    Dostopne lokacije: ${debug.accessibleLocations} | Firebase vnosi: ${debug.totalDataEntries}<br>
+                    Vzorec podatkov: ${debug.sampleData?.map(d => `${d.key}(${d.hasData ? 'DA' : 'NE'})`).join(', ')}
+                    ${debug.error ? `<br><strong>Napaka:</strong> ${debug.error}` : ''}
+                `;
+                document.getElementById('debugText').innerHTML = debugText;
+            }
+            
+            // Update styling
             const overdueStats = document.getElementById('overdueStats');
             const dueSoonStats = document.getElementById('dueSoonStats');
             
-            if (stats.overdue > 0) {
+            if (overdue > 0) {
                 overdueStats.classList.add('danger');
             } else {
                 overdueStats.classList.remove('danger');
             }
             
-            if (stats.dueSoon > 0) {
+            if (dueSoon > 0) {
                 dueSoonStats.classList.add('warning');
             } else {
                 dueSoonStats.classList.remove('warning');
             }
             
+            // Update alert badge
             const alertBadge = document.getElementById('inspectionAlerts');
-            const totalAlerts = stats.overdue + stats.dueSoon;
+            const totalAlerts = overdue + dueSoon;
             
             if (totalAlerts > 0) {
                 alertBadge.textContent = totalAlerts;
                 alertBadge.style.display = 'block';
-                if (stats.overdue > 0) {
+                if (overdue > 0) {
                     alertBadge.classList.remove('warning');
                 } else {
                     alertBadge.classList.add('warning');
                 }
             } else {
                 alertBadge.style.display = 'none';
+            }
+        }
+
+        // Manual refresh function
+        async function refreshInspectionData() {
+            const refreshButton = document.querySelector('[onclick="refreshInspectionData()"]');
+            const originalText = refreshButton.textContent;
+            
+            refreshButton.textContent = '🔄 Osvežujem...';
+            refreshButton.disabled = true;
+            
+            try {
+                await updateInspectionWidget();
+                
+                // Show success message briefly
+                refreshButton.textContent = '✅ Osveženo!';
+                setTimeout(() => {
+                    refreshButton.textContent = originalText;
+                    refreshButton.disabled = false;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                refreshButton.textContent = '❌ Napaka';
+                setTimeout(() => {
+                    refreshButton.textContent = originalText;
+                    refreshButton.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Toggle debug info visibility
+        function toggleDebugInfo() {
+            const debugDiv = document.getElementById('debugInfo');
+            if (debugDiv.style.display === 'none') {
+                debugDiv.style.display = 'block';
+            } else {
+                debugDiv.style.display = 'none';
             }
         }
 
@@ -1823,7 +1987,7 @@
             refreshSession();
         }
 
-        // Content management with session refresh
+        // Content management with session refresh and form clearing
         function showContent(contentType) {
             refreshSession(); // Refresh session on every action
             
@@ -1859,6 +2023,8 @@
                 case 'addUser':
                     document.getElementById('addUserContent').style.display = 'block';
                     document.querySelector('[onclick="showContent(\'addUser\')"]').classList.add('active');
+                    // CLEAR FORM WHEN OPENING ADD USER SECTION
+                    clearAddUserForm();
                     break;
                 case 'userSettings':
                     document.getElementById('userSettingsContent').style.display = 'block';
@@ -1875,6 +2041,28 @@
                     document.querySelector('[onclick="showContent(\'generalSettings\')"]').classList.add('active');
                     break;
             }
+        }
+
+        // Function to clear add user form
+        function clearAddUserForm() {
+            document.getElementById('newFirstName').value = '';
+            document.getElementById('newLastName').value = '';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newRole').value = '';
+            
+            // Uncheck all system checkboxes
+            document.querySelectorAll('input[name="newSystems"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Also use form.reset() as backup
+            const form = document.getElementById('addUserForm');
+            if (form) {
+                form.reset();
+            }
+            
+            console.log('Add user form cleared');
         }
 
         // User management functions
