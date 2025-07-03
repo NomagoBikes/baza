@@ -5,154 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nomago Bikes - BAZA Portal</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-blue: #004899;
-            --secondary-yellow: #fbb900;
-            --light-blue: #e9f0f7;
-            --white: #ffffff;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --border-color: #ddd;
-            --shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
-            --danger: #dc3545;
-            --success: #28a745;
-            --warning: #ffc107;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e9f0f7 0%, #004899 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: var(--text-dark);
+            color: #333;
         }
-
-        header {
+        
+        .header {
             background: #004899;
+            color: white;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-
-        .logo {
-            font-weight: bold;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
+        
+        .logo { font-weight: bold; font-size: 1.2rem; }
         .logo .nom { color: white; }
         .logo .a { color: #fbb900; }
         .logo .go { color: white; }
         .logo .bikes { color: #fbb900; }
-
-        .header-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
+        
+        .user-info { font-size: 0.9rem; display: none; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; display: none; }
+        
+        .main { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 2rem; 
+            min-height: calc(100vh - 80px);
         }
-
-        .header-center h1 {
-            color: white;
-            font-size: 1.8rem;
-            margin: 0;
-            display: none;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-info {
-            color: white;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .logout-button {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            display: none;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
+        
         .login-card {
-            background: var(--white);
+            background: white;
             padding: 3rem;
             border-radius: 16px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
-
-        .bike-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .login-title {
-            color: var(--text-dark);
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        .form-label {
-            display: block;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
+        
+        .bike-icon { font-size: 3rem; margin-bottom: 1.5rem; }
+        .login-title { color: #333; font-size: 1.6rem; font-weight: 600; margin-bottom: 2rem; }
+        
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        .form-label { display: block; color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-weight: 500; }
         .form-input {
             width: 100%;
             padding: 0.75rem 1rem;
-            border: 2px solid var(--border-color);
+            border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
-            background: var(--white);
-            color: var(--text-dark);
+            background: white;
+            color: #333;
         }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #004899;
-            box-shadow: 0 0 0 3px rgba(0, 72, 153, 0.1);
-        }
-
+        .form-input:focus { outline: none; border-color: #004899; }
+        
         .login-button {
             width: 100%;
             padding: 0.875rem;
             background: #004899;
-            color: var(--white);
+            color: white;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -160,81 +79,40 @@
             cursor: pointer;
             margin-top: 1rem;
         }
-
-        .login-button:hover {
-            background: #003a7a;
-        }
-
-        .login-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .error-message, .success-message {
+        .login-button:hover { background: #003a7a; }
+        
+        .message {
             padding: 0.75rem;
             border-radius: 8px;
             margin-top: 1rem;
             font-size: 0.9rem;
             display: none;
         }
-
-        .error-message {
-            background: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-        }
-
-        .success-message {
-            background: rgba(40, 167, 69, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
-
-        .dashboard {
-            display: none;
-            flex: 1;
-        }
-
-        .dashboard-container {
-            display: flex;
-            min-height: calc(100vh - 80px);
-        }
-
+        .error { background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.3); }
+        .success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.3); }
+        
+        .dashboard { display: none; }
+        .dashboard-container { display: flex; min-height: calc(100vh - 80px); }
+        
         .sidebar {
             width: 280px;
-            background: var(--white);
+            background: white;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             padding: 2rem 0;
         }
-
+        
         .sidebar-header {
             padding: 0 2rem 2rem 2rem;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #ddd;
             margin-bottom: 1rem;
         }
-
-        .sidebar-title {
-            color: var(--text-dark);
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-subtitle {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        .menu-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .menu-item {
-            margin-bottom: 0.5rem;
-        }
-
+        
+        .sidebar-title { color: #333; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .sidebar-subtitle { color: #666; font-size: 0.9rem; }
+        
+        .menu-list { list-style: none; padding: 0; margin: 0; }
+        .menu-item { margin-bottom: 0.5rem; }
+        
         .menu-button {
             width: 100%;
             display: flex;
@@ -243,97 +121,44 @@
             padding: 1rem 2rem;
             background: none;
             border: none;
-            color: var(--text-dark);
+            color: #333;
             font-size: 1rem;
             cursor: pointer;
             text-align: left;
             border-left: 3px solid transparent;
         }
-
-        .menu-button:hover {
-            background: rgba(0, 72, 153, 0.05);
-            border-left-color: var(--primary-blue);
-            color: var(--primary-blue);
-        }
-
-        .menu-button.active {
-            background: rgba(0, 72, 153, 0.1);
-            border-left-color: var(--primary-blue);
-            color: var(--primary-blue);
-            font-weight: 600;
-        }
-
+        .menu-button:hover { background: rgba(0, 72, 153, 0.05); border-left-color: #004899; color: #004899; }
+        .menu-button.active { background: rgba(0, 72, 153, 0.1); border-left-color: #004899; color: #004899; font-weight: 600; }
+        
         .main-content {
             flex: 1;
             padding: 2rem;
-            background: var(--light-blue);
+            background: #e9f0f7;
             overflow-y: auto;
         }
-
-        .content-section {
-            display: none;
-        }
-
-        .content-header {
-            margin-bottom: 2rem;
-        }
-
-        .content-title {
-            color: var(--text-dark);
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .content-subtitle {
-            color: var(--text-light);
-            font-size: 1rem;
-        }
-
+        
         .content-card {
-            background: var(--white);
+            background: white;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
             margin-bottom: 2rem;
-        }
-
-        .welcome-card {
             text-align: center;
-            padding: 3rem 2rem;
         }
-
-        .welcome-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .welcome-text {
-            color: var(--text-dark);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .welcome-description {
-            color: var(--text-light);
-            font-size: 1rem;
-            max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* Chat Widget */
+        
+        .welcome-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .welcome-text { color: #333; font-size: 1.5rem; margin-bottom: 1rem; }
+        .welcome-description { color: #666; font-size: 1rem; line-height: 1.6; }
+        
         .chat-widget {
             position: fixed;
             bottom: 24px;
             right: 24px;
             z-index: 9999;
-            font-family: inherit;
             display: none;
         }
-
+        
         .chat-bubble {
-            position: relative;
             width: 60px;
             height: 60px;
             background: linear-gradient(135deg, #004899 0%, #fbb900 100%);
@@ -345,24 +170,17 @@
             box-shadow: 0 4px 20px rgba(0, 72, 153, 0.3);
             transition: all 0.3s ease;
         }
-
-        .chat-bubble:hover {
-            transform: scale(1.1);
-        }
-
-        .chat-bubble .icon {
-            color: white;
-            font-size: 24px;
-        }
-
+        .chat-bubble:hover { transform: scale(1.1); }
+        .chat-bubble .icon { color: white; font-size: 24px; }
+        
         .chat-window {
             position: absolute;
             bottom: 80px;
             right: 0;
-            width: 420px;
+            width: 400px;
             max-width: 95vw;
-            height: 650px;
-            max-height: 85vh;
+            height: 600px;
+            max-height: 80vh;
             background: white;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -371,7 +189,7 @@
             flex-direction: column;
             overflow: hidden;
         }
-
+        
         .chat-header {
             background: linear-gradient(135deg, #004899 0%, #0056b3 100%);
             color: white;
@@ -380,24 +198,10 @@
             align-items: center;
             justify-content: space-between;
         }
-
-        .chat-title {
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chat-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px;
-        }
-
+        
+        .chat-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .chat-close { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 4px; }
+        
         .chat-user-info {
             background: rgba(251, 185, 0, 0.1);
             padding: 12px 20px;
@@ -406,55 +210,9 @@
             color: #004899;
             font-weight: 500;
         }
-
-        .chat-tabs {
-            display: flex;
-            border-bottom: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-
-        .chat-tab {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            color: #666;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .chat-tab.active {
-            color: #004899;
-            border-bottom-color: #004899;
-            background: white;
-        }
-
-        .chat-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-section {
-            display: none;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .chat-section.active {
-            display: flex;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            background: #f8f9fa;
-        }
-
+        
+        .chat-content { flex: 1; padding: 16px; background: #f8f9fa; overflow-y: auto; }
+        
         .chat-input {
             border-top: 1px solid #e0e0e0;
             padding: 16px;
@@ -462,7 +220,7 @@
             display: flex;
             gap: 8px;
         }
-
+        
         .chat-input textarea {
             flex: 1;
             padding: 12px 16px;
@@ -470,10 +228,9 @@
             border-radius: 20px;
             font-size: 14px;
             resize: none;
-            max-height: 80px;
-            min-height: 40px;
+            height: 40px;
         }
-
+        
         .chat-input button {
             padding: 12px 16px;
             background: #004899;
@@ -483,410 +240,35 @@
             cursor: pointer;
             font-size: 14px;
         }
-
-        .groups-header {
-            padding: 16px;
-            border-bottom: 1px solid #e0e0e0;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .groups-header h4 {
-            margin: 0;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .add-group-btn {
-            background: #004899;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .groups-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px;
-        }
-
-        .group-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 4px;
-            cursor: pointer;
-            transition: background 0.2s ease;
-            border: 1px solid #e0e0e0;
-        }
-
-        .group-item:hover {
-            background: #f0f0f0;
-        }
-
-        .group-item.active {
-            background: #004899;
-            color: white;
-            border-color: #004899;
-        }
-
-        .group-name {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .group-members {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .group-item.active .group-members {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .group-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .group-action-btn {
-            background: none;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .group-action-btn:hover {
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .group-item.active .group-action-btn {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .add-members-section {
-            padding: 16px;
-            border-bottom: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-
-        .add-members-section h5 {
-            margin: 0 0 8px 0;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .add-member-form {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .add-member-input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .add-member-btn {
-            background: #004899;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .available-users h6 {
-            margin: 12px 0 8px 0;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .user-chip {
-            display: inline-block;
-            background: #e9f0f7;
-            color: #004899;
-            padding: 4px 8px;
-            margin: 2px;
-            border-radius: 12px;
-            font-size: 11px;
-            cursor: pointer;
-            border: 1px solid #004899;
-            transition: all 0.2s ease;
-        }
-
-        .user-chip:hover {
-            background: #004899;
-            color: white;
-        }
-
-        .members-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px;
-        }
-
-        .member-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 4px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .member-name {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .member-role {
-            font-size: 12px;
-            color: #666;
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .member-action-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 15% auto;
-            padding: 24px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            margin: 0;
-            font-size: 18px;
-            color: #333;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .modal-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .modal-form input,
-        .modal-form textarea {
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            margin-top: 16px;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .modal-btn-primary {
-            background: #004899;
-            color: white;
-        }
-
-        .modal-btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-container {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                order: 2;
-            }
-            .main-content {
-                order: 1;
-                padding: 1rem;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Chat Widget -->
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-bubble" onclick="toggleChat()">
-            <span class="icon">💬</span>
-        </div>
-
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">
-                <div class="chat-title">
-                    <span>💬</span>
-                    <span>Nomago Chat</span>
-                </div>
-                <button class="chat-close" onclick="toggleChat()">&times;</button>
-            </div>
-
-            <div class="chat-user-info">
-                <span id="chatCurrentUser">Neprijavljen uporabnik</span>
-            </div>
-            
-            <div class="chat-tabs">
-                <button class="chat-tab active" onclick="switchChatTab('messages')">💬 Sporočila</button>
-                <button class="chat-tab" onclick="switchChatTab('groups')">👥 Skupine</button>
-                <button class="chat-tab" onclick="switchChatTab('members')">👤 Člani</button>
-            </div>
-            
-            <div class="chat-content">
-                <!-- Messages Section -->
-                <div class="chat-section active" id="messagesSection">
-                    <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input">
-                        <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
-                        <button onclick="sendMessage()">Pošlji</button>
-                    </div>
-                </div>
-                
-                <!-- Groups Section -->
-                <div class="chat-section" id="groupsSection">
-                    <div class="groups-header">
-                        <h4>Pogovorne skupine</h4>
-                        <button class="add-group-btn" onclick="showCreateGroupModal()">+ Dodaj</button>
-                    </div>
-                    <div class="groups-list" id="groupsList"></div>
-                </div>
-                
-                <!-- Members Section -->
-                <div class="chat-section" id="membersSection">
-                    <div class="add-members-section">
-                        <h5>Upravljanje članov</h5>
-                        <div class="add-member-form">
-                            <input type="text" class="add-member-input" id="newMemberName" placeholder="Ime in priimek">
-                            <button class="add-member-btn" onclick="addMemberToCurrentGroup()">Dodaj</button>
-                        </div>
-                        <div class="available-users">
-                            <h6>Dostopni uporabniki:</h6>
-                            <div id="availableUsers"></div>
-                        </div>
-                    </div>
-                    <div class="members-list" id="membersList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Group Modal -->
-    <div id="createGroupModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Ustvari novo skupino</h3>
-                <button class="modal-close" onclick="closeCreateGroupModal()">&times;</button>
-            </div>
-            <form class="modal-form" onsubmit="createNewGroup(event)">
-                <input type="text" id="groupNameInput" placeholder="Ime skupine" required>
-                <textarea id="groupDescriptionInput" placeholder="Opis skupine (neobvezno)"></textarea>
-                <div class="modal-actions">
-                    <button type="button" class="modal-btn modal-btn-secondary" onclick="closeCreateGroupModal()">Prekliči</button>
-                    <button type="submit" class="modal-btn modal-btn-primary">Ustvari</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <header>
+    <div class="header">
         <div class="logo">
             <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
         </div>
-        <div class="header-center">
-            <h1 id="headerTitle">BAZA</h1>
+        <div>
+            <span class="user-info" id="userInfo"></span>
+            <button class="logout-btn" id="logoutBtn" onclick="doLogout()">Odjava</button>
         </div>
-        <div class="header-controls">
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn" onclick="logout()">Odjava</button>
-        </div>
-    </header>
+    </div>
 
-    <main>
-        <!-- Login Section -->
+    <div class="main">
         <div class="login-card" id="loginSection">
             <div class="bike-icon">🚲</div>
             <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" class="form-input" id="username" placeholder="admin" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="password">Geslo</label>
-                    <input type="password" class="form-input" id="password" placeholder="admin123" required>
-                </div>
-                <button type="submit" class="login-button">Prijavi se</button>
-                <div class="error-message" id="errorMessage"></div>
-                <div class="success-message" id="successMessage"></div>
-            </form>
+            <div class="form-group">
+                <label class="form-label" for="username">Uporabniško ime</label>
+                <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Geslo</label>
+                <input type="password" class="form-input" id="password" placeholder="Vnesite geslo">
+            </div>
+            <button class="login-button" onclick="doLogin()">Prijavi se</button>
+            <div id="message" class="message"></div>
         </div>
 
-        <!-- Dashboard Section -->
         <div class="dashboard" id="dashboardSection">
             <div class="dashboard-container">
                 <nav class="sidebar">
@@ -896,93 +278,214 @@
                     </div>
                     <ul class="menu-list">
                         <li class="menu-item">
-                            <button class="menu-button active">
-                                🏠 Nadzorna plošča
-                            </button>
+                            <button class="menu-button active">🏠 Nadzorna plošča</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">
-                                👤➕ Dodaj uporabnika
-                            </button>
+                            <button class="menu-button">👤➕ Dodaj uporabnika</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">
-                                🔧 Pregledi ključavnic
-                            </button>
+                            <button class="menu-button">🔧 Pregledi ključavnic</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">
-                                👥 Nastavitve uporabnikov
-                            </button>
+                            <button class="menu-button">👥 Nastavitve uporabnikov</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">
-                                📢 Obvestila
-                            </button>
+                            <button class="menu-button">📢 Obvestila</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">
-                                ⚙️ Splošne nastavitve
-                            </button>
+                            <button class="menu-button">⚙️ Splošne nastavitve</button>
                         </li>
                     </ul>
                 </nav>
 
-                <main class="main-content">
-                    <div class="content-section" style="display: block;">
-                        <div class="content-header">
-                            <h1 class="content-title">Nadzorna plošča</h1>
-                            <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
-                        </div>
-
-                        <div class="content-card welcome-card">
-                            <div class="welcome-icon">🚴‍♂️</div>
-                            <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
-                            <p class="welcome-description">
-                                Uporabite levi meni za navigacijo po različnih funkcijah portala.
-                                <br><br>
-                                <strong>💬 Chat je aktiviran!</strong> Kliknite na chat ikono v spodnjem desnem kotu.
-                            </p>
-                        </div>
+                <div class="main-content">
+                    <div class="content-card">
+                        <div class="welcome-icon">🚴‍♂️</div>
+                        <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
+                        <p class="welcome-description">
+                            Dobrodošli v Nomago Bikes upravljavskem portalu.<br><br>
+                            <strong>💬 Chat je aktiviran!</strong> Kliknite na chat ikono v spodnjem desnem kotu za uporabo naprednega chat sistema z upravljanjem skupin in članov.
+                        </p>
                     </div>
-                </main>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-bubble" onclick="toggleChat()">
+            <span class="icon">💬</span>
+        </div>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span>💬</span>
+                    <span>Nomago Chat</span>
+                </div>
+                <button class="chat-close" onclick="toggleChat()">&times;</button>
+            </div>
+            <div class="chat-user-info" id="chatUser">Chat uporabnik</div>
+            <div class="chat-content" id="chatContent">
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    <strong>🎉 Dobrodošli v Nomago Chat!</strong><br>
+                    Chat sistem je pripravljen za uporabo.
+                </div>
+            </div>
+            <div class="chat-input">
+                <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
+                <button onclick="sendMessage()">Pošlji</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        console.log("🚀 NOMAGO: Polna verzija se nalaga...");
+        // Test if script loads
+        console.log("🚀 SCRIPT LOADING...");
+        alert("🚀 NOMAGO: Script se nalaga!");
         
-        // Global variables
         let currentUser = null;
-        let currentChatRoom = null;
-        let chatGroups = [];
-        let currentActiveTab = 'messages';
-        let allUsers = [
-            { name: 'Admin Administrator', role: 'Admin' },
-            { name: 'Marko Serviser', role: 'Serviser' },
-            { name: 'Ana Novak', role: 'Študent' },
-            { name: 'Petra Kovač', role: 'Študent' },
-            { name: 'Janez Krajnc', role: 'Serviser' }
-        ];
-
-        // Login handling
-        function handleLogin(event) {
-            event.preventDefault();
-            console.log("🔐 NOMAGO: Poskus prijave...");
+        
+        function showMessage(text, type) {
+            console.log("📢 Message:", text, type);
+            const messageEl = document.getElementById('message');
+            if (messageEl) {
+                messageEl.textContent = text;
+                messageEl.className = 'message ' + type;
+                messageEl.style.display = 'block';
+            }
+        }
+        
+        function doLogin() {
+            console.log("🔐 LOGIN CLICKED");
+            alert("🔐 LOGIN FUNCTION CALLED!");
             
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const usernameEl = document.getElementById('username');
+            const passwordEl = document.getElementById('password');
+            
+            if (!usernameEl || !passwordEl) {
+                console.error("Elements not found!");
+                alert("❌ Elements not found!");
+                return;
+            }
+            
+            const username = usernameEl.value.trim();
+            const password = passwordEl.value.trim();
+            
+            console.log("Input values:", username, password);
+            alert("📋 Username: " + username + ", Password: " + password);
             
             if (!username || !password) {
-                showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
+                showMessage('Vnesite uporabniško ime in geslo!', 'error');
+                alert("⚠️ Empty fields!");
                 return;
             }
             
             if (username === 'admin' && password === 'admin123') {
-                console.log("✅ NOMAGO: Prijava uspešna!");
-                const user = {
+                console.log("✅ LOGIN SUCCESS");
+                alert("✅ LOGIN SUCCESS!");
+                
+                currentUser = {
                     ime: 'Admin',
                     priimek: 'Administrator',
-                    uporabniskoIme: 'admin',
                     vloga: 'admin'
+                };
+                
+                showMessage('Prijava uspešna!', 'success');
+                
+                setTimeout(() => {
+                    showDashboard();
+                }, 1000);
+            } else {
+                console.log("❌ LOGIN FAILED");
+                alert("❌ LOGIN FAILED - wrong credentials");
+                showMessage('Napačno uporabniško ime ali geslo!', 'error');
+            }
+        }
+        
+        function showDashboard() {
+            console.log("📊 SHOWING DASHBOARD");
+            alert("📊 SHOWING DASHBOARD");
+            
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'inline';
+            document.getElementById('logoutBtn').style.display = 'inline';
+            document.getElementById('chatWidget').style.display = 'block';
+            
+            document.getElementById('userInfo').textContent = 'Admin Administrator (admin)';
+            document.getElementById('chatUser').textContent = 'Admin Administrator (admin)';
+        }
+        
+        function doLogout() {
+            console.log("🚪 LOGOUT");
+            alert("🚪 LOGOUT");
+            
+            currentUser = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('chatWidget').style.display = 'none';
+            document.getElementById('chatWindow').style.display = 'none';
+            
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('message').style.display = 'none';
+        }
+        
+        function toggleChat() {
+            console.log("💬 TOGGLE CHAT");
+            const chatWindow = document.getElementById('chatWindow');
+            const isVisible = chatWindow.style.display === 'flex';
+            chatWindow.style.display = isVisible ? 'none' : 'flex';
+        }
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            console.log("📩 SENDING MESSAGE:", message);
+            
+            const chatContent = document.getElementById('chatContent');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = 'margin-bottom: 12px; padding: 8px 12px; background: #004899; color: white; border-radius: 12px; max-width: 80%; margin-left: auto; text-align: right;';
+            messageDiv.textContent = message + ' (' + new Date().toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'}) + ')';
+            
+            chatContent.appendChild(messageDiv);
+            messageInput.value = '';
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
+        
+        // Add Enter key support
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("📋 DOM READY");
+            alert("📋 DOM READY!");
+            
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        doLogin();
+                    }
+                });
+            }
+            
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        });
+        
+        console.log("📝 SCRIPT LOADED");
+        alert("📝 SCRIPT LOADED!");
+    </script>
+</body>
+</html>
