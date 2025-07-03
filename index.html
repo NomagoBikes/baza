@@ -950,6 +950,8 @@
     </main>
 
     <script>
+        console.log('🚀 Nomago Script is loading...');
+        
         // Global variables
         let currentUser = null;
         let currentChatRoom = null;
@@ -963,12 +965,27 @@
             { name: 'Janez Krajnc', role: 'Serviser' }
         ];
 
+        console.log('✅ Global variables initialized');
+
         // Login handling
         function handleLogin(event) {
             event.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            console.log('Login attempt started');
+            
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            if (!usernameInput || !passwordInput) {
+                console.error('Username or password input not found');
+                showMessage('Napaka pri dostopu do elementov.', 'error');
+                return;
+            }
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            console.log('Username:', username, 'Password length:', password.length);
             
             if (!username || !password) {
                 showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
@@ -976,6 +993,7 @@
             }
             
             if (username === 'admin' && password === 'admin123') {
+                console.log('Login successful');
                 const user = {
                     ime: 'Admin',
                     priimek: 'Administrator',
@@ -988,6 +1006,7 @@
                 showMessage('Uspešna prijava!', 'success');
                 setTimeout(() => showDashboard(user), 1000);
             } else {
+                console.log('Login failed - incorrect credentials');
                 showMessage('Napačno uporabniško ime ali geslo. Poskusite admin/admin123', 'error');
             }
         }
