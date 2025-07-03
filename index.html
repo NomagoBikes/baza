@@ -7,11 +7,27 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --border-color: #ddd;
+            --shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #e9f0f7 0%, #004899 100%);
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
             min-height: 100vh;
-            color: #333;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-dark);
         }
         
         .header {
@@ -21,16 +37,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .logo { font-weight: bold; font-size: 1.2rem; }
+        .logo { font-weight: bold; font-size: 1.2rem; cursor: pointer; }
         .logo .nom { color: white; }
         .logo .a { color: #fbb900; }
         .logo .go { color: white; }
         .logo .bikes { color: #fbb900; }
         
+        .header-center { position: absolute; left: 50%; transform: translateX(-50%); }
+        .header-center h1 { color: white; font-size: 1.8rem; margin: 0; display: none; }
+        
+        .header-controls { display: flex; align-items: center; gap: 1rem; }
         .user-info { font-size: 0.9rem; display: none; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; display: none; }
+        .logout-btn { background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; display: none; }
         
         .main { 
             flex: 1; 
@@ -38,40 +59,44 @@
             align-items: center; 
             justify-content: center; 
             padding: 2rem; 
-            min-height: calc(100vh - 80px);
+        }
+        
+        .main.show-dashboard {
+            display: block;
+            padding: 0;
         }
         
         .login-card {
             background: white;
             padding: 3rem;
             border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
+            box-shadow: var(--shadow);
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
         
         .bike-icon { font-size: 3rem; margin-bottom: 1.5rem; }
-        .login-title { color: #333; font-size: 1.6rem; font-weight: 600; margin-bottom: 2rem; }
+        .login-title { color: var(--text-dark); font-size: 1.6rem; font-weight: 600; margin-bottom: 2rem; }
         
         .form-group { margin-bottom: 1.5rem; text-align: left; }
-        .form-label { display: block; color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-label { display: block; color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem; font-weight: 500; }
         .form-input {
             width: 100%;
             padding: 0.75rem 1rem;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
-            background: white;
-            color: #333;
+            background: var(--white);
+            color: var(--text-dark);
         }
-        .form-input:focus { outline: none; border-color: #004899; }
+        .form-input:focus { outline: none; border-color: #004899; box-shadow: 0 0 0 3px rgba(0, 72, 153, 0.1); }
         
         .login-button {
             width: 100%;
             padding: 0.875rem;
             background: #004899;
-            color: white;
+            color: var(--white);
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -88,27 +113,27 @@
             font-size: 0.9rem;
             display: none;
         }
-        .error { background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.3); }
-        .success { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.3); }
+        .error { background: rgba(220, 53, 69, 0.1); color: var(--danger); border: 1px solid rgba(220, 53, 69, 0.3); }
+        .success { background: rgba(40, 167, 69, 0.1); color: var(--success); border: 1px solid rgba(40, 167, 69, 0.3); }
         
-        .dashboard { display: none; }
+        .dashboard { display: none; flex: 1; }
         .dashboard-container { display: flex; min-height: calc(100vh - 80px); }
         
         .sidebar {
             width: 280px;
-            background: white;
+            background: var(--white);
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             padding: 2rem 0;
         }
         
         .sidebar-header {
             padding: 0 2rem 2rem 2rem;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
             margin-bottom: 1rem;
         }
         
-        .sidebar-title { color: #333; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .sidebar-subtitle { color: #666; font-size: 0.9rem; }
+        .sidebar-title { color: var(--text-dark); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .sidebar-subtitle { color: var(--text-light); font-size: 0.9rem; }
         
         .menu-list { list-style: none; padding: 0; margin: 0; }
         .menu-item { margin-bottom: 0.5rem; }
@@ -121,35 +146,42 @@
             padding: 1rem 2rem;
             background: none;
             border: none;
-            color: #333;
+            color: var(--text-dark);
             font-size: 1rem;
             cursor: pointer;
             text-align: left;
             border-left: 3px solid transparent;
+            transition: all 0.3s ease;
         }
-        .menu-button:hover { background: rgba(0, 72, 153, 0.05); border-left-color: #004899; color: #004899; }
-        .menu-button.active { background: rgba(0, 72, 153, 0.1); border-left-color: #004899; color: #004899; font-weight: 600; }
+        .menu-button:hover { background: rgba(0, 72, 153, 0.05); border-left-color: var(--primary-blue); color: var(--primary-blue); }
+        .menu-button.active { background: rgba(0, 72, 153, 0.1); border-left-color: var(--primary-blue); color: var(--primary-blue); font-weight: 600; }
         
         .main-content {
             flex: 1;
             padding: 2rem;
-            background: #e9f0f7;
+            background: var(--light-blue);
             overflow-y: auto;
         }
         
+        .content-section { display: none; }
+        .content-header { margin-bottom: 2rem; }
+        .content-title { color: var(--text-dark); font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .content-subtitle { color: var(--text-light); font-size: 1rem; }
+        
         .content-card {
-            background: white;
+            background: var(--white);
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
+            box-shadow: var(--shadow);
             margin-bottom: 2rem;
-            text-align: center;
         }
         
+        .welcome-card { text-align: center; padding: 3rem 2rem; }
         .welcome-icon { font-size: 4rem; margin-bottom: 1rem; }
-        .welcome-text { color: #333; font-size: 1.5rem; margin-bottom: 1rem; }
-        .welcome-description { color: #666; font-size: 1rem; line-height: 1.6; }
+        .welcome-text { color: var(--text-dark); font-size: 1.5rem; margin-bottom: 1rem; }
+        .welcome-description { color: var(--text-light); font-size: 1rem; line-height: 1.6; max-width: 500px; margin: 0 auto; }
         
+        /* Chat Widget */
         .chat-widget {
             position: fixed;
             bottom: 24px;
@@ -177,10 +209,10 @@
             position: absolute;
             bottom: 80px;
             right: 0;
-            width: 400px;
+            width: 450px;
             max-width: 95vw;
-            height: 600px;
-            max-height: 80vh;
+            height: 650px;
+            max-height: 85vh;
             background: white;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -211,7 +243,58 @@
             font-weight: 500;
         }
         
-        .chat-content { flex: 1; padding: 16px; background: #f8f9fa; overflow-y: auto; }
+        .chat-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+        
+        .chat-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .chat-tab.active { color: #004899; border-bottom-color: #004899; background: white; }
+        .chat-tab:hover { background: rgba(0, 72, 153, 0.1); }
+        
+        .chat-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-section { display: none; flex-direction: column; flex: 1; }
+        .chat-section.active { display: flex; }
+        
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; background: #f8f9fa; }
+        
+        .message-item {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .message-sent {
+            background: #004899;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message-received {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
         
         .chat-input {
             border-top: 1px solid #e0e0e0;
@@ -228,7 +311,8 @@
             border-radius: 20px;
             font-size: 14px;
             resize: none;
-            height: 40px;
+            max-height: 80px;
+            min-height: 40px;
         }
         
         .chat-input button {
@@ -240,14 +324,183 @@
             cursor: pointer;
             font-size: 14px;
         }
+        
+        .groups-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .groups-header h4 { margin: 0; color: #333; font-size: 14px; }
+        .add-group-btn { background: #004899; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        
+        .groups-list { flex: 1; overflow-y: auto; padding: 8px; }
+        
+        .group-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border: 1px solid #e0e0e0;
+        }
+        .group-item:hover { background: #f0f0f0; }
+        .group-item.active { background: #004899; color: white; border-color: #004899; }
+        
+        .group-name { font-weight: 500; font-size: 14px; }
+        .group-members { font-size: 12px; color: #666; }
+        .group-item.active .group-members { color: rgba(255, 255, 255, 0.8); }
+        
+        .group-actions { display: flex; gap: 4px; }
+        .group-action-btn { background: none; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #666; }
+        .group-action-btn:hover { background: rgba(0, 0, 0, 0.1); }
+        .group-item.active .group-action-btn { color: rgba(255, 255, 255, 0.8); }
+        .group-item.active .group-action-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .add-members-section {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+        
+        .add-members-section h5 { margin: 0 0 8px 0; font-size: 14px; color: #333; }
+        
+        .add-member-form { display: flex; gap: 8px; margin-bottom: 8px; }
+        .add-member-input { flex: 1; padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 12px; }
+        .add-member-btn { background: #004899; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        
+        .available-users h6 { margin: 12px 0 8px 0; font-size: 12px; color: #666; }
+        
+        .user-chip {
+            display: inline-block;
+            background: #e9f0f7;
+            color: #004899;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #004899;
+            transition: all 0.2s ease;
+        }
+        .user-chip:hover { background: #004899; color: white; }
+        
+        .members-list { flex: 1; overflow-y: auto; padding: 8px; }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .member-name { font-weight: 500; font-size: 14px; }
+        .member-role { font-size: 12px; color: #666; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
+        .member-action-btn { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { margin: 0; font-size: 18px; color: #333; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        
+        .modal-form { display: flex; flex-direction: column; gap: 16px; }
+        .modal-form input, .modal-form textarea, .modal-form select { padding: 12px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; }
+        
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+        .modal-btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .modal-btn-primary { background: #004899; color: white; }
+        .modal-btn-secondary { background: #6c757d; color: white; }
+        
+        /* Tables */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .data-table th, .data-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .data-table th { background: var(--light-blue); font-weight: 600; }
+        
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; margin: 0 0.25rem; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        
+        .notification-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-blue);
+        }
+        .notification-item.warning { border-left-color: var(--warning); }
+        .notification-item.danger { border-left-color: var(--danger); }
+        .notification-item.success { border-left-color: var(--success); }
+        
+        .notification-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
+        .notification-title { margin: 0; color: var(--text-dark); font-size: 1.1rem; }
+        .notification-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500; }
+        .notification-badge.info { background: var(--primary-blue); color: white; }
+        .notification-badge.warning { background: var(--warning); color: white; }
+        .notification-badge.danger { background: var(--danger); color: white; }
+        .notification-badge.success { background: var(--success); color: white; }
+        
+        .notification-content { margin: 0.5rem 0; color: var(--text-light); }
+        .notification-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; font-size: 0.9rem; color: var(--text-light); }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--white); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow); text-align: center; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: var(--primary-blue); }
+        .stat-label { color: var(--text-light); margin-top: 0.5rem; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-grid-full { grid-column: 1 / -1; }
+        
+        @media (max-width: 768px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { width: 100%; order: 2; }
+            .main-content { order: 1; padding: 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="logo">
+        <div class="logo" onclick="showDashboardSection()">
             <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
         </div>
-        <div>
+        <div class="header-center">
+            <h1 id="headerTitle">BAZA</h1>
+        </div>
+        <div class="header-controls">
             <span class="user-info" id="userInfo"></span>
             <button class="logout-btn" id="logoutBtn" onclick="doLogout()">Odjava</button>
         </div>
@@ -278,34 +531,373 @@
                     </div>
                     <ul class="menu-list">
                         <li class="menu-item">
-                            <button class="menu-button active">🏠 Nadzorna plošča</button>
+                            <button class="menu-button active" onclick="showContent('dashboard')">🏠 Nadzorna plošča</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">👤➕ Dodaj uporabnika</button>
+                            <button class="menu-button" onclick="showContent('addUser')">👤➕ Dodaj uporabnika</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">🔧 Pregledi ključavnic</button>
+                            <button class="menu-button" onclick="showContent('serviser')">🔧 Pregledi ključavnic</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">👥 Nastavitve uporabnikov</button>
+                            <button class="menu-button" onclick="showContent('userSettings')">👥 Nastavitve uporabnikov</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">📢 Obvestila</button>
+                            <button class="menu-button" onclick="showContent('notifications')">📢 Obvestila</button>
                         </li>
                         <li class="menu-item">
-                            <button class="menu-button">⚙️ Splošne nastavitve</button>
+                            <button class="menu-button" onclick="showContent('generalSettings')">⚙️ Splošne nastavitve</button>
                         </li>
                     </ul>
                 </nav>
 
                 <div class="main-content">
-                    <div class="content-card">
-                        <div class="welcome-icon">🚴‍♂️</div>
-                        <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
-                        <p class="welcome-description">
-                            Dobrodošli v Nomago Bikes upravljavskem portalu.<br><br>
-                            <strong>💬 Chat je aktiviran!</strong> Kliknite na chat ikono v spodnjem desnem kotu za uporabo naprednega chat sistema z upravljanjem skupin in članov.
-                        </p>
+                    <!-- Dashboard Content -->
+                    <div class="content-section" id="dashboardContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Nadzorna plošča</h1>
+                            <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" id="totalUsersCount">5</div>
+                                <div class="stat-label">Skupaj uporabnikov</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="activeChatGroupsCount">2</div>
+                                <div class="stat-label">Aktivne chat skupine</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="activeNotificationsCount">2</div>
+                                <div class="stat-label">Aktivna obvestila</div>
+                            </div>
+                        </div>
+
+                        <div class="content-card welcome-card">
+                            <div class="welcome-icon">🚴‍♂️</div>
+                            <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
+                            <p class="welcome-description">
+                                Dobrodošli v Nomago Bikes upravljavskem portalu. Uporabite levi meni za navigacijo po različnih funkcijah portala.<br><br>
+                                <strong>💬 Chat je aktiviran!</strong> Kliknite na chat ikono v spodnjem desnem kotu za uporabo naprednega chat sistema z upravljanjem skupin in članov.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Add User Content -->
+                    <div class="content-section" id="addUserContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Dodaj uporabnika</h1>
+                            <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
+                        </div>
+                        <div class="content-card">
+                            <form id="addUserForm" onsubmit="handleAddUser(event)">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label" for="newUserName">Ime</label>
+                                        <input type="text" class="form-input" id="newUserName" name="newUserName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="newUserSurname">Priimek</label>
+                                        <input type="text" class="form-input" id="newUserSurname" name="newUserSurname" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="newUsername">Uporabniško ime</label>
+                                        <input type="text" class="form-input" id="newUsername" name="newUsername" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="newUserPassword">Geslo</label>
+                                        <input type="password" class="form-input" id="newUserPassword" name="newUserPassword" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="newUserRole">Vloga</label>
+                                        <select class="form-input" id="newUserRole" name="newUserRole" required>
+                                            <option value="">Izberite vlogo</option>
+                                            <option value="admin">Administrator</option>
+                                            <option value="serviser">Serviser</option>
+                                            <option value="student">Študent</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="newUserEmail">Email</label>
+                                        <input type="email" class="form-input" id="newUserEmail" name="newUserEmail">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Dostopni sistemi</label>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" value="KolesCE" name="systems"> KolesCE
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" value="LUR" name="systems"> LUR
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" value="GO2GO" name="systems"> GO2GO
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" value="KOR" name="systems"> KOR
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" value="ZaNaprej" name="systems"> ZaNaprej
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Dodaj uporabnika</button>
+                            </form>
+                            <div id="addUserMessage" class="message" style="margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+
+                    <!-- User Settings Content -->
+                    <div class="content-section" id="userSettingsContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Nastavitve uporabnikov</h1>
+                            <p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
+                        </div>
+                        <div class="content-card">
+                            <div style="margin-bottom: 1rem;">
+                                <input type="text" id="userSearchInput" class="form-input" placeholder="Poiščite uporabnika..." style="max-width: 300px;" onkeyup="filterUsers()">
+                            </div>
+                            <table class="data-table" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ime</th>
+                                        <th>Uporabniško ime</th>
+                                        <th>Vloga</th>
+                                        <th>Sistemi</th>
+                                        <th>Akcije</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Users will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Serviser Content -->
+                    <div class="content-section" id="serviserContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Pregledi ključavnic</h1>
+                            <p class="content-subtitle">Serviserski pregledi in vzdrževanje</p>
+                        </div>
+                        <div class="content-card">
+                            <div style="text-align: center; padding: 3rem;">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">🔧</div>
+                                <h3>Serviserska aplikacija</h3>
+                                <p style="margin: 1rem 0; color: var(--text-light);">
+                                    Dostop do specializirane aplikacije za preglede ključavnic in vzdrževanje sistema.
+                                </p>
+                                <button class="btn btn-primary" onclick="openServiserApp()">
+                                    🚀 Odpri servisersko aplikacijo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Content -->
+                    <div class="content-section" id="notificationsContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Obvestila</h1>
+                            <p class="content-subtitle">Upravljajte sistemska obvestila</p>
+                        </div>
+                        
+                        <!-- Add Notification Card -->
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Novo obvestilo</h3>
+                            <form id="notificationForm" onsubmit="handleNotificationSubmit(event)">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label" for="notificationTitle">Naslov</label>
+                                        <input type="text" class="form-input" id="notificationTitle" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="notificationType">Tip obvestila</label>
+                                        <select class="form-input" id="notificationType" required>
+                                            <option value="">Izberite tip</option>
+                                            <option value="info">Informacija</option>
+                                            <option value="warning">Opozorilo</option>
+                                            <option value="danger">Nujno</option>
+                                            <option value="success">Vzdrževanje</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="notificationMessage">Sporočilo</label>
+                                    <textarea class="form-input" id="notificationMessage" rows="4" required placeholder="Vnesite sporočilo obvestila..."></textarea>
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">Ciljni sistemi</label>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <input type="checkbox" value="KolesCE" name="targetSystems"> KolesCE
+                                            </label>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <input type="checkbox" value="LUR" name="targetSystems"> LUR
+                                            </label>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <input type="checkbox" value="GO2GO" name="targetSystems"> GO2GO
+                                            </label>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <input type="checkbox" value="KOR" name="targetSystems"> KOR
+                                            </label>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                                <input type="checkbox" value="ZaNaprej" name="targetSystems"> ZaNaprej
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="notificationExpiry">Velja do</label>
+                                        <input type="datetime-local" class="form-input" id="notificationExpiry">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Objavi obvestilo</button>
+                            </form>
+                        </div>
+
+                        <!-- Active Notifications -->
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Aktivna obvestila</h3>
+                            <div id="activeNotifications">
+                                <div class="notification-item warning">
+                                    <div class="notification-header">
+                                        <h4 class="notification-title">Vzdrževanje sistema</h4>
+                                        <span class="notification-badge warning">Opozorilo</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        V nedeljo, 7. julija, bo potekalo vzdrževanje sistema KolesCE med 2:00 in 6:00. Sistem bo v tem času nedostopen.
+                                    </div>
+                                    <div class="notification-footer">
+                                        <span>Sistemi: KolesCE</span>
+                                        <span>Velja do: 07.07.2025 06:00</span>
+                                        <button class="btn btn-danger" onclick="deleteNotification('1')">Izbriši</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="notification-item">
+                                    <div class="notification-header">
+                                        <h4 class="notification-title">Nova lokacija v Ljubljani</h4>
+                                        <span class="notification-badge info">Informacija</span>
+                                    </div>
+                                    <div class="notification-content">
+                                        Odprli smo novo postajo za izposojo koles na Kongresnem trgu. Na voljo je 20 mest za kolesa.
+                                    </div>
+                                    <div class="notification-footer">
+                                        <span>Sistemi: LUR, KolesCE</span>
+                                        <span>Velja do: 31.12.2025 23:59</span>
+                                        <button class="btn btn-danger" onclick="deleteNotification('2')">Izbriši</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Settings Content -->
+                    <div class="content-section" id="generalSettingsContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Splošne nastavitve</h1>
+                            <p class="content-subtitle">Upravljajte sistemske nastavitve</p>
+                        </div>
+                        
+                        <!-- System Configuration -->
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Sistemska konfiguracija</h3>
+                            <form id="systemConfigForm" onsubmit="handleSystemConfigSubmit(event)">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label" for="systemName">Ime sistema</label>
+                                        <input type="text" class="form-input" id="systemName" value="Nomago Bikes Portal">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="systemVersion">Verzija</label>
+                                        <input type="text" class="form-input" id="systemVersion" value="2.1.0" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="maintenanceMode">Vzdrževalni način</label>
+                                        <select class="form-input" id="maintenanceMode">
+                                            <option value="false">Onemogočen</option>
+                                            <option value="true">Omogočen</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="logLevel">Nivo beleženja</label>
+                                        <select class="form-input" id="logLevel">
+                                            <option value="error">Samo napake</option>
+                                            <option value="warning">Opozorila in napake</option>
+                                            <option value="info" selected>Informacije</option>
+                                            <option value="debug">Razhroščevanje</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Shrani nastavitve</button>
+                            </form>
+                        </div>
+
+                        <!-- Database Settings -->
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Nastavitve baze podatkov</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <div>
+                                    <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">Statistike</h4>
+                                    <div style="background: var(--light-blue); padding: 1rem; border-radius: 8px;">
+                                        <div style="margin-bottom: 0.5rem;">
+                                            <strong>Skupaj uporabnikov:</strong> <span id="totalUsers">5</span>
+                                        </div>
+                                        <div style="margin-bottom: 0.5rem;">
+                                            <strong>Aktivnih sej:</strong> <span id="activeSessions">1</span>
+                                        </div>
+                                        <div style="margin-bottom: 0.5rem;">
+                                            <strong>Zadnja varnostna kopija:</strong> <span id="lastBackup">Nikoli</span>
+                                        </div>
+                                        <div>
+                                            <strong>Velikost baze:</strong> <span id="dbSize">2.3 MB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">Vzdrževanje</h4>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <button class="btn btn-primary" onclick="createBackup()">Ustvari varnostno kopijo</button>
+                                        <button class="btn btn-warning" onclick="optimizeDatabase()">Optimiziraj bazo</button>
+                                        <button class="btn btn-danger" onclick="clearLogs()">Počisti dnevnike</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="content-card">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Varnostne nastavitve</h3>
+                            <form id="securityForm" onsubmit="handleSecuritySubmit(event)">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label" for="sessionTimeout">Časovna omejitev seje (minute)</label>
+                                        <input type="number" class="form-input" id="sessionTimeout" value="30" min="5" max="480">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="passwordPolicy">Politika gesel</label>
+                                        <select class="form-input" id="passwordPolicy">
+                                            <option value="basic">Osnovna (6+ znakov)</option>
+                                            <option value="medium" selected>Srednja (8+ znakov, številke)</option>
+                                            <option value="strong">Močna (10+ znakov, številke, simboli)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" id="enableTwoFactor"> Omogoči dvofaktorsko avtentikacijo
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" id="enableAuditLog" checked> Omogoči revizijski dnevnik
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Shrani varnostne nastavitve</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -326,32 +918,165 @@
                 <button class="chat-close" onclick="toggleChat()">&times;</button>
             </div>
             <div class="chat-user-info" id="chatUser">Chat uporabnik</div>
-            <div class="chat-content" id="chatContent">
-                <div style="text-align: center; padding: 20px; color: #666;">
-                    <strong>🎉 Dobrodošli v Nomago Chat!</strong><br>
-                    Chat sistem je pripravljen za uporabo.
-                </div>
+            
+            <div class="chat-tabs">
+                <button class="chat-tab active" onclick="switchChatTab('messages')">💬 Sporočila</button>
+                <button class="chat-tab" onclick="switchChatTab('groups')">👥 Skupine</button>
+                <button class="chat-tab" onclick="switchChatTab('members')">👤 Člani</button>
             </div>
-            <div class="chat-input">
-                <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
-                <button onclick="sendMessage()">Pošlji</button>
+            
+            <div class="chat-content">
+                <!-- Messages Section -->
+                <div class="chat-section active" id="messagesSection">
+                    <div class="chat-messages" id="chatMessages">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            <strong>🎉 Dobrodošli v Nomago Chat!</strong><br>
+                            Chat sistem je pripravljen za uporabo.
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
+                        <button onclick="sendMessage()">Pošlji</button>
+                    </div>
+                </div>
+                
+                <!-- Groups Section -->
+                <div class="chat-section" id="groupsSection">
+                    <div class="groups-header">
+                        <h4>Pogovorne skupine</h4>
+                        <button class="add-group-btn" onclick="showCreateGroupModal()">+ Dodaj</button>
+                    </div>
+                    <div class="groups-list" id="groupsList"></div>
+                </div>
+                
+                <!-- Members Section -->
+                <div class="chat-section" id="membersSection">
+                    <div class="add-members-section">
+                        <h5>Upravljanje članov</h5>
+                        <div class="add-member-form">
+                            <input type="text" class="add-member-input" id="newMemberName" placeholder="Ime in priimek">
+                            <button class="add-member-btn" onclick="addMemberToCurrentGroup()">Dodaj</button>
+                        </div>
+                        <div class="available-users">
+                            <h6>Dostopni uporabniki:</h6>
+                            <div id="availableUsers"></div>
+                        </div>
+                    </div>
+                    <div class="members-list" id="membersList"></div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ustvari novo skupino</h3>
+                <button class="modal-close" onclick="closeCreateGroupModal()">&times;</button>
+            </div>
+            <form class="modal-form" onsubmit="createNewGroup(event)">
+                <input type="text" id="groupNameInput" placeholder="Ime skupine" required>
+                <textarea id="groupDescriptionInput" placeholder="Opis skupine (neobvezno)"></textarea>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-secondary" onclick="closeCreateGroupModal()">Prekliči</button>
+                    <button type="submit" class="modal-btn modal-btn-primary">Ustvari</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Uredi uporabnika</h3>
+                <button class="modal-close" onclick="closeEditUserModal()">&times;</button>
+            </div>
+            <form class="modal-form" onsubmit="saveUserChanges(event)">
+                <div class="form-grid">
+                    <input type="text" id="editUserName" placeholder="Ime" required>
+                    <input type="text" id="editUserSurname" placeholder="Priimek" required>
+                    <input type="text" id="editUsername" placeholder="Uporabniško ime" required>
+                    <select id="editUserRole" required>
+                        <option value="">Izberite vlogo</option>
+                        <option value="admin">Administrator</option>
+                        <option value="serviser">Serviser</option>
+                        <option value="student">Študent</option>
+                    </select>
+                </div>
+                <input type="email" id="editUserEmail" placeholder="Email">
+                <div class="form-group">
+                    <label class="form-label">Dostopni sistemi</label>
+                    <div id="editUserSystems" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" value="KolesCE" name="editSystems"> KolesCE
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" value="LUR" name="editSystems"> LUR
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" value="GO2GO" name="editSystems"> GO2GO
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" value="KOR" name="editSystems"> KOR
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" value="ZaNaprej" name="editSystems"> ZaNaprej
+                        </label>
+                    </div>
+                </div>
+                <input type="hidden" id="editUserId">
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-secondary" onclick="closeEditUserModal()">Prekliči</button>
+                    <button type="submit" class="modal-btn modal-btn-primary">Shrani</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Clean version without alerts
-        console.log("🚀 NOMAGO: Script se nalaga...");
+        console.log("🚀 NOMAGO: Polna aplikacija se nalaga...");
         
+        // Global variables
         let currentUser = null;
-        
-        function showMessage(text, type) {
+        let currentChatRoom = null;
+        let chatGroups = [
+            {
+                id: 'general',
+                name: 'Splošno',
+                description: 'Glavna pogovorna skupina',
+                members: ['admin', 'marko', 'ana'],
+                messages: []
+            },
+            {
+                id: 'serviser',
+                name: 'Serviserji',
+                description: 'Skupina za serviserje',
+                members: ['admin', 'marko', 'janez'],
+                messages: []
+            }
+        ];
+        let currentActiveTab = 'messages';
+        let allUsers = [
+            { id: 'admin', name: 'Admin Administrator', username: 'admin', role: 'Admin', email: 'admin@nomago.si', systems: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej'] },
+            { id: 'marko', name: 'Marko Serviser', username: 'marko', role: 'Serviser', email: 'marko@nomago.si', systems: ['KolesCE', 'LUR'] },
+            { id: 'ana', name: 'Ana Novak', username: 'ana', role: 'Študent', email: 'ana@nomago.si', systems: ['KolesCE'] },
+            { id: 'petra', name: 'Petra Kovač', username: 'petra', role: 'Študent', email: 'petra@nomago.si', systems: ['LUR'] },
+            { id: 'janez', name: 'Janez Krajnc', username: 'janez', role: 'Serviser', email: 'janez@nomago.si', systems: ['GO2GO', 'KOR'] }
+        ];
+        let notifications = [];
+
+        function showMessage(text, type, elementId = 'message') {
             console.log("📢 Message:", text, type);
-            const messageEl = document.getElementById('message');
+            const messageEl = document.getElementById(elementId);
             if (messageEl) {
                 messageEl.textContent = text;
                 messageEl.className = 'message ' + type;
                 messageEl.style.display = 'block';
+                setTimeout(() => {
+                    messageEl.style.display = 'none';
+                }, 5000);
             }
         }
         
@@ -380,8 +1105,10 @@
                 console.log("✅ Prijava uspešna!");
                 
                 currentUser = {
+                    id: 'admin',
                     ime: 'Admin',
                     priimek: 'Administrator',
+                    username: 'admin',
                     vloga: 'admin'
                 };
                 
@@ -399,58 +1126,603 @@
         function showDashboard() {
             console.log("📊 Prikazujem dashboard...");
             
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'inline';
-            document.getElementById('logoutBtn').style.display = 'inline';
-            document.getElementById('chatWidget').style.display = 'block';
+            const loginSection = document.getElementById('loginSection');
+            const dashboardSection = document.getElementById('dashboardSection');
+            const mainSection = document.querySelector('.main');
+            const userInfo = document.getElementById('userInfo');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const chatWidget = document.getElementById('chatWidget');
+            const headerTitle = document.getElementById('headerTitle');
             
-            document.getElementById('userInfo').textContent = 'Admin Administrator (admin)';
-            document.getElementById('chatUser').textContent = 'Admin Administrator (admin)';
+            if (loginSection) loginSection.style.display = 'none';
+            if (mainSection) {
+                mainSection.classList.add('show-dashboard');
+                mainSection.style.alignItems = 'stretch';
+                mainSection.style.justifyContent = 'stretch';
+            }
+            if (dashboardSection) dashboardSection.style.display = 'flex';
+            if (userInfo) {
+                userInfo.style.display = 'inline';
+                userInfo.textContent = 'Admin Administrator (admin)';
+            }
+            if (logoutBtn) logoutBtn.style.display = 'inline';
+            if (chatWidget) chatWidget.style.display = 'block';
+            if (headerTitle) headerTitle.style.display = 'block';
+            
+            const chatUser = document.getElementById('chatUser');
+            if (chatUser) chatUser.textContent = 'Admin Administrator (admin)';
+            
+            showContent('dashboard');
+            
+            initializeChat();
+            loadUsersTable();
+            updateStats();
+        }
+
+        function showDashboardSection() {
+            if (currentUser) {
+                showContent('dashboard');
+            }
         }
         
         function doLogout() {
             console.log("🚪 Odjava...");
             
             currentUser = null;
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('chatWidget').style.display = 'none';
-            document.getElementById('chatWindow').style.display = 'none';
+            currentChatRoom = null;
             
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('message').style.display = 'none';
+            const loginSection = document.getElementById('loginSection');
+            const dashboardSection = document.getElementById('dashboardSection');
+            const mainSection = document.querySelector('.main');
+            const userInfo = document.getElementById('userInfo');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const chatWidget = document.getElementById('chatWidget');
+            const chatWindow = document.getElementById('chatWindow');
+            const headerTitle = document.getElementById('headerTitle');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const messageDiv = document.getElementById('message');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            if (loginSection) loginSection.style.display = 'block';
+            if (dashboardSection) dashboardSection.style.display = 'none';
+            if (mainSection) {
+                mainSection.classList.remove('show-dashboard');
+                mainSection.style.alignItems = 'center';
+                mainSection.style.justifyContent = 'center';
+            }
+            if (userInfo) userInfo.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (chatWidget) chatWidget.style.display = 'none';
+            if (chatWindow) chatWindow.style.display = 'none';
+            if (headerTitle) headerTitle.style.display = 'none';
+            
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            if (messageDiv) messageDiv.style.display = 'none';
+            if (chatMessages) chatMessages.innerHTML = '';
         }
-        
+
+        // Content navigation with security check
+        function showContent(contentType) {
+            if (!currentUser) {
+                console.warn("🚫 Poskus dostopa brez prijave!");
+                return;
+            }
+            
+            // Hide all content sections
+            const sections = ['dashboardContent', 'addUserContent', 'userSettingsContent', 'serviserContent', 'notificationsContent', 'generalSettingsContent'];
+            sections.forEach(section => {
+                const el = document.getElementById(section);
+                if (el) el.style.display = 'none';
+            });
+
+            // Remove active class from all menu buttons
+            document.querySelectorAll('.menu-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected content and mark menu as active
+            const contentMap = {
+                'dashboard': 'dashboardContent',
+                'addUser': 'addUserContent',
+                'userSettings': 'userSettingsContent',
+                'serviser': 'serviserContent',
+                'notifications': 'notificationsContent',
+                'generalSettings': 'generalSettingsContent'
+            };
+            
+            const contentId = contentMap[contentType];
+            if (contentId) {
+                const contentEl = document.getElementById(contentId);
+                if (contentEl) contentEl.style.display = 'block';
+                
+                // Find and activate the corresponding menu button
+                document.querySelectorAll('.menu-button').forEach(btn => {
+                    if (btn.textContent.includes({
+                        'dashboard': '🏠',
+                        'addUser': '👤➕',
+                        'userSettings': '👥',
+                        'serviser': '🔧',
+                        'notifications': '📢',
+                        'generalSettings': '⚙️'
+                    }[contentType])) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // User management functions
+        function handleAddUser(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const systems = Array.from(document.querySelectorAll('input[name="systems"]:checked')).map(cb => cb.value);
+            
+            const userData = {
+                id: 'user_' + Date.now(),
+                name: formData.get('newUserName') + ' ' + formData.get('newUserSurname'),
+                username: formData.get('newUsername'),
+                role: formData.get('newUserRole'),
+                email: formData.get('newUserEmail') || '',
+                systems: systems
+            };
+            
+            if (!userData.name.trim() || !userData.username || !userData.role) {
+                showMessage('Prosimo, izpolnite vsa obvezna polja!', 'error', 'addUserMessage');
+                return;
+            }
+            
+            // Check if username already exists
+            if (allUsers.find(u => u.username === userData.username)) {
+                showMessage('Uporabniško ime že obstaja!', 'error', 'addUserMessage');
+                return;
+            }
+            
+            allUsers.push(userData);
+            showMessage('Uporabnik uspešno dodan!', 'success', 'addUserMessage');
+            event.target.reset();
+            loadUsersTable();
+            updateStats();
+        }
+
+        function loadUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            allUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.username}</td>
+                    <td><span class="notification-badge ${user.role === 'Admin' ? 'danger' : user.role === 'Serviser' ? 'warning' : 'info'}">${user.role}</span></td>
+                    <td>${user.systems ? user.systems.join(', ') : 'Ni sistemov'}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editUser('${user.id}')">Uredi</button>
+                        ${user.username !== 'admin' ? `<button class="btn btn-danger" onclick="deleteUser('${user.id}')">Izbriši</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            const nameParts = user.name.split(' ');
+            document.getElementById('editUserName').value = nameParts[0] || '';
+            document.getElementById('editUserSurname').value = nameParts.slice(1).join(' ') || '';
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserEmail').value = user.email || '';
+            document.getElementById('editUserId').value = user.id;
+            
+            // Set systems checkboxes
+            document.querySelectorAll('input[name="editSystems"]').forEach(cb => {
+                cb.checked = user.systems && user.systems.includes(cb.value);
+            });
+            
+            document.getElementById('editUserModal').style.display = 'block';
+        }
+
+        function saveUserChanges(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('editUserId').value;
+            const userIndex = allUsers.findIndex(u => u.id === userId);
+            
+            if (userIndex === -1) return;
+            
+            const systems = Array.from(document.querySelectorAll('input[name="editSystems"]:checked')).map(cb => cb.value);
+            
+            allUsers[userIndex] = {
+                ...allUsers[userIndex],
+                name: document.getElementById('editUserName').value + ' ' + document.getElementById('editUserSurname').value,
+                username: document.getElementById('editUsername').value,
+                role: document.getElementById('editUserRole').value,
+                email: document.getElementById('editUserEmail').value,
+                systems: systems
+            };
+            
+            loadUsersTable();
+            closeEditUserModal();
+            showMessage('Uporabnik uspešno posodobljen!', 'success');
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Ali ste prepričani, da želite izbrisati tega uporabnika?')) {
+                allUsers = allUsers.filter(u => u.id !== userId);
+                loadUsersTable();
+                updateStats();
+                showMessage('Uporabnik uspešno izbrisan!', 'success');
+            }
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Chat functions
+        function initializeChat() {
+            currentChatRoom = chatGroups[0];
+            loadChatGroups();
+            loadAvailableUsers();
+            loadGroupMembers();
+        }
+
         function toggleChat() {
             console.log("💬 Preklapljam chat...");
             const chatWindow = document.getElementById('chatWindow');
             const isVisible = chatWindow.style.display === 'flex';
             chatWindow.style.display = isVisible ? 'none' : 'flex';
         }
-        
+
+        function switchChatTab(tab) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.chat-section').forEach(s => s.classList.remove('active'));
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Section').classList.add('active');
+            
+            currentActiveTab = tab;
+        }
+
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
             
-            if (!message || !currentUser) return;
+            if (!message || !currentUser || !currentChatRoom) return;
             
             console.log("📩 Pošiljam sporočilo:", message);
             
-            const chatContent = document.getElementById('chatContent');
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = 'margin-bottom: 12px; padding: 8px 12px; background: #004899; color: white; border-radius: 12px; max-width: 80%; margin-left: auto; text-align: right;';
-            messageDiv.textContent = message + ' (' + new Date().toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'}) + ')';
+            const messageObj = {
+                id: Date.now(),
+                text: message,
+                sender: currentUser.username,
+                timestamp: new Date(),
+                groupId: currentChatRoom.id
+            };
             
-            chatContent.appendChild(messageDiv);
+            currentChatRoom.messages.push(messageObj);
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-item message-sent';
+            messageDiv.innerHTML = `
+                <div>${message}</div>
+                <div class="message-time">${new Date().toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'})}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
             messageInput.value = '';
-            chatContent.scrollTop = chatContent.scrollHeight;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
-        // Add Enter key support
+
+        function loadChatGroups() {
+            const groupsList = document.getElementById('groupsList');
+            if (!groupsList) return;
+            
+            groupsList.innerHTML = '';
+            
+            chatGroups.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group-item' + (group.id === currentChatRoom?.id ? ' active' : '');
+                groupDiv.innerHTML = `
+                    <div>
+                        <div class="group-name">${group.name}</div>
+                        <div class="group-members">${group.members.length} članov</div>
+                    </div>
+                    <div class="group-actions">
+                        <button class="group-action-btn" onclick="selectGroup('${group.id}')">Izberi</button>
+                        <button class="group-action-btn" onclick="deleteGroup('${group.id}')">Izbriši</button>
+                    </div>
+                `;
+                groupsList.appendChild(groupDiv);
+            });
+        }
+
+        function selectGroup(groupId) {
+            currentChatRoom = chatGroups.find(g => g.id === groupId);
+            loadChatGroups();
+            loadGroupMembers();
+            loadChatMessages();
+        }
+
+        function loadChatMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages || !currentChatRoom) return;
+            
+            chatMessages.innerHTML = '';
+            
+            if (currentChatRoom.messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        <strong>Skupina: ${currentChatRoom.name}</strong><br>
+                        Ni sporočil. Začnite pogovor!
+                    </div>
+                `;
+                return;
+            }
+            
+            currentChatRoom.messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-item ' + (msg.sender === currentUser.username ? 'message-sent' : 'message-received');
+                messageDiv.innerHTML = `
+                    <div>${msg.text}</div>
+                    <div class="message-time">${msg.timestamp.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'})}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+            });
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showCreateGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'block';
+        }
+
+        function closeCreateGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'none';
+            document.getElementById('groupNameInput').value = '';
+            document.getElementById('groupDescriptionInput').value = '';
+        }
+
+        function createNewGroup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('groupNameInput').value.trim();
+            const description = document.getElementById('groupDescriptionInput').value.trim();
+            
+            if (!name) return;
+            
+            const newGroup = {
+                id: 'group_' + Date.now(),
+                name: name,
+                description: description,
+                members: [currentUser.username],
+                messages: []
+            };
+            
+            chatGroups.push(newGroup);
+            loadChatGroups();
+            closeCreateGroupModal();
+            updateStats();
+        }
+
+        function deleteGroup(groupId) {
+            if (confirm('Ali ste prepričani, da želite izbrisati to skupino?')) {
+                chatGroups = chatGroups.filter(g => g.id !== groupId);
+                if (currentChatRoom && currentChatRoom.id === groupId) {
+                    currentChatRoom = chatGroups[0] || null;
+                }
+                loadChatGroups();
+                loadGroupMembers();
+                updateStats();
+            }
+        }
+
+        function loadAvailableUsers() {
+            const availableUsers = document.getElementById('availableUsers');
+            if (!availableUsers) return;
+            
+            availableUsers.innerHTML = '';
+            
+            allUsers.forEach(user => {
+                const userChip = document.createElement('span');
+                userChip.className = 'user-chip';
+                userChip.textContent = user.name;
+                userChip.onclick = () => addUserToGroup(user.username);
+                availableUsers.appendChild(userChip);
+            });
+        }
+
+        function addUserToGroup(username) {
+            if (currentChatRoom && !currentChatRoom.members.includes(username)) {
+                currentChatRoom.members.push(username);
+                loadGroupMembers();
+                loadChatGroups();
+            }
+        }
+
+        function addMemberToCurrentGroup() {
+            const memberName = document.getElementById('newMemberName').value.trim();
+            if (!memberName || !currentChatRoom) return;
+            
+            // Simple add - in real app would validate against user database
+            if (!currentChatRoom.members.includes(memberName)) {
+                currentChatRoom.members.push(memberName);
+                loadGroupMembers();
+                loadChatGroups();
+                document.getElementById('newMemberName').value = '';
+            }
+        }
+
+        function loadGroupMembers() {
+            const membersList = document.getElementById('membersList');
+            if (!membersList || !currentChatRoom) return;
+            
+            membersList.innerHTML = '';
+            
+            currentChatRoom.members.forEach(memberUsername => {
+                const user = allUsers.find(u => u.username === memberUsername);
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'member-item';
+                memberDiv.innerHTML = `
+                    <div>
+                        <div class="member-name">${user ? user.name : memberUsername}</div>
+                        <div class="member-role">${user ? user.role : 'Neznano'}</div>
+                    </div>
+                    <button class="member-action-btn" onclick="removeMemberFromGroup('${memberUsername}')">Odstrani</button>
+                `;
+                membersList.appendChild(memberDiv);
+            });
+        }
+
+        function removeMemberFromGroup(username) {
+            if (currentChatRoom && confirm('Ali ste prepričani, da želite odstraniti tega člana?')) {
+                currentChatRoom.members = currentChatRoom.members.filter(m => m !== username);
+                loadGroupMembers();
+                loadChatGroups();
+            }
+        }
+
+        // Notification functions
+        function handleNotificationSubmit(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('notificationTitle').value;
+            const type = document.getElementById('notificationType').value;
+            const message = document.getElementById('notificationMessage').value;
+            const expiry = document.getElementById('notificationExpiry').value;
+            const systems = Array.from(document.querySelectorAll('input[name="targetSystems"]:checked')).map(cb => cb.value);
+            
+            const notification = {
+                id: Date.now(),
+                title: title,
+                type: type,
+                message: message,
+                systems: systems,
+                expiry: expiry ? new Date(expiry) : null,
+                created: new Date()
+            };
+            
+            notifications.push(notification);
+            addNotificationToDOM(notification);
+            event.target.reset();
+            updateStats();
+            showMessage('Obvestilo uspešno objavljeno!', 'success');
+        }
+
+        function addNotificationToDOM(notification) {
+            const container = document.getElementById('activeNotifications');
+            if (!container) return;
+            
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = `notification-item ${notification.type}`;
+            notificationDiv.innerHTML = `
+                <div class="notification-header">
+                    <h4 class="notification-title">${notification.title}</h4>
+                    <span class="notification-badge ${notification.type}">${getNotificationTypeLabel(notification.type)}</span>
+                </div>
+                <div class="notification-content">
+                    ${notification.message}
+                </div>
+                <div class="notification-footer">
+                    <span>Sistemi: ${notification.systems.join(', ')}</span>
+                    <span>Velja do: ${notification.expiry ? notification.expiry.toLocaleString('sl-SI') : 'Ni omejeno'}</span>
+                    <button class="btn btn-danger" onclick="deleteNotification('${notification.id}')">Izbriši</button>
+                </div>
+            `;
+            container.appendChild(notificationDiv);
+        }
+
+        function getNotificationTypeLabel(type) {
+            const labels = {
+                'info': 'Informacija',
+                'warning': 'Opozorilo',
+                'danger': 'Nujno',
+                'success': 'Vzdrževanje'
+            };
+            return labels[type] || type;
+        }
+
+        function deleteNotification(notificationId) {
+            if (confirm('Ali ste prepričani, da želite izbrisati to obvestilo?')) {
+                notifications = notifications.filter(n => n.id != notificationId);
+                
+                // Remove from DOM
+                const notificationElements = document.querySelectorAll('.notification-item');
+                notificationElements.forEach(el => {
+                    const deleteBtn = el.querySelector(`button[onclick="deleteNotification('${notificationId}')"]`);
+                    if (deleteBtn) {
+                        el.remove();
+                    }
+                });
+                
+                updateStats();
+                showMessage('Obvestilo uspešno izbrisano!', 'success');
+            }
+        }
+
+        // Settings functions
+        function handleSystemConfigSubmit(event) {
+            event.preventDefault();
+            showMessage('Sistemske nastavitve uspešno shranjene!', 'success');
+        }
+
+        function handleSecuritySubmit(event) {
+            event.preventDefault();
+            showMessage('Varnostne nastavitve uspešno shranjene!', 'success');
+        }
+
+        function createBackup() {
+            showMessage('Varnostna kopija uspešno ustvarjena!', 'success');
+            document.getElementById('lastBackup').textContent = new Date().toLocaleString('sl-SI');
+        }
+
+        function optimizeDatabase() {
+            showMessage('Baza podatkov uspešno optimizirana!', 'success');
+        }
+
+        function clearLogs() {
+            if (confirm('Ali ste prepričani, da želite počistiti vse dnevnike?')) {
+                showMessage('Dnevniki uspešno počiščeni!', 'success');
+            }
+        }
+
+        function openServiserApp() {
+            alert('Serviserska aplikacija bi se odprla v novem oknu.\n\nV produkcijski verziji bi se odprla povezava na specialno servisersko aplikacijo.');
+        }
+
+        function updateStats() {
+            const totalUsersEl = document.getElementById('totalUsersCount');
+            const activeChatGroupsEl = document.getElementById('activeChatGroupsCount');
+            const activeNotificationsEl = document.getElementById('activeNotificationsCount');
+            const totalUsersDbEl = document.getElementById('totalUsers');
+            
+            if (totalUsersEl) totalUsersEl.textContent = allUsers.length;
+            if (activeChatGroupsEl) activeChatGroupsEl.textContent = chatGroups.length;
+            if (activeNotificationsEl) activeNotificationsEl.textContent = notifications.length + 2; // +2 for default notifications
+            if (totalUsersDbEl) totalUsersDbEl.textContent = allUsers.length;
+        }
+
+        // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             console.log("📋 DOM pripravljen!");
             
@@ -472,6 +1744,13 @@
                     }
                 });
             }
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
             
             console.log("🎉 Vse pripravljeno!");
         });
