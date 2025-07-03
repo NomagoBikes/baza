@@ -4,24 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nomago Bikes - BAZA Portal</title>
-    <!-- Favicon - različne velikosti za različne naprave -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <!-- Apple Touch Icon za iOS naprave -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- MS Tiles za Windows -->
-    <meta name="msapplication-TileColor" content="#004899">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <!-- Theme color za mobile brskalnike -->
-    <meta name="theme-color" content="#004899">
-    
     <style>
         * {
             margin: 0;
@@ -43,30 +25,13 @@
             --warning: #ffc107;
         }
 
-        [data-theme="dark"] {
-            --light-blue: #1a1a1a;
-            --white: #2d2d2d;
-            --text-dark: #f0f0f0;
-            --text-light: #cccccc;
-            --border-color: #444;
-            --shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-        }
-
         body {
             font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
             color: var(--text-dark);
-            /* Use opacity instead of visibility for smoother loading */
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        body.loaded {
-            opacity: 1;
         }
 
         header {
@@ -76,26 +41,12 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
         }
 
         .logo {
-            font-family: 'Roboto', sans-serif;
             font-weight: bold;
             font-size: 1.2rem;
-            text-decoration: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
         }
 
         .logo .nom { color: white; }
@@ -106,8 +57,14 @@
         .header-center {
             position: absolute;
             left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
+        }
+
+        .header-center h1 {
+            color: white;
+            font-size: 1.8rem;
+            margin: 0;
+            display: none;
         }
 
         .header-controls {
@@ -116,46 +73,19 @@
             gap: 1rem;
         }
 
-        .header-controls .logout-button {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            background: var(--danger);
-            color: var(--white);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .header-controls .logout-button:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: var(--white);
-            padding: 0.5rem;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
         .user-info {
-            color: var(--white);
+            color: white;
             font-size: 0.9rem;
+            display: none;
+        }
+
+        .logout-button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
             display: none;
         }
 
@@ -165,8 +95,6 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            position: relative;
-            overflow: hidden;
         }
 
         .login-card {
@@ -177,12 +105,6 @@
             width: 100%;
             max-width: 400px;
             text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .login-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 72, 153, 0.15);
         }
 
         .bike-icon {
@@ -216,7 +138,6 @@
             border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
-            transition: all 0.3s ease;
             background: var(--white);
             color: var(--text-dark);
         }
@@ -237,19 +158,16 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
             margin-top: 1rem;
         }
 
         .login-button:hover {
             background: #003a7a;
-            transform: translateY(-2px);
         }
 
         .login-button:disabled {
             background: #ccc;
             cursor: not-allowed;
-            transform: none;
         }
 
         .error-message, .success-message {
@@ -272,7 +190,6 @@
             border: 1px solid rgba(40, 167, 69, 0.3);
         }
 
-        /* Dashboard styles */
         .dashboard {
             display: none;
             flex: 1;
@@ -329,10 +246,8 @@
             color: var(--text-dark);
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-align: left;
             border-left: 3px solid transparent;
-            position: relative;
         }
 
         .menu-button:hover {
@@ -348,62 +263,15 @@
             font-weight: 600;
         }
 
-        .menu-icon {
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-        }
-
-        .alert-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--danger);
-            color: white;
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            min-width: 18px;
-            text-align: center;
-        }
-
-        .alert-badge.warning {
-            background: var(--warning);
-            color: #000;
-        }
-
-        .logout-section {
-            margin-top: auto;
-            padding: 1rem 2rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .logout-button {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem 1rem;
-            background: var(--danger);
-            color: var(--white);
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .logout-button:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
         .main-content {
             flex: 1;
             padding: 2rem;
             background: var(--light-blue);
             overflow-y: auto;
+        }
+
+        .content-section {
+            display: none;
         }
 
         .content-header {
@@ -454,329 +322,208 @@
             line-height: 1.6;
         }
 
-        /* Inspection Widget */
-        .inspection-widget {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
+        /* Chat Widget */
+        #chatWidget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            font-family: inherit;
         }
 
-        .inspection-widget h3 {
-            color: var(--text-dark);
-            margin-bottom: 1rem;
+        #chatBubble {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #004899 0%, #fbb900 100%);
+            border-radius: 50%;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-
-        .inspection-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-item {
-            padding: 1rem;
-            border-radius: 8px;
-            background: var(--light-blue);
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 72, 153, 0.3);
             transition: all 0.3s ease;
         }
 
-        .stat-item.danger {
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.3);
+        #chatBubble:hover {
+            transform: scale(1.1);
         }
 
-        .stat-item.warning {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
+        #chatBubble .icon {
+            color: white;
+            font-size: 24px;
         }
 
-        .stat-number {
-            font-size: 2rem;
+        #chatBadge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
             font-weight: bold;
-            margin-bottom: 0.25rem;
-            color: var(--text-dark);
+            border: 2px solid white;
+            animation: pulse 2s infinite;
         }
 
-        .stat-number.danger { color: var(--danger); }
-        .stat-number.warning { color: #f57c00; }
-        .stat-number.success { color: var(--success); }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
-        .inspection-button {
+        #chatWindow {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 380px;
+            max-width: 95vw;
+            height: 500px;
+            max-height: 70vh;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e0e0e0;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #004899 0%, #0056b3 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        #chatLogin {
+            padding: 24px;
+            text-align: center;
+        }
+
+        #chatLogin h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #chatLogin input {
             width: 100%;
-            padding: 0.75rem;
-            background: var(--primary-blue);
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        #chatLogin button {
+            width: 100%;
+            padding: 12px;
+            background: #004899;
             color: white;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .inspection-button:hover {
-            background: #003a7a;
-            transform: translateY(-2px);
-        }
-
-        /* Notifications */
-        .notification-card {
-            margin-bottom: 1rem;
             border-radius: 8px;
-            padding: 1rem;
-            border-left: 4px solid;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        .notification-info {
-            background: rgba(0, 123, 255, 0.1);
-            border-left-color: #007bff;
-            color: #004085;
+        #chatError {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
         }
 
-        .notification-warning {
-            background: rgba(255, 193, 7, 0.1);
-            border-left-color: #ffc107;
-            color: #856404;
+        #chatMain {
+            display: none;
+            flex-direction: column;
+            flex: 1;
         }
 
-        .notification-success {
-            background: rgba(40, 167, 69, 0.1);
-            border-left-color: #28a745;
-            color: #155724;
-        }
-
-        .notification-error {
-            background: rgba(220, 53, 69, 0.1);
-            border-left-color: #dc3545;
-            color: #721c24;
-        }
-
-        /* Dark theme specific fixes */
-        [data-theme="dark"] .notification-info {
-            color: #66b3ff;
-        }
-
-        [data-theme="dark"] .notification-warning {
-            color: #ffcc02;
-        }
-
-        [data-theme="dark"] .notification-success {
-            color: #4caf50;
-        }
-
-        [data-theme="dark"] .notification-error {
-            color: #f44336;
-        }
-
-        .notification-header {
+        .chat-user-info {
+            background: rgba(251, 185, 0, 0.1);
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
+            align-items: center;
+            font-size: 14px;
         }
 
-        .notification-title {
-            font-weight: 600;
-            font-size: 1rem;
-            margin: 0;
-            color: var(--text-dark);
-        }
-
-        .notification-priority {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
+        .chat-user-info span {
+            color: #004899;
             font-weight: 500;
         }
 
-        .priority-high {
-            background: rgba(255, 193, 7, 0.2);
-            color: #856404;
-        }
-
-        [data-theme="dark"] .priority-high {
-            color: #ffcc02;
-        }
-
-        .priority-urgent {
-            background: rgba(220, 53, 69, 0.2);
-            color: #721c24;
-        }
-
-        [data-theme="dark"] .priority-urgent {
-            color: #f44336;
-        }
-
-        .priority-normal {
-            background: rgba(108, 117, 125, 0.2);
-            color: #495057;
-        }
-
-        [data-theme="dark"] .priority-normal {
-            color: #adb5bd;
-        }
-
-        .notification-message {
-            margin: 0.5rem 0;
-            line-height: 1.5;
-            color: var(--text-dark);
-        }
-
-        .notification-meta {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 0.5rem;
-        }
-
-        /* User management table */
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .users-table th,
-        .users-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-dark);
-        }
-
-        .users-table th {
-            background: var(--light-blue);
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .users-table tr:hover {
-            background: rgba(0, 72, 153, 0.05);
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
+        .chat-logout {
+            background: #dc3545;
+            color: white;
             border: none;
+            padding: 6px 12px;
             border-radius: 4px;
+            font-size: 12px;
             cursor: pointer;
-            font-size: 0.9rem;
-            margin: 0 0.25rem;
-            transition: all 0.3s ease;
         }
 
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .btn-primary {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #003a7a;
-        }
-
-        .sync-status {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .sync-status.synced {
-            background: rgba(40, 167, 69, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
-
-        .sync-status.syncing {
-            background: rgba(255, 193, 7, 0.1);
-            color: #856404;
-            border: 1px solid rgba(255, 193, 7, 0.3);
-        }
-
-        [data-theme="dark"] .sync-status.syncing {
-            color: #ffcc02;
-        }
-
-        .sync-status.error {
-            background: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-        }
-
-        /* Modal styles for edit user */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+        #chatMessages {
+            flex: 1;
             overflow-y: auto;
+            padding: 16px;
+            background: #f8f9fa;
         }
 
-        .modal-content {
-            background-color: var(--white);
-            margin: 2% auto;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: var(--shadow);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
+        .chat-input {
+            border-top: 1px solid #e0e0e0;
+            padding: 16px;
+            background: white;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
+            gap: 8px;
         }
 
-        .modal-title {
-            color: var(--text-dark);
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
+        .chat-input textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 14px;
+            resize: none;
+            max-height: 80px;
+            min-height: 40px;
         }
 
-        .close {
-            color: var(--text-light);
-            font-size: 2rem;
-            font-weight: bold;
-            cursor: pointer;
+        .chat-input button {
+            padding: 12px 16px;
+            background: #004899;
+            color: white;
             border: none;
-            background: none;
-            padding: 0;
-            line-height: 1;
-        }
-
-        .close:hover {
-            color: var(--text-dark);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
@@ -791,57 +538,58 @@
                 order: 1;
                 padding: 1rem;
             }
-            .inspection-stats {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            header {
-                padding: 1rem;
-            }
-            .header-center h1 {
-                font-size: 1.4rem;
-            }
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Hide content sections by default */
-        .content-section {
-            display: none;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <div class="logo" onclick="goToHomePage()">
-                <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
+    <!-- Chat Widget -->
+    <div id="chatWidget">
+        <div id="chatBubble" onclick="toggleChat()">
+            <span class="icon">💬</span>
+            <div id="chatBadge">0</div>
+        </div>
+
+        <div id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span>💬</span>
+                    <span>Nomago Chat</span>
+                </div>
+                <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+
+            <div id="chatLogin">
+                <h3>Pridruži se pogovoru</h3>
+                <input type="email" id="emailInput" placeholder="Email naslov">
+                <input type="password" id="passwordInput" placeholder="Geslo">
+                <button id="loginButton" onclick="chatLogin()">Prijavite se</button>
+                <div id="chatError"></div>
+            </div>
+
+            <div id="chatMain">
+                <div class="chat-user-info">
+                    <span id="currentUser"></span>
+                    <button class="chat-logout" onclick="chatLogout()">Odjava</button>
+                </div>
+                <div id="chatMessages"></div>
+                <div class="chat-input">
+                    <textarea id="messageInput" placeholder="Napišite sporočilo..." onkeypress="handleKeyPress(event)"></textarea>
+                    <button onclick="sendMessage()">Pošlji</button>
+                </div>
             </div>
         </div>
-        <div class="header-center" id="headerCenter" style="display: none;">
-            <h1 style="color: white; font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; margin: 0;">BAZA</h1>
+    </div>
+
+    <header>
+        <div class="logo" onclick="goToHomePage()">
+            <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
+        </div>
+        <div class="header-center">
+            <h1 id="headerTitle">BAZA</h1>
         </div>
         <div class="header-controls">
             <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn" onclick="logout()" style="display: none;" title="Odjavi se">
-                <span class="menu-icon">🚪</span>
-            </button>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Preklopi temo">
-                <span id="themeIcon">🌙</span>
-            </button>
+            <button class="logout-button" id="headerLogoutBtn" onclick="logout()">Odjava</button>
         </div>
     </header>
 
@@ -853,13 +601,13 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required autofocus>
+                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Geslo</label>
                     <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
                 </div>
-                <button type="submit" class="login-button" id="loginButton">Prijavi se</button>
+                <button type="submit" class="login-button" id="loginButtonMain">Prijavi se</button>
                 <div class="error-message" id="errorMessage"></div>
                 <div class="success-message" id="successMessage"></div>
             </form>
@@ -868,7 +616,6 @@
         <!-- Dashboard Section -->
         <div class="dashboard" id="dashboardSection">
             <div class="dashboard-container">
-                <!-- Sidebar Menu -->
                 <nav class="sidebar">
                     <div class="sidebar-header">
                         <div class="sidebar-title">Upravljanje</div>
@@ -877,51 +624,37 @@
                     <ul class="menu-list">
                         <li class="menu-item">
                             <button class="menu-button active" onclick="showContent('dashboard')">
-                                <span class="menu-icon">🏠</span>
-                                <span>Nadzorna plošča</span>
+                                🏠 Nadzorna plošča
                             </button>
                         </li>
-                        <li class="menu-item">
-                            <button class="menu-button" id="addUserMenu" onclick="showContent('addUser')">
-                                <span class="menu-icon">👤➕</span>
-                                <span>Dodaj uporabnika</span>
+                        <li class="menu-item" id="addUserMenuItem">
+                            <button class="menu-button" onclick="showContent('addUser')">
+                                👤➕ Dodaj uporabnika
                             </button>
                         </li>
                         <li class="menu-item" id="serviserMenuItem">
-                            <button class="menu-button" id="serviserMenu" onclick="openServiserApp()">
-                                <span class="menu-icon">🔧</span>
-                                <span>Pregledi ključavnic</span>
-                                <span class="alert-badge" id="inspectionAlerts" style="display: none;">0</span>
+                            <button class="menu-button" onclick="openServiserApp()">
+                                🔧 Pregledi ključavnic
                             </button>
                         </li>
-                        <li class="menu-item">
-                            <button class="menu-button" id="userSettingsMenu" onclick="showContent('userSettings')">
-                                <span class="menu-icon">👥</span>
-                                <span>Nastavitve uporabnikov</span>
+                        <li class="menu-item" id="userSettingsMenuItem">
+                            <button class="menu-button" onclick="showContent('userSettings')">
+                                👥 Nastavitve uporabnikov
                             </button>
                         </li>
-                        <li class="menu-item">
-                            <button class="menu-button" id="notificationsMenu" onclick="showContent('notifications')">
-                                <span class="menu-icon">📢</span>
-                                <span>Obvestila</span>
+                        <li class="menu-item" id="notificationsMenuItem">
+                            <button class="menu-button" onclick="showContent('notifications')">
+                                📢 Obvestila
                             </button>
                         </li>
-                        <li class="menu-item">
+                        <li class="menu-item" id="generalSettingsMenuItem">
                             <button class="menu-button" onclick="showContent('generalSettings')">
-                                <span class="menu-icon">⚙️</span>
-                                <span>Splošne nastavitve</span>
+                                ⚙️ Splošne nastavitve
                             </button>
                         </li>
                     </ul>
-                    <div class="logout-section">
-                        <button class="logout-button" onclick="logout()">
-                            <span class="menu-icon">🚪</span>
-                            <span>Odjavi se</span>
-                        </button>
-                    </div>
                 </nav>
 
-                <!-- Main Content Area -->
                 <main class="main-content">
                     <!-- Dashboard Content -->
                     <div class="content-section" id="dashboardContent" style="display: block;">
@@ -929,57 +662,6 @@
                             <h1 class="content-title">Nadzorna plošča</h1>
                             <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
                         </div>
-
-                        <!-- Sync Status -->
-                        <div id="syncStatus" class="sync-status synced">
-                            <span>🔄</span>
-                            <span>Sinhronizirano z Firebase</span>
-                        </div>
-
-                        <!-- Inspection Widget -->
-                        <div class="inspection-widget" id="inspectionWidget">
-                            <h3>📋 Pregledi ključavnic</h3>
-                            
-                            <!-- Data Source Info -->
-                            <div style="background: rgba(0, 123, 255, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-dark);">
-                                <strong>📊 Vir podatkov:</strong> Firebase sistem | 
-                                <strong>Zadnja osvežitev:</strong> <span id="lastRefreshTime">Nalaganje...</span> |
-                                <button onclick="refreshInspectionData()" style="background: none; border: none; color: var(--primary-blue); cursor: pointer; text-decoration: underline;">🔄 Osveži zdaj</button>
-                            </div>
-                            
-                            <div class="inspection-stats" id="inspectionStats">
-                                <div class="stat-item" id="overdueStats">
-                                    <div class="stat-number danger" id="overdueCount">0</div>
-                                    <div class="stat-label">Zamujeni pregledi</div>
-                                </div>
-                                <div class="stat-item" id="dueSoonStats">
-                                    <div class="stat-number warning" id="dueSoonCount">0</div>
-                                    <div class="stat-label">Pregledi kmalu</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-number success" id="totalCount">0</div>
-                                    <div class="stat-label">Skupaj ključavnic</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Debug Info for Admins -->
-                            <div id="debugInfo" style="display: none; background: rgba(108, 117, 125, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-light);">
-                                <strong>🔍 Debug podatki:</strong><br>
-                                <span id="debugText">Nalaganje debug informacij...</span>
-                            </div>
-                            
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button class="inspection-button" onclick="openServiserApp()" style="flex: 1;">
-                                    🔧 Odpri aplikacijo za preglede
-                                </button>
-                                <button onclick="toggleDebugInfo()" class="btn" style="background: var(--text-light); color: white; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem;">
-                                    🐛 Debug
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Notifications Display -->
-                        <div id="notificationsDisplay"></div>
 
                         <div class="content-card welcome-card">
                             <div class="welcome-icon">🚴‍♂️</div>
@@ -997,64 +679,7 @@
                             <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
                         </div>
                         <div class="content-card">
-                            <form id="addUserForm" autocomplete="off">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                    <div class="form-group">
-                                        <label class="form-label" for="newFirstName">Ime *</label>
-                                        <input type="text" class="form-input" id="newFirstName" placeholder="Vnesite ime" required autocomplete="new-password">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="newLastName">Priimek *</label>
-                                        <input type="text" class="form-input" id="newLastName" placeholder="Vnesite priimek" required autocomplete="new-password">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="newUsername">Uporabniško ime *</label>
-                                    <input type="text" class="form-input" id="newUsername" placeholder="Vnesite uporabniško ime" required autocomplete="new-password">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="newPassword">Geslo *</label>
-                                    <input type="password" class="form-input" id="newPassword" placeholder="Vnesite geslo" required autocomplete="new-password">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="newRole">Vloga *</label>
-                                    <select class="form-input" id="newRole" required>
-                                        <option value="">Izberite vlogo</option>
-                                        <option value="admin">Administrator</option>
-                                        <option value="serviser">Serviser</option>
-                                        <option value="student">Študent</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Sistemi za dostop *</label>
-                                    <div id="systemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="KolesCE">
-                                            <span>KolesCE</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="LUR">
-                                            <span>LUR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="GO2GO">
-                                            <span>GO2GO</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="KOR">
-                                            <span>KOR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="ZaNaprej">
-                                            <span>ZaNaprej</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <button type="submit" class="login-button">
-                                    <span class="loading-spinner" id="addUserSpinner" style="display: none;"></span>
-                                    <span id="addUserText">Ustvari uporabnika</span>
-                                </button>
-                            </form>
+                            <p>Dodajanje uporabnika funkcionalnost bo dodana kmalu.</p>
                         </div>
                     </div>
 
@@ -1065,138 +690,18 @@
                             <p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
                         </div>
                         <div class="content-card">
-                            <div id="usersList">
-                                <!-- Users will be loaded here dynamically -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Edit User Modal -->
-                    <div id="editUserModal" class="modal">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h2 class="modal-title">Uredi uporabnika</h2>
-                                <button class="close" onclick="closeEditModal()">&times;</button>
-                            </div>
-                            <form id="editUserForm">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                    <div class="form-group">
-                                        <label class="form-label" for="editFirstName">Ime *</label>
-                                        <input type="text" class="form-input" id="editFirstName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="editLastName">Priimek *</label>
-                                        <input type="text" class="form-input" id="editLastName" required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="editUsername">Uporabniško ime *</label>
-                                    <input type="text" class="form-input" id="editUsername" readonly style="background: #f8f9fa; color: #6c757d;">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="editPassword">Novo geslo (pustite prazno za ohranitev)</label>
-                                    <input type="password" class="form-input" id="editPassword" placeholder="Vnesite novo geslo">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="editRole">Vloga *</label>
-                                    <select class="form-input" id="editRole" required>
-                                        <option value="admin">Administrator</option>
-                                        <option value="serviser">Serviser</option>
-                                        <option value="student">Študent</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Sistemi za dostop *</label>
-                                    <div id="editSystemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="KolesCE">
-                                            <span>KolesCE</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="LUR">
-                                            <span>LUR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="GO2GO">
-                                            <span>GO2GO</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="KOR">
-                                            <span>KOR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="ZaNaprej">
-                                            <span>ZaNaprej</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                                    <button type="submit" class="login-button" style="flex: 1;">
-                                        <span class="loading-spinner" id="editUserSpinner" style="display: none;"></span>
-                                        <span id="editUserText">Posodobi uporabnika</span>
-                                    </button>
-                                    <button type="button" class="btn" onclick="closeEditModal()" style="flex: 1; background: #6c757d; color: white;">
-                                        Prekliči
-                                    </button>
-                                </div>
-                            </form>
+                            <p>Nastavitve uporabnikov bodo dodane kmalu.</p>
                         </div>
                     </div>
 
                     <!-- Notifications Content -->
                     <div class="content-section" id="notificationsContent">
                         <div class="content-header">
-                            <h1 class="content-title">Upravljanje obvestil</h1>
-                            <p class="content-subtitle">Dodajte in upravljajte obvestila za vse uporabnike</p>
+                            <h1 class="content-title">Obvestila</h1>
+                            <p class="content-subtitle">Upravljajte obvestila</p>
                         </div>
                         <div class="content-card">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Dodaj novo obvestilo</h3>
-                            <form id="addNotificationForm">
-                                <div class="form-group">
-                                    <label class="form-label" for="notificationTitle">Naslov obvestila *</label>
-                                    <input type="text" class="form-input" id="notificationTitle" placeholder="Vnesite naslov obvestila" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="notificationMessage">Sporočilo *</label>
-                                    <textarea class="form-input" id="notificationMessage" rows="4" placeholder="Vnesite sporočilo obvestila" required style="resize: vertical; min-height: 100px;"></textarea>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                    <div class="form-group">
-                                        <label class="form-label" for="notificationType">Tip obvestila *</label>
-                                        <select class="form-input" id="notificationType" required>
-                                            <option value="">Izberite tip</option>
-                                            <option value="info">Informacija (modra)</option>
-                                            <option value="warning">Opozorilo (rumena)</option>
-                                            <option value="success">Uspeh (zelena)</option>
-                                            <option value="error">Napaka (rdeča)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="notificationPriority">Prioriteta</label>
-                                        <select class="form-input" id="notificationPriority">
-                                            <option value="normal">Normalna</option>
-                                            <option value="high">Visoka</option>
-                                            <option value="urgent">Nujna</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        <input type="checkbox" id="notificationActive" checked style="margin-right: 0.5rem;">
-                                        Aktivno obvestilo
-                                    </label>
-                                </div>
-                                <button type="submit" class="login-button">
-                                    <span class="loading-spinner" id="notificationSpinner" style="display: none;"></span>
-                                    <span id="notificationText">Dodaj obvestilo</span>
-                                </button>
-                            </form>
-                        </div>
-                        <div class="content-card">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Obstoječa obvestila</h3>
-                            <div id="notificationsList">
-                                <!-- Notifications will be loaded here -->
-                            </div>
+                            <p>Obvestila bodo dodana kmalu.</p>
                         </div>
                     </div>
 
@@ -1207,21 +712,7 @@
                             <p class="content-subtitle">Upravljajte sistemske nastavitve</p>
                         </div>
                         <div class="content-card">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Firebase stanje</h3>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <button class="login-button" onclick="checkFirebaseConnection()" style="flex: 1; min-width: 200px;">
-                                    <span class="loading-spinner" id="connectSpinner" style="display: none;"></span>
-                                    <span id="connectText">Preveri povezavo</span>
-                                </button>
-                                <button class="login-button" onclick="reinitializeDefaultData()" style="flex: 1; min-width: 200px; background: var(--warning);">
-                                    <span class="loading-spinner" id="initSpinner" style="display: none;"></span>
-                                    <span id="initText">Ponastavi začetne podatke</span>
-                                </button>
-                            </div>
-                            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">
-                                <p><strong>Preveri povezavo:</strong> Testira povezavo z Firebase</p>
-                                <p><strong>Ponastavi začetne podatke:</strong> Naredi osnovni admin račun če ga ni</p>
-                            </div>
+                            <p>Splošne nastavitve bodo dodane kmalu.</p>
                         </div>
                     </div>
                 </main>
@@ -1229,7 +720,7 @@
         </div>
     </main>
 
-    <!-- Firebase Integration Script -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { 
@@ -1241,8 +732,20 @@
             getDocs, 
             deleteDoc,
             updateDoc,
-            serverTimestamp 
+            serverTimestamp,
+            addDoc,
+            onSnapshot,
+            orderBy,
+            limit,
+            query
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            createUserWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
@@ -1256,6 +759,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         // Make Firebase functions globally available
         window.firebaseDb = db;
@@ -1270,122 +774,43 @@
             serverTimestamp
         };
 
+        // Chat Firebase integration
+        window.chatFirebase = {
+            auth: auth,
+            addDoc,
+            collection,
+            doc,
+            onSnapshot,
+            orderBy,
+            limit,
+            query,
+            serverTimestamp,
+            setDoc,
+            getDoc,
+            updateDoc,
+            deleteDoc,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            createUserWithEmailAndPassword,
+            db: db
+        };
+
         console.log("Firebase initialized successfully");
     </script>
 
     <script>
-        // System mapping for Firebase compatibility
-        const SYSTEM_MAPPING = {
-            'KolesCE': 'KOLESCE',
-            'LUR': 'Ljubljana in Medvode', 
-            'GO2GO': 'GO2GO',
-            'KOR': 'KOR',
-            'ZaNaprej': 'ZANAPREJ'
-        };
-
-        // All bike stations data
-        const ALL_LOCATIONS = [
-            // Ljubljana in Medvode sistem
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Prešernov trg", terminal: "87001", racks: 10 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Trubarjeva ulica", terminal: "87002", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Konzorcij", terminal: "87003", racks: 10 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Železniška postaja Ljubljana", terminal: "87004", racks: 15 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Slovenska cesta", terminal: "87005", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Miklošičeva cesta", terminal: "87006", racks: 10 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Cankarjeva ulica", terminal: "87007", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Tivoli", terminal: "87008", racks: 12 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Park Zvezda", terminal: "87009", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Mestni muzej Ljubljana", terminal: "87010", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Plečnikova hiša", terminal: "87011", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Križanke", terminal: "87012", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Poljanska cesta", terminal: "87013", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Rimska cesta", terminal: "87014", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Argentinski park", terminal: "87015", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Kongresni trg", terminal: "87016", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Kristalna palača", terminal: "87020", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Dvorana A", terminal: "87021", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Atlantis", terminal: "87022", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Dvorana 18", terminal: "87023", racks: 6 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Stolpnica Delo - Equinox", terminal: "87024", racks: 4 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Big Bang - Trg mladih", terminal: "87025", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Big Bang - Francoska ulica", terminal: "87026", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Nomago - Središka ulica", terminal: "87027", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Črnuče", terminal: "87028", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Zalog", terminal: "87029", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Ekonomska fakulteta", terminal: "87030", racks: 8 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "ISIC - Trg Ajdovščina", terminal: "87031", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Pop TV - Kranjčeva ulica", terminal: "87032", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Supernova Šiška", terminal: "87033", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Rotonda", terminal: "87034", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Glince - Tržaška c.", terminal: "87035", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Four Points by Sheraton Ljubljana Mons", terminal: "87036", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Stara cerkev - Celovška cesta", terminal: "87037", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "E. Leclerc vhod", terminal: "87038", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "E. Leclerc garaža", terminal: "87039", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Novartis", terminal: "87040", racks: 10 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Gimnazija Šiška", terminal: "87041", racks: 7 },
-            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Čad", terminal: "87042", racks: 4 },
-            { system: "Ljubljana in Medvode", municipality: "Dobrova-Polhov Gradec", name: "P+R Dobrova", terminal: "87086", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Svetje", terminal: "87087", racks: 3 },
-            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Tržnica Medvode", terminal: "87088", racks: 4 },
-            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Železniška postaja Medvode", terminal: "87089", racks: 5 },
-            { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Preska", terminal: "87090", racks: 3 },
-            
-            // GO2GO sistem
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901", racks: 8 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903", racks: 6 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905", racks: 10 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - jug", terminal: "59108", racks: 6 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Prvomajska ul. - Supernova", terminal: "59109", racks: 10 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "EPIC - Železniška postaja", terminal: "59110", racks: 10 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Hotel Sabotin", terminal: "59111", racks: 7 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Erjavčeva ulica - Športni park", terminal: "59112", racks: 6 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Kajak center", terminal: "59113", racks: 6 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Ul. Milojke Štrukelj", terminal: "59114", racks: 7 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - sever", terminal: "59115", racks: 8 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk KS", terminal: "59116", racks: 5 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Loke", terminal: "59117", racks: 6 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Pristava", terminal: "59118", racks: 6 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna dolina - vzhod", terminal: "59119", racks: 7 },
-            { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - Šolski center", terminal: "59120", racks: 10 },
-            
-            // KOLESCE sistem
-            { system: "KOLESCE", municipality: "Celje", name: "Krekov trg", terminal: "3250", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Avtobusna postaja", terminal: "3255", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Mariborska cesta – TUŠ", terminal: "3256", racks: 8 },
-            { system: "KOLESCE", municipality: "Celje", name: "Lava", terminal: "3260", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Levstikova ulica", terminal: "3263", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Mariborska cesta - Lidl", terminal: "3291", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Zagrad", terminal: "3294", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Plava Laguna", terminal: "5940", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Trubarjeva ulica", terminal: "5941", racks: 10 },
-            { system: "KOLESCE", municipality: "Celje", name: "Ribarjeva ulica", terminal: "5943", racks: 10 },
-            
-            // ZANAPREJ sistem
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Toplice", terminal: "5963", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Mestna ploščad", terminal: "5994", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Železniška postaja Zagorje", terminal: "5995", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Helfar", terminal: "5996", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Evropark", terminal: "5997", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Kisovec", terminal: "5998", racks: 10 },
-            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 }
-        ];
-
         // Global variables
         let currentUser = null;
-        let editingUser = null;
 
-        // Initialize default users and data in Firebase
+        // Initialize default data
         async function initializeDefaultData() {
             try {
-                // Check if admin user exists
                 const adminDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin')
                 );
 
                 if (!adminDoc.exists()) {
-                    // Create default admin user
                     const defaultAdmin = {
                         ime: 'Admin',
                         priimek: 'Administrator',
@@ -1400,595 +825,17 @@
                         window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin'),
                         defaultAdmin
                     );
-
-                    console.log('Default admin user created');
                 }
-
-                // Check if default notification exists
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-
-                if (!notificationsDoc.exists()) {
-                    const defaultNotifications = [
-                        {
-                            id: Date.now(),
-                            title: 'Dobrodošli v BAZA portalu',
-                            message: 'Sistem je uspešno posodobljen na najnovejšo verzijo z Firebase integracijo. Vse funkcionalnosti so na voljo.',
-                            type: 'success',
-                            priority: 'normal',
-                            active: true,
-                            createdAt: new Date().toISOString(),
-                            createdBy: 'system'
-                        }
-                    ];
-
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                        {
-                            data: defaultNotifications,
-                            lastUpdated: window.firebaseFunctions.serverTimestamp()
-                        }
-                    );
-
-                    console.log('Default notifications created');
-                }
-
-                // Initialize empty inspection data if not exists
-                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
-                );
-
-                if (!inspectionDataDoc.exists()) {
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
-                        {
-                            data: {},
-                            lastUpdated: window.firebaseFunctions.serverTimestamp()
-                        }
-                    );
-                }
-
-                // Initialize empty inspection log if not exists
-                const inspectionLogDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
-                );
-
-                if (!inspectionLogDoc.exists()) {
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
-                        {
-                            data: [],
-                            lastUpdated: window.firebaseFunctions.serverTimestamp()
-                        }
-                    );
-                }
-
-                updateSyncStatus('synced', '✅ Firebase inicializiran');
-
             } catch (error) {
                 console.error('Error initializing default data:', error);
-                updateSyncStatus('error', '❌ Napaka pri inicializaciji');
             }
         }
 
-        // Check user permissions for systems
-        function getUserAccessibleSystems(user) {
-            if (!user || !user.sistemi) return [];
-            return user.sistemi.filter(system => SYSTEM_MAPPING[system]);
-        }
-
-        function getUserAccessibleLocations(user) {
-            const accessibleSystems = getUserAccessibleSystems(user);
-            return ALL_LOCATIONS.filter(location => 
-                accessibleSystems.some(userSystem => 
-                    SYSTEM_MAPPING[userSystem] === location.system
-                )
-            );
-        }
-
-        // Calculate inspection statistics - SYNC WITH INSPECTION APP DATA STRUCTURE
-        async function calculateInspectionStats() {
-            if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0 };
-
-            try {
-                // Get inspection data from Firebase - same as in inspection app
-                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
-                );
-
-                const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
-                
-                console.log('=== PORTAL INSPECTION CALCULATION ===');
-                console.log('User role:', currentUser.vloga);
-                console.log('User systems:', currentUser.sistemi);
-                console.log('Available inspection data entries:', Object.keys(inspectionData).length);
-                
-                let total = 0;
-                let overdue = 0;
-                let dueSoon = 0;
-
-                // Get locations user has access to - SAME LOGIC AS INSPECTION APP
-                const accessibleLocations = currentUser.vloga === 'admin' ? 
-                    ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
-
-                console.log('Processing', accessibleLocations.length, 'accessible locations');
-
-                const today = new Date();
-                const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-
-                // Process each location and its racks - EXACTLY LIKE INSPECTION APP
-                accessibleLocations.forEach(location => {
-                    console.log(`Processing location: ${location.name} (${location.terminal}) - ${location.racks} racks`);
-                    
-                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
-                        total++;
-                        
-                        // Create key exactly like in inspection app
-                        const lockKey = `${location.terminal}-${rackNumber}`;
-                        const lockData = inspectionData[lockKey];
-                        
-                        if (!lockData || !lockData.lastInspection) {
-                            // No inspection data = overdue immediately
-                            overdue++;
-                            console.log(`${lockKey}: NO DATA - OVERDUE`);
-                        } else {
-                            // Parse last inspection date (should be YYYY-MM-DD format)
-                            const lastInspectionDate = lockData.lastInspection;
-                            const lastDate = new Date(lastInspectionDate + 'T00:00:00');
-                            
-                            // Calculate due date (90 days = 3 months after last inspection)
-                            const dueDate = new Date(lastDate);
-                            dueDate.setDate(dueDate.getDate() + 90); // Exactly 90 days
-                            
-                            const dueDateString = dueDate.toISOString().split('T')[0];
-                            
-                            // Compare dates as strings for accuracy
-                            if (dueDateString < todayString) {
-                                // Past due date = overdue
-                                overdue++;
-                                console.log(`${lockKey}: OVERDUE (due: ${dueDateString})`);
-                            } else {
-                                // Calculate days until due
-                                const timeDiff = dueDate.getTime() - today.getTime();
-                                const daysUntilDue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-                                
-                                if (daysUntilDue <= 14) {
-                                    // Due within 14 days = due soon
-                                    dueSoon++;
-                                    console.log(`${lockKey}: DUE SOON (${daysUntilDue} days)`);
-                                } else {
-                                    console.log(`${lockKey}: OK (${daysUntilDue} days)`);
-                                }
-                            }
-                        }
-                    }
-                });
-
-                console.log('PORTAL FINAL STATS:', { total, overdue, dueSoon });
-                console.log('=== END PORTAL CALCULATION ===');
-
-                return { total, overdue, dueSoon };
-                
-            } catch (error) {
-                console.error('Error calculating inspection stats:', error);
-                return { total: 0, overdue: 0, dueSoon: 0 };
-            }
-        }
-
-        // Calculate inspection statistics - EXACTLY MATCH INSPECTION APP LOGIC
-        async function calculateInspectionStats() {
-            if (!currentUser) return { total: 0, overdue: 0, dueSoon: 0, debug: {} };
-
-            try {
-                // Get inspection data from Firebase
-                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
-                );
-
-                const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
-                
-                let total = 0;
-                let overdue = 0;
-                let dueSoon = 0;
-                let debugInfo = {
-                    userRole: currentUser.vloga,
-                    userSystems: currentUser.sistemi,
-                    totalDataEntries: Object.keys(inspectionData).length,
-                    accessibleLocations: 0,
-                    sampleData: [],
-                    dateErrors: []
-                };
-
-                // Get locations user has access to - SAME AS INSPECTION APP
-                const accessibleLocations = currentUser.vloga === 'admin' ? 
-                    ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
-
-                debugInfo.accessibleLocations = accessibleLocations.length;
-
-                // EXACT SAME LOGIC AS INSPECTION APP - getInspectionStatus function
-                const getInspectionStatus = (terminal, rackNumber) => {
-                    const key = `${terminal}-${rackNumber}`;
-                    const rackData = inspectionData[key];
-                    
-                    if (!rackData || !rackData.lastInspection) {
-                        return 'overdue';
-                    }
-                    
-                    // EXACT SAME DATE LOGIC AS INSPECTION APP
-                    const lastDate = new Date(rackData.lastInspection); // Direct parsing like in app
-                    const nextDate = new Date(lastDate);
-                    nextDate.setMonth(nextDate.getMonth() + 3); // Add 3 months like in app
-                    
-                    const now = new Date();
-                    const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
-                    
-                    if (daysUntilDue < 0) {
-                        return 'overdue';
-                    } else if (daysUntilDue <= 14) {
-                        return 'due-soon';
-                    } else {
-                        return 'ok';
-                    }
-                };
-
-                console.log('=== PORTAL CALCULATION (MATCHING APP) ===');
-                console.log('User role:', currentUser.vloga);
-                console.log('User systems:', currentUser.sistemi);
-                console.log('Available inspection data entries:', Object.keys(inspectionData).length);
-                console.log('Processing', accessibleLocations.length, 'accessible locations');
-
-                // Process each location and its racks - EXACTLY LIKE INSPECTION APP
-                accessibleLocations.forEach((location, locationIndex) => {
-                    if (locationIndex < 3) { // Debug first 3 locations
-                        console.log(`Processing location: ${location.name} (${location.terminal}) - ${location.racks} racks`);
-                    }
-                    
-                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
-                        total++;
-                        
-                        const lockKey = `${location.terminal}-${rackNumber}`;
-                        const inspectionStatus = getInspectionStatus(location.terminal, rackNumber);
-                        
-                        // Store sample data for debugging (first 10 entries)
-                        if (debugInfo.sampleData.length < 10) {
-                            const rackData = inspectionData[lockKey];
-                            debugInfo.sampleData.push({
-                                key: lockKey,
-                                location: location.name,
-                                hasData: !!rackData,
-                                lastInspection: rackData?.lastInspection || 'N/A',
-                                status: inspectionStatus
-                            });
-                        }
-                        
-                        // Count by status - EXACTLY LIKE APP
-                        if (inspectionStatus === 'overdue') {
-                            overdue++;
-                        } else if (inspectionStatus === 'due-soon') {
-                            dueSoon++;
-                        }
-                        // else: 'ok' - no counting needed for our stats
-                    }
-                });
-
-                console.log('PORTAL FINAL STATS (MATCHING APP):', { total, overdue, dueSoon });
-                console.log('Sample data:', debugInfo.sampleData.slice(0, 5));
-                
-                // AUTOMATIC TEST: Also calculate for ALL locations to see the difference
-                console.log('\n=== AUTOMATIC TEST: ALL LOCATIONS ===');
-                let allTotal = 0, allOverdue = 0, allDueSoon = 0;
-                
-                ALL_LOCATIONS.forEach(location => {
-                    for (let rackNumber = 1; rackNumber <= location.racks; rackNumber++) {
-                        allTotal++;
-                        const key = `${location.terminal}-${rackNumber}`;
-                        const rackData = inspectionData[key];
-                        
-                        if (!rackData || !rackData.lastInspection) {
-                            allOverdue++;
-                        } else {
-                            const lastDate = new Date(rackData.lastInspection);
-                            const nextDate = new Date(lastDate);
-                            nextDate.setMonth(nextDate.getMonth() + 3);
-                            const now = new Date();
-                            const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
-                            
-                            if (daysUntilDue < 0) {
-                                allOverdue++;
-                            } else if (daysUntilDue <= 14) {
-                                allDueSoon++;
-                            }
-                        }
-                    }
-                });
-                
-                console.log('ALL LOCATIONS STATS:', { 
-                    total: allTotal, 
-                    overdue: allOverdue, 
-                    dueSoon: allDueSoon 
-                });
-                
-                console.log('COMPARISON:');
-                console.log('Portal (filtered):', { total, overdue, dueSoon });
-                console.log('All locations:', { total: allTotal, overdue: allOverdue, dueSoon: allDueSoon });
-                console.log('App shows:', { total: 1193, overdue: 1189, dueSoon: 0 });
-                
-                if (allTotal === 1193 && allOverdue === 1189) {
-                    console.log('✅ SUCCESS: All locations calculation MATCHES the inspection app!');
-                    console.log('🔍 CONCLUSION: The inspection app shows ALL locations, not filtered by user access');
-                } else {
-                    console.log('❌ Still no match - there might be other differences');
-                }
-                
-                console.log('=== END PORTAL CALCULATION ===');
-
-                return { total, overdue, dueSoon, debug: debugInfo };
-                
-            } catch (error) {
-                console.error('Error calculating inspection stats:', error);
-                return { total: 0, overdue: 0, dueSoon: 0, debug: { error: error.message } };
-            }
-        }
-
-        // Update inspection widget with debug info
-        async function updateInspectionWidget() {
-            const result = await calculateInspectionStats();
-            const { total, overdue, dueSoon, debug } = result;
-            
-            // Update numbers
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('overdueCount').textContent = overdue;
-            document.getElementById('dueSoonCount').textContent = dueSoon;
-            
-            // Update last refresh time
-            const now = new Date();
-            document.getElementById('lastRefreshTime').textContent = 
-                now.toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            
-            // Update debug info with enhanced details
-            if (debug) {
-                const debugText = `
-                    Uporabnik: ${debug.userRole} | Sistemi: ${debug.userSystems?.join(', ') || 'N/A'}<br>
-                    Dostopne lokacije: ${debug.accessibleLocations} | Firebase vnosi: ${debug.totalDataEntries}<br>
-                    Vzorec podatkov: ${debug.sampleData?.map(d => `${d.key}(${d.hasData ? 'DA' : 'NE'})`).join(', ')}<br>
-                    ${debug.dateErrors?.length > 0 ? `<strong style="color: var(--danger);">⚠️ Datum napake: ${debug.dateErrors.length}</strong><br>` : ''}
-                    ${debug.dateErrors?.slice(0, 3).map(e => `${e.key}: ${e.error}`).join('<br>') || ''}
-                    ${debug.error ? `<br><strong>Napaka:</strong> ${debug.error}` : ''}
-                    <br><br>
-                    <button onclick="calculateAllLocations()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
-                        🌍 Kalkuliraj VSE lokacije (kot aplikacija)
-                    </button>
-                `;
-                document.getElementById('debugText').innerHTML = debugText;
-            }
-            
-            // Update styling
-            const overdueStats = document.getElementById('overdueStats');
-            const dueSoonStats = document.getElementById('dueSoonStats');
-            
-            if (overdue > 0) {
-                overdueStats.classList.add('danger');
-            } else {
-                overdueStats.classList.remove('danger');
-            }
-            
-            if (dueSoon > 0) {
-                dueSoonStats.classList.add('warning');
-            } else {
-                dueSoonStats.classList.remove('warning');
-            }
-            
-            // Update alert badge
-            const alertBadge = document.getElementById('inspectionAlerts');
-            const totalAlerts = overdue + dueSoon;
-            
-            if (totalAlerts > 0) {
-                alertBadge.textContent = totalAlerts;
-                alertBadge.style.display = 'block';
-                if (overdue > 0) {
-                    alertBadge.classList.remove('warning');
-                } else {
-                    alertBadge.classList.add('warning');
-                }
-            } else {
-                alertBadge.style.display = 'none';
-            }
-        }
-
-        // Manual refresh function
-        async function refreshInspectionData() {
-            const refreshButton = document.querySelector('[onclick="refreshInspectionData()"]');
-            const originalText = refreshButton.textContent;
-            
-            refreshButton.textContent = '🔄 Osvežujem...';
-            refreshButton.disabled = true;
-            
-            try {
-                await updateInspectionWidget();
-                
-                // Show success message briefly
-                refreshButton.textContent = '✅ Osveženo!';
-                setTimeout(() => {
-                    refreshButton.textContent = originalText;
-                    refreshButton.disabled = false;
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error refreshing data:', error);
-                refreshButton.textContent = '❌ Napaka';
-                setTimeout(() => {
-                    refreshButton.textContent = originalText;
-                    refreshButton.disabled = false;
-                }, 2000);
-            }
-        }
-
-        // Compare portal data with inspection app data
-        async function compareWithApp() {
-            try {
-                console.log('=== DETAILED COMPARISON WITH INSPECTION APP ===');
-                
-                // Get fresh data
-                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
-                );
-                const inspectionData = inspectionDataDoc.exists() ? (inspectionDataDoc.data().data || {}) : {};
-                
-                // Get accessible locations for current user
-                const accessibleLocations = currentUser.vloga === 'admin' ? 
-                    ALL_LOCATIONS : getUserAccessibleLocations(currentUser);
-                
-                console.log('Portal user data:', {
-                    role: currentUser.vloga,
-                    systems: currentUser.sistemi,
-                    accessibleSystemsCount: getUserAccessibleSystems(currentUser).length,
-                    accessibleLocationsCount: accessibleLocations.length
-                });
-                
-                // Show first 10 accessible locations
-                console.log('First 10 accessible locations:', 
-                    accessibleLocations.slice(0, 10).map(loc => `${loc.name} (${loc.terminal}) - ${loc.racks} racks`)
-                );
-                
-                // Count total racks
-                const totalRacks = accessibleLocations.reduce((sum, loc) => sum + loc.racks, 0);
-                console.log('Total accessible racks:', totalRacks);
-                
-                // Show Firebase data samples
-                console.log('Firebase inspection data samples:');
-                const dataKeys = Object.keys(inspectionData);
-                console.log('Total Firebase entries:', dataKeys.length);
-                console.log('Sample keys:', dataKeys.slice(0, 10));
-                
-                // Check which locations have data vs which don't
-                let locationsWithData = 0;
-                let locationsWithoutData = 0;
-                let totalChecked = 0;
-                
-                accessibleLocations.forEach(location => {
-                    let hasAnyData = false;
-                    for (let i = 1; i <= location.racks; i++) {
-                        totalChecked++;
-                        const key = `${location.terminal}-${i}`;
-                        if (inspectionData[key]) {
-                            hasAnyData = true;
-                        }
-                    }
-                    if (hasAnyData) {
-                        locationsWithData++;
-                    } else {
-                        locationsWithoutData++;
-                    }
-                });
-                
-                console.log('Location analysis:', {
-                    totalLocations: accessibleLocations.length,
-                    locationsWithData,
-                    locationsWithoutData,
-                    totalRacksChecked: totalChecked
-                });
-                
-                // Show specific terminal analysis
-                const terminalAnalysis = {};
-                accessibleLocations.forEach(location => {
-                    const terminal = location.terminal;
-                    let dataCount = 0;
-                    for (let i = 1; i <= location.racks; i++) {
-                        const key = `${terminal}-${i}`;
-                        if (inspectionData[key]) {
-                            dataCount++;
-                        }
-                    }
-                    terminalAnalysis[terminal] = {
-                        name: location.name,
-                        totalRacks: location.racks,
-                        racksWithData: dataCount,
-                        percentage: Math.round((dataCount / location.racks) * 100)
-                    };
-                });
-                
-                console.log('Terminal analysis:', terminalAnalysis);
-                
-                // Show comparison result in UI
-                const comparisonDiv = document.getElementById('comparisonResult');
-                comparisonDiv.innerHTML = `
-                    <strong>Analiza razlik:</strong><br>
-                    Portal lokacije: ${accessibleLocations.length} | Skupaj ključavnic: ${totalRacks}<br>
-                    Firebase vnosi: ${dataKeys.length}<br>
-                    Lokacije z podatki: ${locationsWithData} | Brez podatkov: ${locationsWithoutData}<br>
-                    <br>
-                    <strong>Možni vzroki razlik:</strong><br>
-                    ${dataKeys.length === 0 ? '🚨 Ni Firebase podatkov!' : ''}
-                    ${locationsWithoutData > locationsWithData ? '🚨 Večina lokacij nima podatkov!' : ''}
-                    ${totalRacks !== totalChecked ? '🚨 Napaka pri štetju ključavnic!' : ''}
-                `;
-                
-                console.log('=== END COMPARISON ===');
-                
-            } catch (error) {
-                console.error('Error in comparison:', error);
-                document.getElementById('comparisonResult').innerHTML = `<span style="color: var(--danger);">Napaka: ${error.message}</span>`;
-            }
-        }
-
-        // Function to open Serviser app with system filtering
-        function openServiserApp() {
-            if (!currentUser) {
-                alert('Niste prijavljeni.');
-                return;
-            }
-            
-            if (currentUser.vloga === 'student') {
-                alert('Nimate dovoljenja za dostop do aplikacije za preglede.');
-                return;
-            }
-            
-            // Store user data for serviser app with system access info
-            const userDataForApp = {
-                ...currentUser,
-                accessibleSystems: getUserAccessibleSystems(currentUser),
-                accessibleLocations: getUserAccessibleLocations(currentUser)
-            };
-            
-            // Store in sessionStorage for the new window
-            sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(userDataForApp));
-            
-            // Open inspection app
-            window.open('nomago_pregledi_kljucavnic.html', '_blank');
-        }
-
-        // Theme management
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('themeIcon');
-            
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.textContent = '🌙';
-                sessionStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️';
-                sessionStorage.setItem('theme', 'dark');
-            }
-        }
-
-        function loadTheme() {
-            const savedTheme = sessionStorage.getItem('theme');
-            const themeIcon = document.getElementById('themeIcon');
-            
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️';
-            }
-        }
-
-        // Login handling with Firebase
+        // Login handling
         async function handleLogin(event) {
             event.preventDefault();
             
-            const loginButton = document.getElementById('loginButton');
+            const loginButton = document.getElementById('loginButtonMain');
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
             
@@ -2001,9 +848,6 @@
             loginButton.disabled = true;
             
             try {
-                updateSyncStatus('syncing', '🔄 Preverjanje podatkov...');
-                
-                // Get user from Firebase
                 const userDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
                 );
@@ -2014,20 +858,16 @@
                         currentUser = user;
                         sessionStorage.setItem('currentUser', JSON.stringify(user));
                         showMessage('Uspešna prijava!', 'success');
-                        updateSyncStatus('synced', '✅ Prijavljen');
                         setTimeout(() => showDashboard(user), 1000);
                     } else {
                         showMessage('Napačno geslo.', 'error');
-                        updateSyncStatus('error', '❌ Napačni podatki');
                     }
                 } else {
                     showMessage('Uporabnik ne obstaja.', 'error');
-                    updateSyncStatus('error', '❌ Uporabnik ne obstaja');
                 }
             } catch (error) {
                 console.error('Login error:', error);
                 showMessage('Prišlo je do napake pri prijavi.', 'error');
-                updateSyncStatus('error', '❌ Napaka pri prijavi');
             } finally {
                 loginButton.textContent = 'Prijavi se';
                 loginButton.disabled = false;
@@ -2038,7 +878,6 @@
             const errorMsg = document.getElementById('errorMessage');
             const successMsg = document.getElementById('successMessage');
             
-            // Hide both messages first
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
             
@@ -2055,894 +894,28 @@
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'block';
             document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('headerLogoutBtn').style.display = 'flex';
-            document.getElementById('headerCenter').style.display = 'block';
+            document.getElementById('headerLogoutBtn').style.display = 'block';
+            document.getElementById('headerTitle').style.display = 'block';
             document.getElementById('userInfo').textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
             
             // Show/hide menu items based on user role
-            const addUserMenu = document.getElementById('addUserMenu').closest('.menu-item');
-            const serviserMenuItem = document.getElementById('serviserMenuItem');
-            const userSettingsMenu = document.getElementById('userSettingsMenu').closest('.menu-item');
-            const notificationsMenu = document.getElementById('notificationsMenu').closest('.menu-item');
-            const generalSettingsMenu = document.querySelector('[onclick="showContent(\'generalSettings\')"]').closest('.menu-item');
-            
             if (user.vloga === 'admin') {
-                addUserMenu.style.display = 'block';
-                serviserMenuItem.style.display = 'block';
-                userSettingsMenu.style.display = 'block';
-                notificationsMenu.style.display = 'block';
-                generalSettingsMenu.style.display = 'block';
+                // Show all menu items
             } else if (user.vloga === 'serviser') {
-                addUserMenu.style.display = 'none';
-                serviserMenuItem.style.display = 'block';
-                userSettingsMenu.style.display = 'none';
-                notificationsMenu.style.display = 'none';
-                generalSettingsMenu.style.display = 'none';
+                document.getElementById('addUserMenuItem').style.display = 'none';
+                document.getElementById('userSettingsMenuItem').style.display = 'none';
+                document.getElementById('notificationsMenuItem').style.display = 'none';
+                document.getElementById('generalSettingsMenuItem').style.display = 'none';
             } else {
-                addUserMenu.style.display = 'none';
-                serviserMenuItem.style.display = 'block';
-                userSettingsMenu.style.display = 'none';
-                notificationsMenu.style.display = 'none';
-                generalSettingsMenu.style.display = 'none';
-            }
-            
-            updateInspectionWidget();
-            loadNotificationsDisplay();
-            updateWelcomeMessage(user);
-        }
-        
-        function updateWelcomeMessage(user) {
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            if (welcomeMessage) {
-                const accessibleSystems = getUserAccessibleSystems(user);
-                const systemsText = accessibleSystems.length > 0 ? 
-                    ` Dostop imate do sistemov: ${accessibleSystems.join(', ')}.` : '';
-                
-                if (user.vloga === 'admin') {
-                    welcomeMessage.textContent = 'Kot administrator imate dostop do vseh funkcij portala. Upravljajte uporabnike, obvestila in sistemske nastavitve. Preverite stanje pregledov ključavnic.' + systemsText;
-                } else if (user.vloga === 'serviser') {
-                    welcomeMessage.textContent = 'Kot serviser imate dostop do aplikacije za preglede ključavnic. Preverite obvestila in opravite potrebne preglede.' + systemsText;
-                } else {
-                    welcomeMessage.textContent = 'Kot študent imate dostop do osnovnih funkcij portala. Preverite obvestila in sledite svojim nalogam.' + systemsText;
-                }
+                document.getElementById('addUserMenuItem').style.display = 'none';
+                document.getElementById('userSettingsMenuItem').style.display = 'none';
+                document.getElementById('notificationsMenuItem').style.display = 'none';
+                document.getElementById('generalSettingsMenuItem').style.display = 'none';
             }
         }
 
         function logout() {
             currentUser = null;
             sessionStorage.removeItem('currentUser');
-            sessionStorage.removeItem('serviserApp_currentUser');
             
             document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('headerLogoutBtn').style.display = 'none';
-            document.getElementById('headerCenter').style.display = 'none';
-            
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.style.display = 'block';
-            });
-            
-            document.getElementById('loginForm').reset();
-            hideMessages();
-            updateSyncStatus('synced', '🔄 Sinhronizirano z Firebase');
-        }
-
-        function hideMessages() {
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-        }
-
-        // Navigate to home page when logo is clicked
-        function goToHomePage() {
-            if (currentUser) {
-                showContent('dashboard');
-            }
-        }
-
-        // Enhanced session management to prevent automatic logouts
-        function refreshSession() {
-            if (currentUser) {
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                sessionStorage.setItem('lastActivity', Date.now().toString());
-            }
-        }
-
-        function checkSession() {
-            const lastActivity = sessionStorage.getItem('lastActivity');
-            if (lastActivity) {
-                const timeSinceActivity = Date.now() - parseInt(lastActivity);
-                // Auto logout after 2 hours of inactivity (7200000 ms)
-                if (timeSinceActivity > 7200000) {
-                    logout();
-                    alert('Seja je potekla. Prosimo, se ponovno prijavite.');
-                }
-            }
-        }
-
-        // Activity tracking to prevent unwanted logouts
-        function trackActivity() {
-            refreshSession();
-        }
-
-        // Content management with session refresh and form clearing
-        function showContent(contentType) {
-            refreshSession(); // Refresh session on every action
-            
-            if (!currentUser) {
-                alert('Niste prijavljeni.');
-                return;
-            }
-            
-            const adminOnlySections = ['addUser', 'userSettings', 'notifications', 'generalSettings'];
-            
-            if (adminOnlySections.includes(contentType) && currentUser.vloga !== 'admin') {
-                alert('Nimate dovoljenja za dostop do te sekcije.');
-                return;
-            }
-            
-            const sections = ['dashboardContent', 'addUserContent', 'userSettingsContent', 'notificationsContent', 'generalSettingsContent'];
-            sections.forEach(section => {
-                const el = document.getElementById(section);
-                if (el) el.style.display = 'none';
-            });
-
-            document.querySelectorAll('.menu-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            switch(contentType) {
-                case 'dashboard':
-                    document.getElementById('dashboardContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'dashboard\')"]').classList.add('active');
-                    updateInspectionWidget();
-                    loadNotificationsDisplay();
-                    break;
-                case 'addUser':
-                    document.getElementById('addUserContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'addUser\')"]').classList.add('active');
-                    // CLEAR FORM WHEN OPENING ADD USER SECTION
-                    clearAddUserForm();
-                    break;
-                case 'userSettings':
-                    document.getElementById('userSettingsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'userSettings\')"]').classList.add('active');
-                    loadUsersList();
-                    break;
-                case 'notifications':
-                    document.getElementById('notificationsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'notifications\')"]').classList.add('active');
-                    loadNotificationsList();
-                    break;
-                case 'generalSettings':
-                    document.getElementById('generalSettingsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'generalSettings\')"]').classList.add('active');
-                    break;
-            }
-        }
-
-        // Function to clear add user form
-        function clearAddUserForm() {
-            document.getElementById('newFirstName').value = '';
-            document.getElementById('newLastName').value = '';
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('newRole').value = '';
-            
-            // Uncheck all system checkboxes
-            document.querySelectorAll('input[name="newSystems"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            
-            // Also use form.reset() as backup
-            const form = document.getElementById('addUserForm');
-            if (form) {
-                form.reset();
-            }
-            
-            console.log('Add user form cleared');
-        }
-
-        // User management functions
-        async function loadUsersList() {
-            try {
-                const usersCollection = await window.firebaseFunctions.getDocs(
-                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
-                );
-                
-                const users = [];
-                usersCollection.forEach((doc) => {
-                    const userData = doc.data();
-                    // Remove Firebase timestamp fields that might cause issues
-                    const cleanUserData = {
-                        ime: userData.ime || '',
-                        priimek: userData.priimek || '',
-                        uporabniskoIme: userData.uporabniskoIme || '',
-                        vloga: userData.vloga || '',
-                        sistemi: userData.sistemi || []
-                    };
-                    users.push(cleanUserData);
-                });
-                
-                const container = document.getElementById('usersList');
-                
-                if (users.length === 0) {
-                    container.innerHTML = '<p>Ni uporabnikov za prikaz.</p>';
-                    return;
-                }
-                
-                let html = '<div style="overflow-x: auto;"><table class="users-table">';
-                html += '<thead><tr>';
-                html += '<th>Ime</th>';
-                html += '<th>Priimek</th>';
-                html += '<th>Uporabniško ime</th>';
-                html += '<th>Vloga</th>';
-                html += '<th>Sistemi</th>';
-                html += '<th style="text-align: center;">Dejanja</th>';
-                html += '</tr></thead><tbody>';
-                
-                users.forEach((user) => {
-                    html += `<tr>`;
-                    html += `<td>${user.ime}</td>`;
-                    html += `<td>${user.priimek}</td>`;
-                    html += `<td>${user.uporabniskoIme}</td>`;
-                    html += `<td>${user.vloga}</td>`;
-                    html += `<td>${user.sistemi.join(', ')}</td>`;
-                    html += `<td style="text-align: center;">`;
-                    html += `<button onclick="editUser('${user.uporabniskoIme}')" class="btn btn-primary">Uredi</button>`;
-                    html += `<button onclick="deleteUser('${user.uporabniskoIme}')" class="btn btn-danger">Izbriši</button>`;
-                    html += `</td></tr>`;
-                });
-                
-                html += '</tbody></table></div>';
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading users:', error);
-                document.getElementById('usersList').innerHTML = '<p>Napaka pri nalaganju uporabnikov.</p>';
-            }
-        }
-
-        async function editUser(username) {
-            try {
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                if (!userDoc.exists()) {
-                    alert('Uporabnik ne obstaja.');
-                    return;
-                }
-                
-                const user = userDoc.data();
-                editingUser = username;
-                
-                // Fill form with user data
-                document.getElementById('editFirstName').value = user.ime;
-                document.getElementById('editLastName').value = user.priimek;
-                document.getElementById('editUsername').value = user.uporabniskoIme;
-                document.getElementById('editPassword').value = '';
-                document.getElementById('editRole').value = user.vloga;
-                
-                // Check system checkboxes
-                const systemCheckboxes = document.querySelectorAll('input[name="editSystems"]');
-                systemCheckboxes.forEach(checkbox => {
-                    checkbox.checked = user.sistemi && user.sistemi.includes(checkbox.value);
-                });
-                
-                // Show modal
-                document.getElementById('editUserModal').style.display = 'block';
-                
-            } catch (error) {
-                console.error('Error loading user for edit:', error);
-                alert('Napaka pri nalaganju uporabnika: ' + error.message);
-            }
-        }
-
-        function closeEditModal() {
-            document.getElementById('editUserModal').style.display = 'none';
-            editingUser = null;
-        }
-
-        async function handleEditUser(event) {
-            event.preventDefault();
-            
-            if (!editingUser) {
-                alert('Napaka: Ni izbranega uporabnika za urejanje.');
-                return;
-            }
-            
-            const editButton = document.getElementById('editUserText');
-            const editSpinner = document.getElementById('editUserSpinner');
-            
-            const firstName = document.getElementById('editFirstName').value.trim();
-            const lastName = document.getElementById('editLastName').value.trim();
-            const password = document.getElementById('editPassword').value.trim();
-            const role = document.getElementById('editRole').value;
-            
-            const systemCheckboxes = document.querySelectorAll('input[name="editSystems"]:checked');
-            const systems = Array.from(systemCheckboxes).map(cb => cb.value);
-            
-            if (!firstName || !lastName || !role || systems.length === 0) {
-                alert('Prosimo, izpolnite vsa obvezna polja.');
-                return;
-            }
-            
-            try {
-                editButton.textContent = 'Posodabljam...';
-                editSpinner.style.display = 'inline-block';
-                
-                // Get current user data
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', editingUser)
-                );
-                
-                if (!userDoc.exists()) {
-                    alert('Uporabnik ne obstaja.');
-                    return;
-                }
-                
-                const currentUserData = userDoc.data();
-                
-                // Prepare updated user data - FIXED: Remove problematic fields
-                const updatedUser = {
-                    ime: firstName,
-                    priimek: lastName,
-                    uporabniskoIme: editingUser,
-                    geslo: password || currentUserData.geslo, // Keep old password if new one not provided
-                    vloga: role,
-                    sistemi: systems
-                    // NOTE: Removed createdAt to avoid Firebase timestamp issues
-                };
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', editingUser),
-                    updatedUser
-                );
-                
-                alert('Uporabnik je bil uspešno posodobljen!');
-                closeEditModal();
-                loadUsersList();
-                
-                // Update current user data if editing own account
-                if (currentUser && currentUser.uporabniskoIme === editingUser) {
-                    currentUser = { ...currentUser, ...updatedUser };
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
-                }
-                
-            } catch (error) {
-                console.error('Error updating user:', error);
-                alert('Napaka pri posodabljanju uporabnika: ' + error.message);
-            } finally {
-                editButton.textContent = 'Posodobi uporabnika';
-                editSpinner.style.display = 'none';
-            }
-        }
-
-        async function deleteUser(username) {
-            if (!confirm('Ali ste prepričani, da želite izbrisati tega uporabnika?')) {
-                return;
-            }
-
-            if (username === 'admin') {
-                alert('Admin uporabnika ni mogoče izbrisati!');
-                return;
-            }
-
-            try {
-                await window.firebaseFunctions.deleteDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                loadUsersList();
-                alert('Uporabnik je bil uspešno izbrisan!');
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Napaka pri brisanju uporabnika: ' + error.message);
-            }
-        }
-
-        // Add user form handler with Firebase - COMPLETELY FIXED RESET
-        async function handleAddUser(event) {
-            event.preventDefault();
-            
-            const addButton = document.getElementById('addUserText');
-            const addSpinner = document.getElementById('addUserSpinner');
-            const form = document.getElementById('addUserForm');
-            
-            const firstName = document.getElementById('newFirstName').value.trim();
-            const lastName = document.getElementById('newLastName').value.trim();
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            const role = document.getElementById('newRole').value;
-            
-            const systemCheckboxes = document.querySelectorAll('input[name="newSystems"]:checked');
-            const systems = Array.from(systemCheckboxes).map(cb => cb.value);
-            
-            if (!firstName || !lastName || !username || !password || !role || systems.length === 0) {
-                alert('Prosimo, izpolnite vsa obvezna polja.');
-                return;
-            }
-            
-            try {
-                addButton.textContent = 'Ustvarjam...';
-                addSpinner.style.display = 'inline-block';
-                
-                // Check if username already exists
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                if (userDoc.exists()) {
-                    alert('Uporabniško ime že obstaja. Izberite drugo.');
-                    return;
-                }
-                
-                const newUser = {
-                    ime: firstName,
-                    priimek: lastName,
-                    uporabniskoIme: username,
-                    geslo: password,
-                    vloga: role,
-                    sistemi: systems
-                };
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username),
-                    newUser
-                );
-                
-                alert('Uporabnik je bil uspešno dodan!');
-                
-                // COMPLETE FORM RESET - manually clear each field
-                document.getElementById('newFirstName').value = '';
-                document.getElementById('newLastName').value = '';
-                document.getElementById('newUsername').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('newRole').value = '';
-                
-                // Uncheck all system checkboxes
-                document.querySelectorAll('input[name="newSystems"]').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                
-                // Also use form.reset() as backup
-                form.reset();
-                
-                console.log('Form reset completed');
-                
-            } catch (error) {
-                console.error('Error adding user:', error);
-                alert('Napaka pri dodajanju uporabnika: ' + error.message);
-            } finally {
-                addButton.textContent = 'Ustvari uporabnika';
-                addSpinner.style.display = 'none';
-            }
-        }
-
-        // Notifications display - Only show admin-created notifications (exclude system-generated inspection alerts)
-        async function loadNotificationsDisplay() {
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                // Filter out ALL system-generated notifications related to inspections
-                const activeNotifications = notifications.filter(n => 
-                    n.active && 
-                    n.createdBy !== 'system' &&
-                    !n.title.toLowerCase().includes('pregled') &&
-                    !n.title.toLowerCase().includes('ključavnic') &&
-                    !n.message.toLowerCase().includes('pregled') &&
-                    !n.message.toLowerCase().includes('ključavnic')
-                );
-                const container = document.getElementById('notificationsDisplay');
-                
-                if (activeNotifications.length === 0) {
-                    container.innerHTML = '';
-                    return;
-                }
-                
-                let html = '';
-                activeNotifications.forEach(notification => {
-                    const priorityClass = `priority-${notification.priority}`;
-                    const typeClass = `notification-${notification.type}`;
-                    
-                    html += `
-                        <div class="notification-card ${typeClass}">
-                            <div class="notification-header">
-                                <h4 class="notification-title">${notification.title}</h4>
-                                <span class="notification-priority ${priorityClass}">${getPriorityText(notification.priority)}</span>
-                            </div>
-                            <p class="notification-message">${notification.message}</p>
-                            <div class="notification-meta">
-                                Objavljeno: ${formatDate(notification.createdAt)} • Avtor: ${notification.createdBy}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading notifications display:', error);
-            }
-        }
-
-        async function loadNotificationsList() {
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                const container = document.getElementById('notificationsList');
-                
-                if (notifications.length === 0) {
-                    container.innerHTML = '<p>Ni obvestil za prikaz.</p>';
-                    return;
-                }
-                
-                let html = '';
-                notifications.forEach((notification, index) => {
-                    const priorityClass = `priority-${notification.priority}`;
-                    const typeClass = `notification-${notification.type}`;
-                    const statusText = notification.active ? 'Aktivno' : 'Neaktivno';
-                    const statusColor = notification.active ? 'var(--success)' : 'var(--text-light)';
-                    
-                    html += `
-                        <div class="notification-card ${typeClass}" style="position: relative;">
-                            <div class="notification-header">
-                                <h4 class="notification-title">${notification.title}</h4>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <span class="notification-priority ${priorityClass}">${getPriorityText(notification.priority)}</span>
-                                    <span style="color: ${statusColor}; font-size: 0.8rem; font-weight: 500;">${statusText}</span>
-                                </div>
-                            </div>
-                            <p class="notification-message">${notification.message}</p>
-                            <div class="notification-meta">
-                                Objavljeno: ${formatDate(notification.createdAt)} • Avtor: ${notification.createdBy}
-                            </div>
-                            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                                <button onclick="toggleNotification(${notification.id})" class="btn" style="background: ${notification.active ? 'var(--warning)' : 'var(--success)'}; color: white;">
-                                    ${notification.active ? 'Deaktiviraj' : 'Aktiviraj'}
-                                </button>
-                                <button onclick="deleteNotification(${notification.id})" class="btn btn-danger">
-                                    Izbriši
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-            } catch (error) {
-                console.error('Error loading notifications list:', error);
-                document.getElementById('notificationsList').innerHTML = '<p>Napaka pri nalaganju obvestil.</p>';
-            }
-        }
-
-        async function toggleNotification(notificationId) {
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                if (!notificationsDoc.exists()) return;
-                
-                const notifications = notificationsDoc.data().data;
-                const notificationIndex = notifications.findIndex(n => n.id === notificationId);
-                
-                if (notificationIndex === -1) return;
-                
-                notifications[notificationIndex].active = !notifications[notificationIndex].active;
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: notifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                loadNotificationsList();
-                loadNotificationsDisplay();
-            } catch (error) {
-                console.error('Error toggling notification:', error);
-                alert('Napaka pri posodabljanju obvestila: ' + error.message);
-            }
-        }
-
-        async function deleteNotification(notificationId) {
-            if (!confirm('Ali ste prepričani, da želite izbrisati to obvestilo?')) {
-                return;
-            }
-            
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                if (!notificationsDoc.exists()) return;
-                
-                const notifications = notificationsDoc.data().data;
-                const filteredNotifications = notifications.filter(n => n.id !== notificationId);
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: filteredNotifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                loadNotificationsList();
-                loadNotificationsDisplay();
-            } catch (error) {
-                console.error('Error deleting notification:', error);
-                alert('Napaka pri brisanju obvestila: ' + error.message);
-            }
-        }
-
-        async function handleAddNotification(event) {
-            event.preventDefault();
-            
-            const notificationButton = document.getElementById('notificationText');
-            const notificationSpinner = document.getElementById('notificationSpinner');
-            
-            const title = document.getElementById('notificationTitle').value.trim();
-            const message = document.getElementById('notificationMessage').value.trim();
-            const type = document.getElementById('notificationType').value;
-            const priority = document.getElementById('notificationPriority').value;
-            const active = document.getElementById('notificationActive').checked;
-            
-            if (!title || !message || !type) {
-                alert('Prosimo, izpolnite vsa obvezna polja.');
-                return;
-            }
-            
-            try {
-                notificationButton.textContent = 'Dodajam...';
-                notificationSpinner.style.display = 'inline-block';
-                
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                
-                const newNotification = {
-                    id: Date.now(),
-                    title: title,
-                    message: message,
-                    type: type,
-                    priority: priority,
-                    active: active,
-                    createdAt: new Date().toISOString(),
-                    createdBy: currentUser.uporabniskoIme
-                };
-                
-                notifications.unshift(newNotification);
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: notifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                alert('Obvestilo je bilo uspešno dodano!');
-                document.getElementById('addNotificationForm').reset();
-                loadNotificationsList();
-                loadNotificationsDisplay();
-                
-            } catch (error) {
-                console.error('Error adding notification:', error);
-                alert('Napaka pri dodajanju obvestila: ' + error.message);
-            } finally {
-                notificationButton.textContent = 'Dodaj obvestilo';
-                notificationSpinner.style.display = 'none';
-            }
-        }
-
-        function getPriorityText(priority) {
-            switch(priority) {
-                case 'high': return 'Visoka';
-                case 'urgent': return 'Nujna';
-                default: return 'Normalna';
-            }
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('sl-SI') + ' ' + date.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'});
-        }
-
-        function checkLoginStatus() {
-            const savedUser = sessionStorage.getItem('currentUser');
-            if (savedUser) {
-                try {
-                    currentUser = JSON.parse(savedUser);
-                    // Hide login section immediately if user is logged in
-                    document.getElementById('loginSection').style.display = 'none';
-                    showDashboard(currentUser);
-                } catch (error) {
-                    console.error('Error parsing saved user:', error);
-                    sessionStorage.removeItem('currentUser');
-                }
-            } else {
-                // Show login section if no saved user
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('dashboardSection').style.display = 'none';
-            }
-        }
-
-        // Sync status helper
-        function updateSyncStatus(status, message) {
-            const syncStatus = document.getElementById('syncStatus');
-            syncStatus.className = `sync-status ${status}`;
-            syncStatus.innerHTML = `<span>${status === 'synced' ? '🔄' : status === 'syncing' ? '⏳' : '❌'}</span><span>${message}</span>`;
-        }
-
-        // Firebase connection check
-        async function checkFirebaseConnection() {
-            const connectButton = document.getElementById('connectText');
-            const connectSpinner = document.getElementById('connectSpinner');
-            
-            try {
-                connectButton.textContent = 'Preverjam...';
-                connectSpinner.style.display = 'inline-block';
-                updateSyncStatus('syncing', '🔄 Preverjanje povezave...');
-                
-                // Try to read a document to test connection
-                const testDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                updateSyncStatus('synced', '✅ Povezava uspešna');
-                alert('Povezava z Firebase je uspešna!');
-                
-            } catch (error) {
-                console.error('Firebase connection error:', error);
-                updateSyncStatus('error', '❌ Napaka pri povezavi');
-                alert('Napaka pri povezavi z Firebase: ' + error.message);
-            } finally {
-                connectButton.textContent = 'Preveri povezavo';
-                connectSpinner.style.display = 'none';
-            }
-        }
-
-        // Reinitialize default data
-        async function reinitializeDefaultData() {
-            if (!confirm('Ali ste prepričani? To bo ustvarilo osnovni admin račun če ga ni.')) {
-                return;
-            }
-
-            const initButton = document.getElementById('initText');
-            const initSpinner = document.getElementById('initSpinner');
-            
-            try {
-                initButton.textContent = 'Inicializiram...';
-                initSpinner.style.display = 'inline-block';
-                updateSyncStatus('syncing', '🔄 Inicializacija...');
-                
-                await initializeDefaultData();
-                
-                alert('Inicializacija uspešna!');
-                updateSyncStatus('synced', '✅ Inicializirano');
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                updateSyncStatus('error', '❌ Napaka pri inicializaciji');
-                alert('Napaka pri inicializaciji: ' + error.message);
-            } finally {
-                initButton.textContent = 'Ponastavi začetne podatke';
-                initSpinner.style.display = 'none';
-            }
-        }
-
-        // Wait for Firebase to be fully loaded
-        function waitForFirebase() {
-            return new Promise((resolve) => {
-                const checkFirebase = () => {
-                    if (window.firebaseDb && window.firebaseFunctions && window.firebaseFunctions.getDoc) {
-                        resolve();
-                    } else {
-                        setTimeout(checkFirebase, 100);
-                    }
-                };
-                checkFirebase();
-            });
-        }
-
-        // Initialize app with proper loading sequence
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Show page immediately with fade-in effect
-                setTimeout(() => {
-                    document.body.classList.add('loaded');
-                }, 100);
-                
-                // First check if user is already logged in to avoid flash
-                const savedUser = sessionStorage.getItem('currentUser');
-                if (savedUser) {
-                    // User is logged in, hide login immediately
-                    document.getElementById('loginSection').style.display = 'none';
-                    document.getElementById('dashboardSection').style.display = 'block';
-                }
-                
-                loadTheme();
-                
-                // Wait for Firebase to be ready
-                await waitForFirebase();
-                console.log('Firebase is ready');
-                
-                // Initialize Firebase and default data
-                await initializeDefaultData();
-                
-                // Now properly check login status
-                checkLoginStatus();
-                
-            } catch (error) {
-                console.error('Error during initialization:', error);
-                updateSyncStatus('error', '❌ Napaka pri inicializaciji Firebase');
-                // Ensure page is shown even with errors
-                document.body.classList.add('loaded');
-            }
-            
-            // Event listeners
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
-            document.getElementById('addNotificationForm').addEventListener('submit', handleAddNotification);
-            
-            // IMPORTANT: Add edit user form event listener
-            const editUserForm = document.getElementById('editUserForm');
-            if (editUserForm) {
-                editUserForm.addEventListener('submit', handleEditUser);
-            }
-            
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleLogin(e);
-                }
-            });
-
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('editUserModal');
-                if (event.target === modal) {
-                    closeEditModal();
-                }
-            });
-
-            // Close modal with ESC key
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
-                    closeEditModal();
-                }
-            });
-
-            // Set up automatic inspection checks (every hour) - removed automatic alert generation
-            setInterval(() => {
-                if (currentUser && (currentUser.vloga === 'admin' || currentUser.vloga === 'serviser')) {
-                    updateInspectionWidget();
-                }
-            }, 60 * 60 * 1000);
-        });
-
-        // Global functions for access from HTML
-        window.toggleTheme = toggleTheme;
-        window.logout = logout;
-        window.showContent = showContent;
-        window.openServiserApp = openServiserApp;
-        window.editUser = editUser;
-        window.closeEditModal = closeEditModal;
-        window.deleteUser = deleteUser;
-        window.toggleNotification = toggleNotification;
-        window.deleteNotification = deleteNotification;
-        window.checkFirebaseConnection = checkFirebaseConnection;
-        window.reinitializeDefaultData = reinitializeDefaultData;
-    </script>
-</body>
-</html>
