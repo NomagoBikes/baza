@@ -3,325 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomago Bikes - BAZA Portal</title>
+    <title>Nomago Advanced Chat</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-blue: #004899;
-            --secondary-yellow: #fbb900;
-            --light-blue: #e9f0f7;
-            --white: #ffffff;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --border-color: #ddd;
-            --shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
-            --danger: #dc3545;
-            --success: #28a745;
-            --warning: #ffc107;
-        }
-
-        body {
-            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: var(--text-dark);
-        }
-
-        header {
-            background: #004899;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            font-weight: bold;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .logo .nom { color: white; }
-        .logo .a { color: #fbb900; }
-        .logo .go { color: white; }
-        .logo .bikes { color: #fbb900; }
-
-        .header-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .header-center h1 {
-            color: white;
-            font-size: 1.8rem;
-            margin: 0;
-            display: none;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-info {
-            color: white;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .logout-button {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            display: none;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .login-card {
-            background: var(--white);
-            padding: 3rem;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .bike-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .login-title {
-            color: var(--text-dark);
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        .form-label {
-            display: block;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            background: var(--white);
-            color: var(--text-dark);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #004899;
-            box-shadow: 0 0 0 3px rgba(0, 72, 153, 0.1);
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 0.875rem;
-            background: #004899;
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
-
-        .login-button:hover {
-            background: #003a7a;
-        }
-
-        .login-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .error-message, .success-message {
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .error-message {
-            background: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-        }
-
-        .success-message {
-            background: rgba(40, 167, 69, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-        }
-
-        .dashboard {
-            display: none;
-            flex: 1;
-        }
-
-        .dashboard-container {
-            display: flex;
-            min-height: calc(100vh - 80px);
-        }
-
-        .sidebar {
-            width: 280px;
-            background: var(--white);
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem 0;
-        }
-
-        .sidebar-header {
-            padding: 0 2rem 2rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-        }
-
-        .sidebar-title {
-            color: var(--text-dark);
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-subtitle {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-
-        .menu-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .menu-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .menu-button {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 2rem;
-            background: none;
-            border: none;
-            color: var(--text-dark);
-            font-size: 1rem;
-            cursor: pointer;
-            text-align: left;
-            border-left: 3px solid transparent;
-        }
-
-        .menu-button:hover {
-            background: rgba(0, 72, 153, 0.05);
-            border-left-color: var(--primary-blue);
-            color: var(--primary-blue);
-        }
-
-        .menu-button.active {
-            background: rgba(0, 72, 153, 0.1);
-            border-left-color: var(--primary-blue);
-            color: var(--primary-blue);
-            font-weight: 600;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-            background: var(--light-blue);
-            overflow-y: auto;
-        }
-
-        .content-section {
-            display: none;
-        }
-
-        .content-header {
-            margin-bottom: 2rem;
-        }
-
-        .content-title {
-            color: var(--text-dark);
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .content-subtitle {
-            color: var(--text-light);
-            font-size: 1rem;
-        }
-
-        .content-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-        }
-
-        .welcome-card {
-            text-align: center;
-            padding: 3rem 2rem;
-        }
-
-        .welcome-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .welcome-text {
-            color: var(--text-dark);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .welcome-description {
-            color: var(--text-light);
-            font-size: 1rem;
-            max-width: 500px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
         /* Chat Widget */
         #chatWidget {
             position: fixed;
@@ -329,6 +12,7 @@
             right: 24px;
             z-index: 9999;
             font-family: inherit;
+            display: none;
         }
 
         #chatBubble {
@@ -382,10 +66,10 @@
             position: absolute;
             bottom: 80px;
             right: 0;
-            width: 380px;
+            width: 420px;
             max-width: 95vw;
-            height: 500px;
-            max-height: 70vh;
+            height: 600px;
+            max-height: 80vh;
             background: white;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -398,14 +82,15 @@
         .chat-header {
             background: linear-gradient(135deg, #004899 0%, #0056b3 100%);
             color: white;
-            padding: 16px 20px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            min-height: 50px;
         }
 
         .chat-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -416,9 +101,14 @@
             background: none;
             border: none;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
             padding: 4px;
+            border-radius: 4px;
+        }
+
+        .chat-close:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         #chatLogin {
@@ -463,16 +153,18 @@
             display: none;
             flex-direction: column;
             flex: 1;
+            height: 100%;
         }
 
         .chat-user-info {
             background: rgba(251, 185, 0, 0.1);
-            padding: 12px 20px;
+            padding: 8px 16px;
             border-bottom: 1px solid #e0e0e0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
+            font-size: 12px;
+            min-height: 40px;
         }
 
         .chat-user-info span {
@@ -484,65 +176,454 @@
             background: #dc3545;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
+        }
+
+        /* Chat Navigation */
+        .chat-nav {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            background: rgba(0, 72, 153, 0.05);
+            color: #004899;
+        }
+
+        .nav-tab.active {
+            color: #004899;
+            border-bottom-color: #004899;
+            background: rgba(0, 72, 153, 0.1);
+        }
+
+        /* Chat Sidebar */
+        .chat-content {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .chat-sidebar {
+            width: 140px;
+            border-right: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .chat-sidebar.active {
+            display: block;
+        }
+
+        .sidebar-header {
+            padding: 12px 8px 8px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .add-button {
+            width: 100%;
+            padding: 6px;
+            background: #004899;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .add-button:hover {
+            background: #003a7a;
+        }
+
+        .chat-list {
+            padding: 8px 0;
+        }
+
+        .chat-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .chat-item:hover {
+            background: rgba(0, 72, 153, 0.05);
+        }
+
+        .chat-item.active {
+            background: rgba(0, 72, 153, 0.1);
+            border-left: 3px solid #004899;
+        }
+
+        .chat-item-name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .chat-item-info {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .online-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        /* Chat Messages */
+        .chat-conversation {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .conversation-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 45px;
+        }
+
+        .conversation-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .action-btn.danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(220, 53, 69, 0.1);
         }
 
         #chatMessages {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 12px;
             background: #f8f9fa;
+            min-height: 0;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.own {
+            align-items: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message.own .message-bubble {
+            background: #004899;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message:not(.own) .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-info {
+            font-size: 10px;
+            color: #888;
+            margin-top: 3px;
+            margin-bottom: 2px;
+        }
+
+        .message.own .message-info {
+            text-align: right;
         }
 
         .chat-input {
             border-top: 1px solid #e0e0e0;
-            padding: 16px;
+            padding: 12px;
             background: white;
             display: flex;
             gap: 8px;
+            min-height: 60px;
         }
 
         .chat-input textarea {
             flex: 1;
-            padding: 12px 16px;
+            padding: 8px 12px;
             border: 1px solid #e0e0e0;
-            border-radius: 20px;
-            font-size: 14px;
+            border-radius: 16px;
+            font-size: 13px;
             resize: none;
-            max-height: 80px;
-            min-height: 40px;
+            max-height: 60px;
+            min-height: 36px;
+            font-family: inherit;
         }
 
         .chat-input button {
-            padding: 12px 16px;
+            padding: 8px 12px;
             background: #004899;
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 16px;
             cursor: pointer;
+            font-size: 13px;
+            min-width: 60px;
+        }
+
+        .chat-input button:hover {
+            background: #003a7a;
+        }
+
+        .chat-input button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
         }
 
-        @media (max-width: 768px) {
-            .dashboard-container {
-                flex-direction: column;
+        .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .checkbox-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px;
+            margin-bottom: 4px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #004899;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #003a7a;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Empty States */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            #chatWindow {
+                width: 95vw;
+                height: 85vh;
+                bottom: 10px;
+                right: 2.5vw;
             }
-            .sidebar {
-                width: 100%;
-                order: 2;
+
+            .chat-sidebar {
+                width: 120px;
             }
-            .main-content {
-                order: 1;
-                padding: 1rem;
+
+            .nav-tab {
+                font-size: 11px;
+                padding: 10px 6px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Chat Widget -->
     <div id="chatWidget">
         <div id="chatBubble" onclick="toggleChat()">
             <span class="icon">💬</span>
@@ -558,6 +639,7 @@
                 <button class="chat-close" onclick="toggleChat()">×</button>
             </div>
 
+            <!-- Login Section -->
             <div id="chatLogin">
                 <h3>Pridruži se pogovoru</h3>
                 <input type="email" id="emailInput" placeholder="Email naslov">
@@ -566,159 +648,145 @@
                 <div id="chatError"></div>
             </div>
 
+            <!-- Main Chat Interface -->
             <div id="chatMain">
                 <div class="chat-user-info">
                     <span id="currentUser"></span>
                     <button class="chat-logout" onclick="chatLogout()">Odjava</button>
                 </div>
-                <div id="chatMessages"></div>
-                <div class="chat-input">
-                    <textarea id="messageInput" placeholder="Napišite sporočilo..." onkeypress="handleKeyPress(event)"></textarea>
-                    <button onclick="sendMessage()">Pošlji</button>
+
+                <!-- Navigation Tabs -->
+                <div class="chat-nav">
+                    <button class="nav-tab active" onclick="switchTab('groups')" id="groupsTab">
+                        👥 Skupine
+                    </button>
+                    <button class="nav-tab" onclick="switchTab('private')" id="privateTab">
+                        💬 Zasebno
+                    </button>
+                </div>
+
+                <!-- Chat Content -->
+                <div class="chat-content">
+                    <!-- Groups Sidebar -->
+                    <div class="chat-sidebar active" id="groupsSidebar">
+                        <div class="sidebar-header">
+                            <div class="sidebar-title">Skupine</div>
+                            <button class="add-button" onclick="showCreateGroupModal()" id="createGroupBtn" style="display: none;">
+                                ➕ Nova
+                            </button>
+                        </div>
+                        <div class="chat-list" id="groupsList">
+                            <!-- Groups will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Private Sidebar -->
+                    <div class="chat-sidebar" id="privateSidebar">
+                        <div class="sidebar-header">
+                            <div class="sidebar-title">Uporabniki</div>
+                            <button class="add-button" onclick="startPrivateChat()" id="startChatBtn">
+                                💬 Nov
+                            </button>
+                        </div>
+                        <div class="chat-list" id="usersList">
+                            <!-- Users will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Conversation Area -->
+                    <div class="chat-conversation">
+                        <div class="conversation-header" id="conversationHeader">
+                            <span id="conversationTitle">Izberite pogovor</span>
+                            <div class="conversation-actions" id="conversationActions"></div>
+                        </div>
+                        <div id="chatMessages">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💬</div>
+                                <div class="empty-state-title">Dobrodošli v Nomago Chat</div>
+                                <div class="empty-state-text">Izberite skupino ali začnite zasebni pogovor</div>
+                            </div>
+                        </div>
+                        <div class="chat-input" id="chatInputArea" style="display: none;">
+                            <textarea id="messageInput" placeholder="Napišite sporočilo..." onkeypress="handleKeyPress(event)"></textarea>
+                            <button onclick="sendMessage()" id="sendBtn">Pošlji</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <header>
-        <div class="logo" onclick="goToHomePage()">
-            <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
-        </div>
-        <div class="header-center">
-            <h1 id="headerTitle">BAZA</h1>
-        </div>
-        <div class="header-controls">
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn" onclick="logout()">Odjava</button>
-        </div>
-    </header>
-
-    <main>
-        <!-- Login Section -->
-        <div class="login-card" id="loginSection">
-            <div class="bike-icon">🚲</div>
-            <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
-            <form id="loginForm">
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Ustvari novo skupino</div>
+            <form id="createGroupForm">
                 <div class="form-group">
-                    <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required>
+                    <label class="form-label">Ime skupine *</label>
+                    <input type="text" class="form-input" id="groupName" placeholder="Vnesite ime skupine" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="password">Geslo</label>
-                    <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
+                    <label class="form-label">Opis</label>
+                    <textarea class="form-textarea" id="groupDescription" placeholder="Kratek opis skupine"></textarea>
                 </div>
-                <button type="submit" class="login-button" id="loginButtonMain">Prijavi se</button>
-                <div class="error-message" id="errorMessage"></div>
-                <div class="success-message" id="successMessage"></div>
+                <div class="form-group">
+                    <label class="form-label">Člani</label>
+                    <div class="checkbox-list" id="groupMembersList">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateGroupModal()">Prekliči</button>
+                    <button type="submit" class="btn btn-primary">Ustvari</button>
+                </div>
             </form>
         </div>
+    </div>
 
-        <!-- Dashboard Section -->
-        <div class="dashboard" id="dashboardSection">
-            <div class="dashboard-container">
-                <nav class="sidebar">
-                    <div class="sidebar-header">
-                        <div class="sidebar-title">Upravljanje</div>
-                        <div class="sidebar-subtitle">Nomago Bikes Portal</div>
+    <!-- Manage Group Modal -->
+    <div id="manageGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Upravljaj skupino</div>
+            <form id="manageGroupForm">
+                <div class="form-group">
+                    <label class="form-label">Ime skupine *</label>
+                    <input type="text" class="form-input" id="editGroupName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Opis</label>
+                    <textarea class="form-textarea" id="editGroupDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Člani</label>
+                    <div class="checkbox-list" id="editGroupMembersList">
+                        <!-- Users will be loaded here -->
                     </div>
-                    <ul class="menu-list">
-                        <li class="menu-item">
-                            <button class="menu-button active" onclick="showContent('dashboard')">
-                                🏠 Nadzorna plošča
-                            </button>
-                        </li>
-                        <li class="menu-item" id="addUserMenuItem">
-                            <button class="menu-button" onclick="showContent('addUser')">
-                                👤➕ Dodaj uporabnika
-                            </button>
-                        </li>
-                        <li class="menu-item" id="serviserMenuItem">
-                            <button class="menu-button" onclick="openServiserApp()">
-                                🔧 Pregledi ključavnic
-                            </button>
-                        </li>
-                        <li class="menu-item" id="userSettingsMenuItem">
-                            <button class="menu-button" onclick="showContent('userSettings')">
-                                👥 Nastavitve uporabnikov
-                            </button>
-                        </li>
-                        <li class="menu-item" id="notificationsMenuItem">
-                            <button class="menu-button" onclick="showContent('notifications')">
-                                📢 Obvestila
-                            </button>
-                        </li>
-                        <li class="menu-item" id="generalSettingsMenuItem">
-                            <button class="menu-button" onclick="showContent('generalSettings')">
-                                ⚙️ Splošne nastavitve
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-danger" onclick="deleteGroup()">Izbriši skupino</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeManageGroupModal()">Prekliči</button>
+                    <button type="submit" class="btn btn-primary">Shrani</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-                <main class="main-content">
-                    <!-- Dashboard Content -->
-                    <div class="content-section" id="dashboardContent" style="display: block;">
-                        <div class="content-header">
-                            <h1 class="content-title">Nadzorna plošča</h1>
-                            <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
-                        </div>
-
-                        <div class="content-card welcome-card">
-                            <div class="welcome-icon">🚴‍♂️</div>
-                            <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
-                            <p class="welcome-description" id="welcomeMessage">
-                                Uporabite levi meni za navigacijo po različnih funkcijah portala.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Add User Content -->
-                    <div class="content-section" id="addUserContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Dodaj uporabnika</h1>
-                            <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Dodajanje uporabnika funkcionalnost bo dodana kmalu.</p>
-                        </div>
-                    </div>
-
-                    <!-- User Settings Content -->
-                    <div class="content-section" id="userSettingsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Nastavitve uporabnikov</h1>
-                            <p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Nastavitve uporabnikov bodo dodane kmalu.</p>
-                        </div>
-                    </div>
-
-                    <!-- Notifications Content -->
-                    <div class="content-section" id="notificationsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Obvestila</h1>
-                            <p class="content-subtitle">Upravljajte obvestila</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Obvestila bodo dodana kmalu.</p>
-                        </div>
-                    </div>
-
-                    <!-- General Settings Content -->
-                    <div class="content-section" id="generalSettingsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Splošne nastavitve</h1>
-                            <p class="content-subtitle">Upravljajte sistemske nastavitve</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Splošne nastavitve bodo dodane kmalu.</p>
-                        </div>
-                    </div>
-                </main>
+    <!-- Select Users Modal -->
+    <div id="selectUsersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Začni zasebni pogovor</div>
+            <div class="form-group">
+                <label class="form-label">Izberi uporabnika</label>
+                <div class="checkbox-list" id="selectUsersList">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeSelectUsersModal()">Prekliči</button>
+                <button type="button" class="btn btn-primary" onclick="createPrivateChat()">Začni pogovor</button>
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -737,7 +805,10 @@
             onSnapshot,
             orderBy,
             limit,
-            query
+            query,
+            where,
+            arrayUnion,
+            arrayRemove
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
         import { 
             getAuth, 
@@ -762,21 +833,9 @@
         const auth = getAuth(app);
 
         // Make Firebase functions globally available
-        window.firebaseDb = db;
-        window.firebaseFunctions = {
-            collection,
-            doc,
-            setDoc,
-            getDoc,
-            getDocs,
-            deleteDoc,
-            updateDoc,
-            serverTimestamp
-        };
-
-        // Chat Firebase integration
         window.chatFirebase = {
             auth: auth,
+            db: db,
             addDoc,
             collection,
             doc,
@@ -784,138 +843,790 @@
             orderBy,
             limit,
             query,
+            where,
             serverTimestamp,
             setDoc,
             getDoc,
+            getDocs,
             updateDoc,
             deleteDoc,
+            arrayUnion,
+            arrayRemove,
             signInWithEmailAndPassword,
             signOut,
             onAuthStateChanged,
-            createUserWithEmailAndPassword,
-            db: db
+            createUserWithEmailAndPassword
         };
 
-        console.log("Firebase initialized successfully");
+        console.log("Advanced Chat Firebase initialized");
     </script>
 
     <script>
-        // Global variables
-        let currentUser = null;
+        // Advanced Chat JavaScript
+        let chatCurrentUser = null;
+        let currentUserRole = null;
+        let currentConversation = null;
+        let currentConversationType = null; // 'group' or 'private'
+        let activeTab = 'groups';
+        let chatGroups = [];
+        let chatUsers = [];
+        let privateChats = [];
+        let unsubscribers = [];
 
-        // Initialize default data
-        async function initializeDefaultData() {
-            try {
-                const adminDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin')
-                );
-
-                if (!adminDoc.exists()) {
-                    const defaultAdmin = {
-                        ime: 'Admin',
-                        priimek: 'Administrator',
-                        uporabniskoIme: 'admin',
-                        geslo: 'admin123',
-                        vloga: 'admin',
-                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej'],
-                        createdAt: window.firebaseFunctions.serverTimestamp()
-                    };
-
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin'),
-                        defaultAdmin
-                    );
+        // Initialize advanced chat
+        function initAdvancedChat() {
+            const mainPortalUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+            if (mainPortalUser.ime && mainPortalUser.priimek) {
+                const emailInput = document.getElementById('emailInput');
+                if (mainPortalUser.email) {
+                    emailInput.value = mainPortalUser.email;
+                } else {
+                    const firstName = mainPortalUser.ime.toLowerCase();
+                    const lastName = mainPortalUser.priimek.toLowerCase();
+                    emailInput.value = `${firstName}.${lastName}@nomago.si`;
                 }
-            } catch (error) {
-                console.error('Error initializing default data:', error);
+            }
+
+            if (window.chatFirebase) {
+                window.chatFirebase.onAuthStateChanged(window.chatFirebase.auth, (user) => {
+                    if (user) {
+                        chatCurrentUser = user;
+                        currentUserRole = mainPortalUser.vloga || 'user';
+                        showChatInterface();
+                        initializeChatData();
+                    } else {
+                        chatCurrentUser = null;
+                        showChatLoginInterface();
+                        cleanupSubscriptions();
+                    }
+                });
             }
         }
 
-        // Login handling
-        async function handleLogin(event) {
-            event.preventDefault();
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            const isVisible = chatWindow.style.display === 'flex';
             
-            const loginButton = document.getElementById('loginButtonMain');
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            if (isVisible) {
+                chatWindow.style.display = 'none';
+                resetChatNotificationBadge();
+            } else {
+                chatWindow.style.display = 'flex';
+                resetChatNotificationBadge();
+                if (chatCurrentUser) {
+                    const messageInput = document.getElementById('messageInput');
+                    if (messageInput) messageInput.focus();
+                }
+            }
+        }
+
+        async function chatLogin() {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            const loginButton = document.getElementById('loginButton');
             
-            if (!username || !password) {
-                showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
+            if (!email || !password) {
+                showChatError('Prosimo, vnesite email in geslo.');
+                return;
+            }
+
+            if (!window.chatFirebase) {
+                showChatError('Chat sistem se še nalaga. Poskusite znova.');
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = 'Prijavljanje...';
+            
+            try {
+                await window.chatFirebase.signInWithEmailAndPassword(window.chatFirebase.auth, email, password);
+                hideChatError();
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        await window.chatFirebase.createUserWithEmailAndPassword(window.chatFirebase.auth, email, password);
+                        hideChatError();
+                    } catch (createError) {
+                        showChatError('Napaka pri ustvarjanju računa.');
+                    }
+                } else if (error.code === 'auth/wrong-password') {
+                    showChatError('Napačno geslo.');
+                } else {
+                    showChatError('Napaka pri prijavi.');
+                }
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Prijavite se';
+            }
+        }
+
+        async function chatLogout() {
+            try {
+                await updateUserPresence(false);
+                await window.chatFirebase.signOut(window.chatFirebase.auth);
+            } catch (error) {
+                console.error('Chat logout error:', error);
+            }
+        }
+
+        function showChatInterface() {
+            document.getElementById('chatLogin').style.display = 'none';
+            document.getElementById('chatMain').style.display = 'flex';
+            
+            const userEmail = chatCurrentUser.email;
+            const displayName = userEmail.split('@')[0].replace('.', ' ').toUpperCase();
+            document.getElementById('currentUser').textContent = displayName;
+            
+            // Show create group button only for admins
+            if (currentUserRole === 'admin') {
+                document.getElementById('createGroupBtn').style.display = 'flex';
+            }
+        }
+
+        function showChatLoginInterface() {
+            document.getElementById('chatLogin').style.display = 'block';
+            document.getElementById('chatMain').style.display = 'none';
+        }
+
+        function showChatError(message) {
+            const errorDiv = document.getElementById('chatError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideChatError() {
+            document.getElementById('chatError').style.display = 'none';
+        }
+
+        // Initialize chat data
+        async function initializeChatData() {
+            await updateUserPresence(true);
+            loadChatGroups();
+            loadChatUsers();
+            loadPrivateChats();
+        }
+
+        // User presence management
+        async function updateUserPresence(isOnline) {
+            if (!chatCurrentUser || !window.chatFirebase) return;
+            
+            try {
+                const userDoc = window.chatFirebase.doc(window.chatFirebase.db, 'chatUsers', chatCurrentUser.uid);
+                const userEmail = chatCurrentUser.email;
+                const displayName = userEmail.split('@')[0].replace('.', ' ');
+                
+                if (isOnline) {
+                    await window.chatFirebase.setDoc(userDoc, {
+                        email: userEmail,
+                        displayName: displayName,
+                        lastSeen: window.chatFirebase.serverTimestamp(),
+                        isOnline: true,
+                        role: currentUserRole
+                    });
+                } else {
+                    await window.chatFirebase.updateDoc(userDoc, {
+                        isOnline: false,
+                        lastSeen: window.chatFirebase.serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating presence:', error);
+            }
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            activeTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            // Update sidebars
+            document.querySelectorAll('.chat-sidebar').forEach(s => s.classList.remove('active'));
+            document.getElementById(tab + 'Sidebar').classList.add('active');
+            
+            // Clear conversation
+            clearConversation();
+        }
+
+        // Load chat groups
+        function loadChatGroups() {
+            const groupsQuery = window.chatFirebase.collection(window.chatFirebase.db, 'chatGroups');
+            
+            const unsubscribe = window.chatFirebase.onSnapshot(groupsQuery, (snapshot) => {
+                chatGroups = [];
+                snapshot.forEach((doc) => {
+                    const group = { id: doc.id, ...doc.data() };
+                    // Only show groups where user is a member or admin
+                    if (currentUserRole === 'admin' || (group.members && group.members.includes(chatCurrentUser.uid))) {
+                        chatGroups.push(group);
+                    }
+                });
+                displayGroups();
+            });
+            
+            unsubscribers.push(unsubscribe);
+        }
+
+        // Load chat users
+        function loadChatUsers() {
+            const usersQuery = window.chatFirebase.collection(window.chatFirebase.db, 'chatUsers');
+            
+            const unsubscribe = window.chatFirebase.onSnapshot(usersQuery, (snapshot) => {
+                chatUsers = [];
+                snapshot.forEach((doc) => {
+                    const user = { id: doc.id, ...doc.data() };
+                    if (user.id !== chatCurrentUser.uid) { // Don't include self
+                        chatUsers.push(user);
+                    }
+                });
+                displayUsers();
+                updateGroupMemberLists();
+            });
+            
+            unsubscribers.push(unsubscribe);
+        }
+
+        // Load private chats
+        function loadPrivateChats() {
+            const chatsQuery = window.chatFirebase.query(
+                window.chatFirebase.collection(window.chatFirebase.db, 'privateChats'),
+                window.chatFirebase.where('participants', 'array-contains', chatCurrentUser.uid)
+            );
+            
+            const unsubscribe = window.chatFirebase.onSnapshot(chatsQuery, (snapshot) => {
+                privateChats = [];
+                snapshot.forEach((doc) => {
+                    privateChats.push({ id: doc.id, ...doc.data() });
+                });
+                displayPrivateChats();
+            });
+            
+            unsubscribers.push(unsubscribe);
+        }
+
+        // Display functions
+        function displayGroups() {
+            const container = document.getElementById('groupsList');
+            container.innerHTML = '';
+            
+            if (chatGroups.length === 0) {
+                container.innerHTML = '<div style="padding: 16px; text-align: center; color: #666; font-size: 12px;">Ni skupin</div>';
                 return;
             }
             
-            loginButton.textContent = 'Prijavljanje...';
-            loginButton.disabled = true;
+            chatGroups.forEach(group => {
+                const item = document.createElement('div');
+                item.className = 'chat-item';
+                item.onclick = () => openGroupConversation(group);
+                
+                item.innerHTML = `
+                    <div class="chat-item-name"># ${group.name}</div>
+                    <div class="chat-item-info">${group.members ? group.members.length : 0} članov</div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        function displayUsers() {
+            const container = document.getElementById('usersList');
+            container.innerHTML = '';
+            
+            if (chatUsers.length === 0) {
+                container.innerHTML = '<div style="padding: 16px; text-align: center; color: #666; font-size: 12px;">Ni uporabnikov</div>';
+                return;
+            }
+            
+            chatUsers.forEach(user => {
+                const item = document.createElement('div');
+                item.className = 'chat-item';
+                item.onclick = () => openPrivateConversation(user);
+                
+                item.innerHTML = `
+                    <div class="chat-item-name">${user.displayName}</div>
+                    <div class="chat-item-info">${user.isOnline ? 'Online' : 'Offline'}</div>
+                    ${user.isOnline ? '<div class="online-indicator"></div>' : ''}
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        function displayPrivateChats() {
+            // This would show existing private chat conversations
+            // For now, users are shown in displayUsers()
+        }
+
+        // Conversation management
+        function openGroupConversation(group) {
+            currentConversation = group;
+            currentConversationType = 'group';
+            
+            // Update UI
+            document.querySelectorAll('#groupsList .chat-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update conversation header
+            document.getElementById('conversationTitle').textContent = `# ${group.name}`;
+            
+            // Show admin actions for group management
+            const actionsContainer = document.getElementById('conversationActions');
+            actionsContainer.innerHTML = '';
+            
+            if (currentUserRole === 'admin') {
+                actionsContainer.innerHTML = `
+                    <button class="action-btn" onclick="editGroup('${group.id}')">✏️ Uredi</button>
+                    <button class="action-btn danger" onclick="confirmDeleteGroup('${group.id}')">🗑️ Izbriši</button>
+                `;
+            }
+            
+            // Show input area
+            document.getElementById('chatInputArea').style.display = 'flex';
+            
+            // Load messages
+            loadGroupMessages(group.id);
+        }
+
+        function openPrivateConversation(user) {
+            currentConversation = user;
+            currentConversationType = 'private';
+            
+            // Update UI
+            document.querySelectorAll('#usersList .chat-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update conversation header
+            document.getElementById('conversationTitle').textContent = user.displayName;
+            document.getElementById('conversationActions').innerHTML = '';
+            
+            // Show input area
+            document.getElementById('chatInputArea').style.display = 'flex';
+            
+            // Load or create private chat
+            loadPrivateMessages(user.id);
+        }
+
+        function clearConversation() {
+            currentConversation = null;
+            currentConversationType = null;
+            
+            document.getElementById('conversationTitle').textContent = 'Izberite pogovor';
+            document.getElementById('conversationActions').innerHTML = '';
+            document.getElementById('chatInputArea').style.display = 'none';
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <div class="empty-state-title">Izberite pogovor</div>
+                    <div class="empty-state-text">Izberite skupino ali začnite zasebni pogovor</div>
+                </div>
+            `;
+            
+            // Remove active states
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+        }
+
+        // Message loading
+        function loadGroupMessages(groupId) {
+            // Clean up previous subscription
+            cleanupMessageSubscription();
+            
+            const messagesQuery = window.chatFirebase.query(
+                window.chatFirebase.collection(window.chatFirebase.db, 'groupMessages'),
+                window.chatFirebase.where('groupId', '==', groupId),
+                window.chatFirebase.orderBy('timestamp', 'desc'),
+                window.chatFirebase.limit(50)
+            );
+            
+            const unsubscribe = window.chatFirebase.onSnapshot(messagesQuery, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((doc) => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                
+                messages.reverse();
+                displayMessages(messages);
+            });
+            
+            unsubscribers.push(unsubscribe);
+        }
+
+        function loadPrivateMessages(otherUserId) {
+            // Clean up previous subscription
+            cleanupMessageSubscription();
+            
+            const chatId = [chatCurrentUser.uid, otherUserId].sort().join('_');
+            
+            const messagesQuery = window.chatFirebase.query(
+                window.chatFirebase.collection(window.chatFirebase.db, 'privateMessages'),
+                window.chatFirebase.where('chatId', '==', chatId),
+                window.chatFirebase.orderBy('timestamp', 'desc'),
+                window.chatFirebase.limit(50)
+            );
+            
+            const unsubscribe = window.chatFirebase.onSnapshot(messagesQuery, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((doc) => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                
+                messages.reverse();
+                displayMessages(messages);
+            });
+            
+            unsubscribers.push(unsubscribe);
+        }
+
+        function displayMessages(messages) {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '';
+            
+            if (messages.length === 0) {
+                messagesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <div class="empty-state-title">Še ni sporočil</div>
+                        <div class="empty-state-text">Začnite pogovor z prvim sporočilom</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            messages.forEach((message) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.userId === chatCurrentUser.uid ? 'own' : ''}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                bubble.textContent = message.text;
+                
+                const info = document.createElement('div');
+                info.className = 'message-info';
+                
+                const senderName = message.senderName || 'Neznani uporabnik';
+                const timestamp = message.timestamp || message.createdAt;
+                const time = timestamp ? new Date(timestamp.seconds ? timestamp.seconds * 1000 : timestamp).toLocaleTimeString('sl-SI', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                }) : '';
+                
+                info.textContent = `${senderName} • ${time}`;
+                
+                messageDiv.appendChild(bubble);
+                messageDiv.appendChild(info);
+                messagesContainer.appendChild(messageDiv);
+            });
+            
+            scrollToBottom();
+        }
+
+        // Send message
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message || !chatCurrentUser || !currentConversation) return;
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
             
             try {
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
+                const userEmail = chatCurrentUser.email;
+                const senderName = userEmail.split('@')[0].replace('.', ' ');
+                
+                if (currentConversationType === 'group') {
+                    await window.chatFirebase.addDoc(window.chatFirebase.collection(window.chatFirebase.db, 'groupMessages'), {
+                        text: message,
+                        groupId: currentConversation.id,
+                        userId: chatCurrentUser.uid,
+                        senderName: senderName,
+                        timestamp: window.chatFirebase.serverTimestamp(),
+                        createdAt: new Date().toISOString()
+                    });
+                } else if (currentConversationType === 'private') {
+                    const chatId = [chatCurrentUser.uid, currentConversation.id].sort().join('_');
+                    
+                    await window.chatFirebase.addDoc(window.chatFirebase.collection(window.chatFirebase.db, 'privateMessages'), {
+                        text: message,
+                        chatId: chatId,
+                        userId: chatCurrentUser.uid,
+                        recipientId: currentConversation.id,
+                        senderName: senderName,
+                        timestamp: window.chatFirebase.serverTimestamp(),
+                        createdAt: new Date().toISOString()
+                    });
+                }
+                
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showChatError('Napaka pri pošiljanju sporočila.');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Group management functions
+        function showCreateGroupModal() {
+            updateGroupMemberLists();
+            document.getElementById('createGroupModal').style.display = 'flex';
+        }
+
+        function closeCreateGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'none';
+            document.getElementById('createGroupForm').reset();
+        }
+
+        async function createGroup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('groupName').value.trim();
+            const description = document.getElementById('groupDescription').value.trim();
+            const selectedMembers = Array.from(document.querySelectorAll('#groupMembersList input:checked')).map(input => input.value);
+            
+            if (!name) {
+                alert('Ime skupine je obvezno');
+                return;
+            }
+            
+            try {
+                await window.chatFirebase.addDoc(window.chatFirebase.collection(window.chatFirebase.db, 'chatGroups'), {
+                    name: name,
+                    description: description,
+                    members: [...selectedMembers, chatCurrentUser.uid], // Add creator
+                    admins: [chatCurrentUser.uid],
+                    createdBy: chatCurrentUser.uid,
+                    createdAt: window.chatFirebase.serverTimestamp()
+                });
+                
+                closeCreateGroupModal();
+            } catch (error) {
+                console.error('Error creating group:', error);
+                alert('Napaka pri ustvarjanju skupine');
+            }
+        }
+
+        function editGroup(groupId) {
+            const group = chatGroups.find(g => g.id === groupId);
+            if (!group) return;
+            
+            document.getElementById('editGroupName').value = group.name;
+            document.getElementById('editGroupDescription').value = group.description || '';
+            
+            // Set current members
+            const memberCheckboxes = document.querySelectorAll('#editGroupMembersList input');
+            memberCheckboxes.forEach(checkbox => {
+                checkbox.checked = group.members && group.members.includes(checkbox.value);
+            });
+            
+            window.editingGroupId = groupId;
+            document.getElementById('manageGroupModal').style.display = 'flex';
+        }
+
+        function closeManageGroupModal() {
+            document.getElementById('manageGroupModal').style.display = 'none';
+            document.getElementById('manageGroupForm').reset();
+            window.editingGroupId = null;
+        }
+
+        async function updateGroup(event) {
+            event.preventDefault();
+            
+            if (!window.editingGroupId) return;
+            
+            const name = document.getElementById('editGroupName').value.trim();
+            const description = document.getElementById('editGroupDescription').value.trim();
+            const selectedMembers = Array.from(document.querySelectorAll('#editGroupMembersList input:checked')).map(input => input.value);
+            
+            try {
+                await window.chatFirebase.updateDoc(
+                    window.chatFirebase.doc(window.chatFirebase.db, 'chatGroups', window.editingGroupId),
+                    {
+                        name: name,
+                        description: description,
+                        members: selectedMembers,
+                        updatedAt: window.chatFirebase.serverTimestamp()
+                    }
                 );
                 
-                if (userDoc.exists()) {
-                    const user = userDoc.data();
-                    if (user.geslo === password) {
-                        currentUser = user;
-                        sessionStorage.setItem('currentUser', JSON.stringify(user));
-                        showMessage('Uspešna prijava!', 'success');
-                        setTimeout(() => showDashboard(user), 1000);
-                    } else {
-                        showMessage('Napačno geslo.', 'error');
-                    }
-                } else {
-                    showMessage('Uporabnik ne obstaja.', 'error');
-                }
+                closeManageGroupModal();
             } catch (error) {
-                console.error('Login error:', error);
-                showMessage('Prišlo je do napake pri prijavi.', 'error');
-            } finally {
-                loginButton.textContent = 'Prijavi se';
-                loginButton.disabled = false;
+                console.error('Error updating group:', error);
+                alert('Napaka pri posodabljanju skupine');
             }
         }
 
-        function showMessage(message, type) {
-            const errorMsg = document.getElementById('errorMessage');
-            const successMsg = document.getElementById('successMessage');
+        async function deleteGroup() {
+            if (!window.editingGroupId || !confirm('Ali ste prepričani, da želite izbrisati to skupino?')) {
+                return;
+            }
             
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
-            
-            if (type === 'error') {
-                errorMsg.textContent = message;
-                errorMsg.style.display = 'block';
-            } else if (type === 'success') {
-                successMsg.textContent = message;
-                successMsg.style.display = 'block';
+            try {
+                await window.chatFirebase.deleteDoc(
+                    window.chatFirebase.doc(window.chatFirebase.db, 'chatGroups', window.editingGroupId)
+                );
+                
+                closeManageGroupModal();
+                clearConversation();
+            } catch (error) {
+                console.error('Error deleting group:', error);
+                alert('Napaka pri brisanju skupine');
             }
         }
 
-        function showDashboard(user) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('headerLogoutBtn').style.display = 'block';
-            document.getElementById('headerTitle').style.display = 'block';
-            document.getElementById('userInfo').textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
+        function confirmDeleteGroup(groupId) {
+            if (confirm('Ali ste prepričani, da želite izbrisati to skupino?')) {
+                window.editingGroupId = groupId;
+                deleteGroup();
+            }
+        }
+
+        // Private chat functions
+        function startPrivateChat() {
+            updateSelectUsersList();
+            document.getElementById('selectUsersModal').style.display = 'flex';
+        }
+
+        function closeSelectUsersModal() {
+            document.getElementById('selectUsersModal').style.display = 'none';
+        }
+
+        function createPrivateChat() {
+            const selectedUser = document.querySelector('#selectUsersList input:checked');
+            if (!selectedUser) {
+                alert('Izberite uporabnika');
+                return;
+            }
             
-            // Show/hide menu items based on user role
-            if (user.vloga === 'admin') {
-                // Show all menu items
-            } else if (user.vloga === 'serviser') {
-                document.getElementById('addUserMenuItem').style.display = 'none';
-                document.getElementById('userSettingsMenuItem').style.display = 'none';
-                document.getElementById('notificationsMenuItem').style.display = 'none';
-                document.getElementById('generalSettingsMenuItem').style.display = 'none';
+            const user = chatUsers.find(u => u.id === selectedUser.value);
+            if (user) {
+                closeSelectUsersModal();
+                switchTab('private');
+                openPrivateConversation(user);
+            }
+        }
+
+        // Helper functions
+        function updateGroupMemberLists() {
+            const containers = ['groupMembersList', 'editGroupMembersList'];
+            
+            containers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                chatUsers.forEach(user => {
+                    const item = document.createElement('div');
+                    item.className = 'checkbox-item';
+                    item.innerHTML = `
+                        <input type="checkbox" value="${user.id}" id="${containerId}_${user.id}">
+                        <label for="${containerId}_${user.id}">${user.displayName} (${user.isOnline ? 'Online' : 'Offline'})</label>
+                    `;
+                    container.appendChild(item);
+                });
+            });
+        }
+
+        function updateSelectUsersList() {
+            const container = document.getElementById('selectUsersList');
+            container.innerHTML = '';
+            
+            chatUsers.forEach(user => {
+                const item = document.createElement('div');
+                item.className = 'checkbox-item';
+                item.innerHTML = `
+                    <input type="radio" name="selectedUser" value="${user.id}" id="selectUser_${user.id}">
+                    <label for="selectUser_${user.id}">${user.displayName} ${user.isOnline ? '🟢' : '⚫'}</label>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chatMessages');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        function resetChatNotificationBadge() {
+            const badge = document.getElementById('chatBadge');
+            badge.style.display = 'none';
+            badge.textContent = '0';
+        }
+
+        function cleanupMessageSubscription() {
+            // This would clean up the current message subscription
+            // Implementation depends on how you track active subscriptions
+        }
+
+        function cleanupSubscriptions() {
+            unsubscribers.forEach(unsubscribe => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe();
+                }
+            });
+            unsubscribers = [];
+        }
+
+        // Initialize when ready
+        function initializeAdvancedChatWhenReady() {
+            if (window.chatFirebase && window.chatFirebase.auth) {
+                initAdvancedChat();
+                
+                // Add event listeners
+                document.getElementById('createGroupForm').addEventListener('submit', createGroup);
+                document.getElementById('manageGroupForm').addEventListener('submit', updateGroup);
+                
+                // Auto-resize textarea
+                const messageInput = document.getElementById('messageInput');
+                if (messageInput) {
+                    messageInput.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 60) + 'px';
+                    });
+                }
+                
+                // Handle page unload
+                window.addEventListener('beforeunload', () => {
+                    if (chatCurrentUser) {
+                        updateUserPresence(false);
+                    }
+                });
             } else {
-                document.getElementById('addUserMenuItem').style.display = 'none';
-                document.getElementById('userSettingsMenuItem').style.display = 'none';
-                document.getElementById('notificationsMenuItem').style.display = 'none';
-                document.getElementById('generalSettingsMenuItem').style.display = 'none';
+                setTimeout(initializeAdvancedChatWhenReady, 100);
             }
         }
 
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            
-            document.getElementById('loginSection').style.display = 'block';
+        // Start initialization
+        setTimeout(initializeAdvancedChatWhenReady, 1000);
+
+        // Global functions
+        window.toggleChat = toggleChat;
+        window.chatLogin = chatLogin;
+        window.chatLogout = chatLogout;
+        window.sendMessage = sendMessage;
+        window.handleKeyPress = handleKeyPress;
+        window.switchTab = switchTab;
+        window.showCreateGroupModal = showCreateGroupModal;
+        window.closeCreateGroupModal = closeCreateGroupModal;
+        window.editGroup = editGroup;
+        window.closeManageGroupModal = closeManageGroupModal;
+        window.deleteGroup = deleteGroup;
+        window.confirmDeleteGroup = confirmDeleteGroup;
+        window.startPrivateChat = startPrivateChat;
+        window.closeSelectUsersModal = closeSelectUsersModal;
+        window.createPrivateChat = createPrivateChat;
+    </script>
+</body>
+</html>
