@@ -1,167 +1,4 @@
-            arrayUnion,
-            arrayRemove,
-            where        // Advanced Chat Widget JavaScript
-        let chatCurrentUser = null;
-        let currentUserRole = null;
-        let currentConversation = 'general';
-        let currentConversationType = 'group';
-        let activeTab = 'groups';
-        let chatUsers = [];
-        let chatUnsubscribeMessages = null;
-        let chatUnsubscribeUsers = null;
-
-        function initAdvancedChat() {
-            const mainPortalUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-            if (mainPortalUser.ime && mainPortalUser.priimek) {
-                const emailInput = document.getElementById('emailInput');
-                if (mainPortalUser.email) {
-                    emailInput.value = mainPortalUser.email;
-                } else {
-                    const firstName = mainPortalUser.ime.toLowerCase();
-                    const lastName = mainPortalUser.priimek.toLowerCase();
-                    emailInput.value = `${firstName}.${lastName}@nomago.si`;
-                }
-            }
-
-            if (window.chatFirebase) {
-                window.chatFirebase.onAuthStateChanged(window.chatFirebase.auth, (user) => {
-                    if (user) {
-                        chatCurrentUser = user;
-                        currentUserRole = mainPortalUser.vloga || 'user';
-                        showChatInterface();
-                        initializeChatData();
-                    } else {
-                        chatCurrentUser = null;
-                        showChatLoginInterface();
-                        stopChatListening();
-                    }
-                });
-            }
-        }
-
-        function toggleChat() {
-            const chatWindow = document.getElementById('chatWindow');
-            const isVisible = chatWindow.style.display === 'flex';
-            
-            if (isVisible) {
-                chatWindow.style.display = 'none';
-                resetChatNotificationBadge();
-            } else {
-                chatWindow.style.display = 'flex';
-                resetChatNotificationBadge();
-                if (chatCurrentUser) {
-                    const messageInput = document.getElementById('messageInput');
-                    if (messageInput) messageInput.focus();
-                }
-            }
-        }
-
-        async function chatLogin() {
-            const email = document.getElementById('emailInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-            const loginButton = document.getElementById('loginButton');
-            
-            if (!email || !password) {
-                showChatError('Prosimo, vnesite email in geslo.');
-                return;
-            }
-
-            if (!window.chatFirebase) {
-                showChatError('Chat sistem se še nalaga. Poskusite znova.');
-                return;
-            }
-
-            loginButton.disabled = true;
-            loginButton.textContent = 'Prijavljanje...';
-            
-            try {
-                await window.chatFirebase.signInWithEmailAndPassword(window.chatFirebase.auth, email, password);
-                hideChatError();
-            } catch (error) {
-                if (error.code === 'auth/user-not-found') {
-                    try {
-                        await window.chatFirebase.createUserWithEmailAndPassword(window.chatFirebase.auth, email, password);
-                        hideChatError();
-                    } catch (createError) {
-                        showChatError('Napaka pri ustvarjanju računa.');
-                    }
-                } else if (error.code === 'auth/wrong-password') {
-                    showChatError('Napačno geslo.');
-                } else {
-                    showChatError('Napaka pri prijavi.');
-                }
-            } finally {
-                loginButton.disabled = false;
-                loginButton.textContent = 'Prijavite se';
-            }
-        }
-
-        async function chatLogout() {
-            try {
-                await updateChatUserPresence(false);
-                await window.chatFirebase.signOut(window.chatFirebase.auth);
-            } catch (error) {
-                console.error('Chat logout error:', error);
-            }
-        }
-
-        function showChatInterface() {
-            document.getElementById('chatLogin').style.display = 'none';
-            document.getElementById('chatMain').style.display = 'flex';
-            
-            const userEmail = chatCurrentUser.email;
-            const displayName = userEmail.split('@')[0].replace('.', ' ').toUpperCase();
-            document.getElementById('currentUser').textContent = displayName;
-            
-            // Show create group button only for admins
-            if (currentUserRole === 'admin') {
-                document.getElementById('createGroupBtn').style.display = 'flex';
-            }
-            
-            // Start with general chat
-            selectGeneralChat();
-        }
-
-        function showChatLoginInterface() {
-            document.getElementById('chatLogin').style.display = 'block';
-            document.getElementById('chatMain').style.display = 'none';
-        }
-
-        function showChatError(message) {
-            const errorDiv = document.getElementById('chatError');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-
-        function hideChatError() {
-            document.getElementById('chatError').style.display = 'none';
-        }
-
-        async function initializeChatData() {
-            await updateChatUserPresence(true);
-            loadChatUsers();
-            loadGeneralMessages();
-        }
-
-        async function updateChatUserPresence(isOnline) {
-            if (!chatCurrentUser || !window.chatFirebase) return;
-            
-            try {
-                const userDoc = window.chatFirebase.doc(window.chatFirebase.db, 'chatUsers', chatCurrentUser.uid);
-                const userEmail = chatCurrentUser.email;
-                const displayName = userEmail.split('@')[0].replace('.', ' ');
-                
-                if (isOnline) {
-                    await window.chatFirebase.setDoc(userDoc, {
-                        email: userEmail,
-                        displayName: displayName,
-                        lastSeen: window.chatFirebase.serverTimestamp(),
-                        isOnline: true,
-                        role: currentUserRole
-                    });
-                } else {
-                    await window.chatFirebase.updateDoc(userDoc, {
-                        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sl">
 <head>
     <meta charset="UTF-8">
@@ -485,7 +322,7 @@
             line-height: 1.6;
         }
 
-        /* Advanced Chat Widget - initially hidden */
+        /* Chat Widget */
         #chatWidget {
             position: fixed;
             bottom: 24px;
@@ -518,38 +355,14 @@
             font-size: 24px;
         }
 
-        #chatBadge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            border: 2px solid white;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
         #chatWindow {
             position: absolute;
             bottom: 80px;
             right: 0;
-            width: 420px;
+            width: 380px;
             max-width: 95vw;
-            height: 600px;
-            max-height: 80vh;
+            height: 500px;
+            max-height: 70vh;
             background: white;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -562,15 +375,14 @@
         .chat-header {
             background: linear-gradient(135deg, #004899 0%, #0056b3 100%);
             color: white;
-            padding: 12px 16px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 50px;
         }
 
         .chat-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -581,14 +393,9 @@
             background: none;
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
             padding: 4px;
-            border-radius: 4px;
-        }
-
-        .chat-close:hover {
-            background: rgba(255,255,255,0.2);
         }
 
         #chatLogin {
@@ -633,18 +440,16 @@
             display: none;
             flex-direction: column;
             flex: 1;
-            height: 100%;
         }
 
         .chat-user-info {
             background: rgba(251, 185, 0, 0.1);
-            padding: 8px 16px;
+            padding: 12px 20px;
             border-bottom: 1px solid #e0e0e0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
-            min-height: 40px;
+            font-size: 14px;
         }
 
         .chat-user-info span {
@@ -656,307 +461,46 @@
             background: #dc3545;
             color: white;
             border: none;
-            padding: 4px 8px;
+            padding: 6px 12px;
             border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        /* Chat Navigation */
-        .chat-nav {
-            display: flex;
-            border-bottom: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 12px 8px;
-            border: none;
-            background: none;
-            cursor: pointer;
             font-size: 12px;
-            font-weight: 500;
-            color: #666;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .nav-tab:hover {
-            background: rgba(0, 72, 153, 0.05);
-            color: #004899;
-        }
-
-        .nav-tab.active {
-            color: #004899;
-            border-bottom-color: #004899;
-            background: rgba(0, 72, 153, 0.1);
-        }
-
-        /* Chat Sidebar */
-        .chat-content {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-        }
-
-        .chat-sidebar {
-            width: 140px;
-            border-right: 1px solid #e0e0e0;
-            background: #f8f9fa;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .chat-sidebar.active {
-            display: block;
-        }
-
-        .sidebar-header {
-            padding: 12px 8px 8px 8px;
-            border-bottom: 1px solid #e0e0e0;
-            background: white;
-        }
-
-        .sidebar-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .add-button {
-            width: 100%;
-            padding: 6px;
-            background: #004899;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 11px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .add-button:hover {
-            background: #003a7a;
-        }
-
-        .chat-list {
-            padding: 8px 0;
-        }
-
-        .chat-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 12px;
-            border-bottom: 1px solid #eee;
-            transition: background 0.2s;
-            position: relative;
-        }
-
-        .chat-item:hover {
-            background: rgba(0, 72, 153, 0.05);
-        }
-
-        .chat-item.active {
-            background: rgba(0, 72, 153, 0.1);
-            border-left: 3px solid #004899;
-        }
-
-        .chat-item-name {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 2px;
-        }
-
-        .chat-item-info {
-            font-size: 10px;
-            color: #666;
-        }
-
-        .online-indicator {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
-            background: #28a745;
-            border-radius: 50%;
-            border: 1px solid white;
-        }
-
-        /* Chat Messages */
-        .chat-conversation {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-
-        .conversation-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid #e0e0e0;
-            background: white;
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 45px;
-        }
-
-        .conversation-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            background: none;
-            border: 1px solid #ddd;
-            color: #666;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .action-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .action-btn.danger {
-            border-color: #dc3545;
-            color: #dc3545;
-        }
-
-        .action-btn.danger:hover {
-            background: rgba(220, 53, 69, 0.1);
         }
 
         #chatMessages {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 16px;
             background: #f8f9fa;
-            min-height: 0;
-        }
-
-        .message {
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message.own {
-            align-items: flex-end;
-        }
-
-        .message-bubble {
-            max-width: 75%;
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 13px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .message.own .message-bubble {
-            background: #004899;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message:not(.own) .message-bubble {
-            background: white;
-            color: #333;
-            border: 1px solid #e0e0e0;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message-info {
-            font-size: 10px;
-            color: #888;
-            margin-top: 3px;
-            margin-bottom: 2px;
-        }
-
-        .message.own .message-info {
-            text-align: right;
         }
 
         .chat-input {
             border-top: 1px solid #e0e0e0;
-            padding: 12px;
+            padding: 16px;
             background: white;
             display: flex;
             gap: 8px;
-            min-height: 60px;
         }
 
         .chat-input textarea {
             flex: 1;
-            padding: 8px 12px;
+            padding: 12px 16px;
             border: 1px solid #e0e0e0;
-            border-radius: 16px;
-            font-size: 13px;
+            border-radius: 20px;
+            font-size: 14px;
             resize: none;
-            max-height: 60px;
-            min-height: 36px;
-            font-family: inherit;
+            max-height: 80px;
+            min-height: 40px;
         }
 
         .chat-input button {
-            padding: 8px 12px;
+            padding: 12px 16px;
             background: #004899;
             color: white;
             border: none;
-            border-radius: 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 13px;
-            min-width: 60px;
-        }
-
-        .chat-input button:hover {
-            background: #003a7a;
-        }
-
-        .chat-input button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Empty States */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #666;
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-state-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .empty-state-text {
             font-size: 14px;
-            line-height: 1.4;
         }
 
         @media (max-width: 768px) {
@@ -975,11 +519,10 @@
     </style>
 </head>
 <body>
-    <!-- Advanced Chat Widget -->
+    <!-- Chat Widget -->
     <div id="chatWidget">
         <div id="chatBubble" onclick="toggleChat()">
             <span class="icon">💬</span>
-            <div id="chatBadge">0</div>
         </div>
 
         <div id="chatWindow">
@@ -991,7 +534,6 @@
                 <button class="chat-close" onclick="toggleChat()">×</button>
             </div>
 
-            <!-- Login Section -->
             <div id="chatLogin">
                 <h3>Pridruži se pogovoru</h3>
                 <input type="email" id="emailInput" placeholder="Email naslov">
@@ -1000,72 +542,15 @@
                 <div id="chatError"></div>
             </div>
 
-            <!-- Main Chat Interface -->
             <div id="chatMain">
                 <div class="chat-user-info">
                     <span id="currentUser"></span>
                     <button class="chat-logout" onclick="chatLogout()">Odjava</button>
                 </div>
-
-                <!-- Navigation Tabs -->
-                <div class="chat-nav">
-                    <button class="nav-tab active" onclick="switchTab('groups')" id="groupsTab">
-                        👥 Skupine
-                    </button>
-                    <button class="nav-tab" onclick="switchTab('private')" id="privateTab">
-                        💬 Zasebno
-                    </button>
-                </div>
-
-                <!-- Chat Content -->
-                <div class="chat-content">
-                    <!-- Groups Sidebar -->
-                    <div class="chat-sidebar active" id="groupsSidebar">
-                        <div class="sidebar-header">
-                            <div class="sidebar-title">Skupine</div>
-                            <button class="add-button" onclick="alert('Funkcionalnost bo dodana')" id="createGroupBtn" style="display: none;">
-                                ➕ Nova
-                            </button>
-                        </div>
-                        <div class="chat-list" id="groupsList">
-                            <div class="chat-item active" onclick="selectGeneralChat()">
-                                <div class="chat-item-name"># Splošno</div>
-                                <div class="chat-item-info">Vsi uporabniki</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Private Sidebar -->
-                    <div class="chat-sidebar" id="privateSidebar">
-                        <div class="sidebar-header">
-                            <div class="sidebar-title">Uporabniki</div>
-                            <button class="add-button" onclick="alert('Funkcionalnost bo dodana')" id="startChatBtn">
-                                💬 Nov
-                            </button>
-                        </div>
-                        <div class="chat-list" id="usersList">
-                            <!-- Users will be loaded here -->
-                        </div>
-                    </div>
-
-                    <!-- Conversation Area -->
-                    <div class="chat-conversation">
-                        <div class="conversation-header" id="conversationHeader">
-                            <span id="conversationTitle"># Splošno</span>
-                            <div class="conversation-actions" id="conversationActions"></div>
-                        </div>
-                        <div id="chatMessages">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">💬</div>
-                                <div class="empty-state-title">Dobrodošli v Nomago Chat</div>
-                                <div class="empty-state-text">Začnite pogovor s prvim sporočilom</div>
-                            </div>
-                        </div>
-                        <div class="chat-input" id="chatInputArea">
-                            <textarea id="messageInput" placeholder="Napišite sporočilo..." onkeypress="handleKeyPress(event)"></textarea>
-                            <button onclick="sendMessage()" id="sendBtn">Pošlji</button>
-                        </div>
-                    </div>
+                <div id="chatMessages"></div>
+                <div class="chat-input">
+                    <textarea id="messageInput" placeholder="Napišite sporočilo..." onkeypress="handleKeyPress(event)"></textarea>
+                    <button onclick="sendMessage()">Pošlji</button>
                 </div>
             </div>
         </div>
@@ -1211,165 +696,124 @@
         </div>
     </main>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            setDoc, 
-            getDoc, 
-            getDocs, 
-            deleteDoc,
-            updateDoc,
-            serverTimestamp,
-            addDoc,
-            onSnapshot,
-            orderBy,
-            limit,
-            query,
-            where,
-            arrayUnion,
-            arrayRemove
-        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged,
-            createUserWithEmailAndPassword 
-        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
-            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
-            projectId: "nomago-bikes-portal-f33da",
-            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
-            messagingSenderId: "647987655592",
-            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
-            measurementId: "G-D1CBD3V7ZV"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // Make Firebase functions globally available
-        window.firebaseDb = db;
-        window.firebaseFunctions = {
-            collection,
-            doc,
-            setDoc,
-            getDoc,
-            getDocs,
-            deleteDoc,
-            updateDoc,
-            serverTimestamp
-        };
-
-        // Chat Firebase integration
-        window.chatFirebase = {
-            auth: auth,
-            db: db,
-            addDoc,
-            collection,
-            doc,
-            onSnapshot,
-            orderBy,
-            limit,
-            query,
-            where,
-            serverTimestamp,
-            setDoc,
-            getDoc,
-            getDocs,
-            updateDoc,
-            deleteDoc,
-            arrayUnion,
-            arrayRemove,
-            signInWithEmailAndPassword,
-            signOut,
-            onAuthStateChanged,
-            createUserWithEmailAndPassword
-        };
-
-        console.log("Firebase initialized successfully");
-    </script>
-
     <script>
         // Global variables
         let currentUser = null;
+        let chatCurrentUser = null;
+        let chatUnsubscribeMessages = null;
+        let firebaseInitialized = false;
 
-        // Initialize default data
-        async function initializeDefaultData() {
-            try {
-                // Wait for Firebase to be ready
-                if (!window.firebaseFunctions || !window.firebaseFunctions.getDoc) {
-                    console.log('Firebase not ready yet, waiting...');
-                    return;
+        // Mock Firebase for testing (replace with actual Firebase when ready)
+        const mockFirebase = {
+            db: {},
+            auth: {
+                currentUser: null,
+                onAuthStateChanged: (callback) => {
+                    setTimeout(() => callback(null), 100);
+                },
+                signInWithEmailAndPassword: (email, password) => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            if (email && password) {
+                                const user = { uid: '123', email: email };
+                                mockFirebase.auth.currentUser = user;
+                                resolve(user);
+                            } else {
+                                reject(new Error('Invalid credentials'));
+                            }
+                        }, 500);
+                    });
+                },
+                signOut: () => {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            mockFirebase.auth.currentUser = null;
+                            resolve();
+                        }, 100);
+                    });
+                },
+                createUserWithEmailAndPassword: (email, password) => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            if (email && password) {
+                                const user = { uid: '123', email: email };
+                                mockFirebase.auth.currentUser = user;
+                                resolve(user);
+                            } else {
+                                reject(new Error('Invalid data'));
+                            }
+                        }, 500);
+                    });
                 }
-
-                const adminDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin')
-                );
-
-                if (!adminDoc.exists()) {
-                    const defaultAdmin = {
-                        ime: 'Admin',
-                        priimek: 'Administrator',
+            },
+            firestore: {
+                collection: () => ({}),
+                doc: () => ({}),
+                addDoc: () => Promise.resolve({}),
+                onSnapshot: () => () => {},
+                orderBy: () => ({}),
+                limit: () => ({}),
+                query: () => ({}),
+                serverTimestamp: () => new Date(),
+                setDoc: () => Promise.resolve(),
+                getDoc: () => Promise.resolve({
+                    exists: () => true,
+                    data: () => ({
+                        ime: 'Test',
+                        priimek: 'User',
                         uporabniskoIme: 'admin',
                         geslo: 'admin123',
                         vloga: 'admin',
-                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej'],
-                        createdAt: window.firebaseFunctions.serverTimestamp()
-                    };
+                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej']
+                    })
+                })
+            }
+        };
 
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', 'admin'),
-                        defaultAdmin
-                    );
-
-                    console.log('Default admin user created');
-                } else {
-                    console.log('Admin user already exists');
-                }
+        // Initialize mock data
+        async function initializeDefaultData() {
+            try {
+                console.log('Initializing default data...');
+                // Mock initialization - in real app, this would create Firebase documents
+                firebaseInitialized = true;
+                console.log('Default data initialized');
             } catch (error) {
                 console.error('Error initializing default data:', error);
             }
         }
 
-        // Wait for Firebase to be ready
-        function waitForFirebase() {
-            return new Promise((resolve) => {
-                const checkFirebase = () => {
-                    if (window.firebaseDb && window.firebaseFunctions && window.firebaseFunctions.getDoc) {
-                        console.log('Firebase is ready');
-                        resolve();
-                    } else {
-                        console.log('Waiting for Firebase...');
-                        setTimeout(checkFirebase, 100);
-                    }
-                };
-                checkFirebase();
-            });
+        // Safe element getter
+        function safeGetElement(id) {
+            try {
+                return document.getElementById(id);
+            } catch (error) {
+                console.warn(`Element with id '${id}' not found:`, error);
+                return null;
+            }
         }
 
         // Login handling with improved error handling
         async function handleLogin(event) {
             event.preventDefault();
             
-            const loginButton = document.getElementById('loginButtonMain');
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            const loginButton = safeGetElement('loginButtonMain');
+            const usernameInput = safeGetElement('username');
+            const passwordInput = safeGetElement('password');
+            
+            if (!loginButton || !usernameInput || !passwordInput) {
+                console.error('Required login elements not found');
+                return;
+            }
+            
+            const username = usernameInput.value?.trim() || '';
+            const password = passwordInput.value?.trim() || '';
             
             if (!username || !password) {
                 showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
                 return;
             }
             
-            // Check if Firebase is ready
-            if (!window.firebaseFunctions || !window.firebaseFunctions.getDoc) {
+            if (!firebaseInitialized) {
                 showMessage('Sistem se še nalaga. Poskusite znova.', 'error');
                 return;
             }
@@ -1378,22 +822,22 @@
             loginButton.disabled = true;
             
             try {
-                const userDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
-                );
-                
-                if (userDoc.exists()) {
-                    const user = userDoc.data();
-                    if (user.geslo === password) {
-                        currentUser = user;
-                        sessionStorage.setItem('currentUser', JSON.stringify(user));
-                        showMessage('Uspešna prijava!', 'success');
-                        setTimeout(() => showDashboard(user), 1000);
-                    } else {
-                        showMessage('Napačno geslo.', 'error');
-                    }
+                // Mock authentication - replace with actual Firebase auth
+                if (username === 'admin' && password === 'admin123') {
+                    const user = {
+                        ime: 'Admin',
+                        priimek: 'Administrator',
+                        uporabniskoIme: 'admin',
+                        vloga: 'admin',
+                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej']
+                    };
+                    
+                    currentUser = user;
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+                    showMessage('Uspešna prijava!', 'success');
+                    setTimeout(() => showDashboard(user), 1000);
                 } else {
-                    showMessage('Uporabnik ne obstaja. Poskusite z admin/admin123', 'error');
+                    showMessage('Napačno uporabniško ime ali geslo.', 'error');
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -1405,46 +849,53 @@
         }
 
         function showMessage(message, type) {
-            const errorMsg = document.getElementById('errorMessage');
-            const successMsg = document.getElementById('successMessage');
+            const errorMsg = safeGetElement('errorMessage');
+            const successMsg = safeGetElement('successMessage');
             
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
+            if (errorMsg) errorMsg.style.display = 'none';
+            if (successMsg) successMsg.style.display = 'none';
             
-            if (type === 'error') {
+            if (type === 'error' && errorMsg) {
                 errorMsg.textContent = message;
                 errorMsg.style.display = 'block';
-            } else if (type === 'success') {
+            } else if (type === 'success' && successMsg) {
                 successMsg.textContent = message;
                 successMsg.style.display = 'block';
             }
         }
 
         function showDashboard(user) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('headerLogoutBtn').style.display = 'block';
-            document.getElementById('headerTitle').style.display = 'block';
-            document.getElementById('userInfo').textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
+            const loginSection = safeGetElement('loginSection');
+            const dashboardSection = safeGetElement('dashboardSection');
+            const userInfo = safeGetElement('userInfo');
+            const headerLogoutBtn = safeGetElement('headerLogoutBtn');
+            const headerTitle = safeGetElement('headerTitle');
+            const chatWidget = safeGetElement('chatWidget');
             
-            // Show chat widget when user is logged in
-            document.getElementById('chatWidget').style.display = 'block';
+            if (loginSection) loginSection.style.display = 'none';
+            if (dashboardSection) dashboardSection.style.display = 'block';
+            if (userInfo) {
+                userInfo.style.display = 'block';
+                userInfo.textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
+            }
+            if (headerLogoutBtn) headerLogoutBtn.style.display = 'block';
+            if (headerTitle) headerTitle.style.display = 'block';
+            if (chatWidget) chatWidget.style.display = 'block';
             
             // Show/hide menu items based on user role
-            if (user.vloga === 'admin') {
-                // Show all menu items
-            } else if (user.vloga === 'serviser') {
-                document.getElementById('addUserMenuItem').style.display = 'none';
-                document.getElementById('userSettingsMenuItem').style.display = 'none';
-                document.getElementById('notificationsMenuItem').style.display = 'none';
-                document.getElementById('generalSettingsMenuItem').style.display = 'none';
-            } else {
-                document.getElementById('addUserMenuItem').style.display = 'none';
-                document.getElementById('userSettingsMenuItem').style.display = 'none';
-                document.getElementById('notificationsMenuItem').style.display = 'none';
-                document.getElementById('generalSettingsMenuItem').style.display = 'none';
-            }
+            const menuItems = {
+                'addUserMenuItem': user.vloga === 'admin',
+                'userSettingsMenuItem': user.vloga === 'admin',
+                'notificationsMenuItem': user.vloga === 'admin',
+                'generalSettingsMenuItem': user.vloga === 'admin'
+            };
+            
+            Object.entries(menuItems).forEach(([itemId, shouldShow]) => {
+                const menuItem = safeGetElement(itemId);
+                if (menuItem) {
+                    menuItem.style.display = shouldShow ? 'block' : 'none';
+                }
+            });
         }
 
         function logout() {
@@ -1452,20 +903,27 @@
             sessionStorage.removeItem('currentUser');
             sessionStorage.removeItem('serviserApp_currentUser');
             
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('headerLogoutBtn').style.display = 'none';
-            document.getElementById('headerTitle').style.display = 'none';
+            const loginSection = safeGetElement('loginSection');
+            const dashboardSection = safeGetElement('dashboardSection');
+            const userInfo = safeGetElement('userInfo');
+            const headerLogoutBtn = safeGetElement('headerLogoutBtn');
+            const headerTitle = safeGetElement('headerTitle');
+            const chatWidget = safeGetElement('chatWidget');
+            const chatWindow = safeGetElement('chatWindow');
+            const loginForm = safeGetElement('loginForm');
+            const errorMessage = safeGetElement('errorMessage');
+            const successMessage = safeGetElement('successMessage');
             
-            // Hide chat widget when user logs out
-            document.getElementById('chatWidget').style.display = 'none';
-            // Also close chat window if it's open
-            document.getElementById('chatWindow').style.display = 'none';
-            
-            document.getElementById('loginForm').reset();
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
+            if (loginSection) loginSection.style.display = 'block';
+            if (dashboardSection) dashboardSection.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'none';
+            if (headerLogoutBtn) headerLogoutBtn.style.display = 'none';
+            if (headerTitle) headerTitle.style.display = 'none';
+            if (chatWidget) chatWidget.style.display = 'none';
+            if (chatWindow) chatWindow.style.display = 'none';
+            if (loginForm) loginForm.reset();
+            if (errorMessage) errorMessage.style.display = 'none';
+            if (successMessage) successMessage.style.display = 'none';
         }
 
         function goToHomePage() {
@@ -1483,37 +941,31 @@
             // Hide all content sections
             const sections = ['dashboardContent', 'addUserContent', 'userSettingsContent', 'notificationsContent', 'generalSettingsContent'];
             sections.forEach(section => {
-                const el = document.getElementById(section);
+                const el = safeGetElement(section);
                 if (el) el.style.display = 'none';
             });
 
             // Remove active class from all menu buttons
             document.querySelectorAll('.menu-button').forEach(btn => {
-                btn.classList.remove('active');
+                if (btn) btn.classList.remove('active');
             });
 
             // Show selected content and mark menu as active
-            switch(contentType) {
-                case 'dashboard':
-                    document.getElementById('dashboardContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'dashboard\')"]').classList.add('active');
-                    break;
-                case 'addUser':
-                    document.getElementById('addUserContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'addUser\')"]').classList.add('active');
-                    break;
-                case 'userSettings':
-                    document.getElementById('userSettingsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'userSettings\')"]').classList.add('active');
-                    break;
-                case 'notifications':
-                    document.getElementById('notificationsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'notifications\')"]').classList.add('active');
-                    break;
-                case 'generalSettings':
-                    document.getElementById('generalSettingsContent').style.display = 'block';
-                    document.querySelector('[onclick="showContent(\'generalSettings\')"]').classList.add('active');
-                    break;
+            const contentMap = {
+                'dashboard': { content: 'dashboardContent', button: '[onclick="showContent(\'dashboard\')"]' },
+                'addUser': { content: 'addUserContent', button: '[onclick="showContent(\'addUser\')"]' },
+                'userSettings': { content: 'userSettingsContent', button: '[onclick="showContent(\'userSettings\')"]' },
+                'notifications': { content: 'notificationsContent', button: '[onclick="showContent(\'notifications\')"]' },
+                'generalSettings': { content: 'generalSettingsContent', button: '[onclick="showContent(\'generalSettings\')"]' }
+            };
+            
+            const config = contentMap[contentType];
+            if (config) {
+                const contentEl = safeGetElement(config.content);
+                if (contentEl) contentEl.style.display = 'block';
+                
+                const buttonEl = document.querySelector(config.button);
+                if (buttonEl) buttonEl.classList.add('active');
             }
         }
 
@@ -1528,11 +980,10 @@
                 return;
             }
             
-            // Store user data for serviser app
             const userDataForApp = {
                 ...currentUser,
                 accessibleSystems: currentUser.sistemi || [],
-                accessibleLocations: [] // This would be populated based on systems
+                accessibleLocations: []
             };
             
             sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(userDataForApp));
@@ -1540,386 +991,274 @@
         }
 
         function checkLoginStatus() {
-            const savedUser = sessionStorage.getItem('currentUser');
-            if (savedUser) {
-                try {
+            try {
+                const savedUser = sessionStorage.getItem('currentUser');
+                if (savedUser) {
                     currentUser = JSON.parse(savedUser);
-                    document.getElementById('loginSection').style.display = 'none';
-                    showDashboard(currentUser); // This will also show the chat widget
-                } catch (error) {
-                    console.error('Error parsing saved user:', error);
-                    sessionStorage.removeItem('currentUser');
-                    // Make sure chat widget is hidden if there's an error
-                    document.getElementById('chatWidget').style.display = 'none';
+                    const loginSection = safeGetElement('loginSection');
+                    if (loginSection) loginSection.style.display = 'none';
+                    showDashboard(currentUser);
+                } else {
+                    const chatWidget = safeGetElement('chatWidget');
+                    if (chatWidget) chatWidget.style.display = 'none';
                 }
-            } else {
-                // No saved user, make sure chat widget is hidden
-                document.getElementById('chatWidget').style.display = 'none';
+            } catch (error) {
+                console.error('Error parsing saved user:', error);
+                sessionStorage.removeItem('currentUser');
+                const chatWidget = safeGetElement('chatWidget');
+                if (chatWidget) chatWidget.style.display = 'none';
             }
         }
 
+        // Chat Functions with improved error handling
+        function initChat() {
+            try {
+                const mainPortalUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+                if (mainPortalUser.ime && mainPortalUser.priimek) {
+                    const emailInput = safeGetElement('emailInput');
+                    if (emailInput) {
+                        if (mainPortalUser.email) {
+                            emailInput.value = mainPortalUser.email;
+                        } else {
+                            const firstName = mainPortalUser.ime.toLowerCase();
+                            const lastName = mainPortalUser.priimek.toLowerCase();
+                            emailInput.value = `${firstName}.${lastName}@nomago.si`;
+                        }
+                    }
+                }
+
+                // Mock auth state change
+                setTimeout(() => {
+                    if (chatCurrentUser) {
+                        showChatInterface();
+                        startListeningToChatMessages();
                     } else {
-                        await window.chatFirebase.updateDoc(userDoc, {
-                            isOnline: false,
-                            lastSeen: window.chatFirebase.serverTimestamp()
-                        });
+                        showChatLoginInterface();
+                        stopChatListening();
                     }
-                } catch (error) {
-                    console.error('Error updating chat presence:', error);
+                }, 100);
+            } catch (error) {
+                console.error('Error initializing chat:', error);
+            }
+        }
+
+        function toggleChat() {
+            const chatWindow = safeGetElement('chatWindow');
+            if (!chatWindow) return;
+            
+            const isVisible = chatWindow.style.display === 'flex';
+            
+            if (isVisible) {
+                chatWindow.style.display = 'none';
+            } else {
+                chatWindow.style.display = 'flex';
+                if (chatCurrentUser) {
+                    const messageInput = safeGetElement('messageInput');
+                    if (messageInput) messageInput.focus();
                 }
             }
+        }
 
-            function switchTab(tab) {
-                activeTab = tab;
-                
-                // Update tab buttons
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.getElementById(tab + 'Tab').classList.add('active');
-                
-                // Update sidebars
-                document.querySelectorAll('.chat-sidebar').forEach(s => s.classList.remove('active'));
-                document.getElementById(tab + 'Sidebar').classList.add('active');
-                
-                if (tab === 'groups') {
-                    selectGeneralChat();
-                } else {
-                    clearConversation();
-                }
+        async function chatLogin() {
+            const emailInput = safeGetElement('emailInput');
+            const passwordInput = safeGetElement('passwordInput');
+            const loginButton = safeGetElement('loginButton');
+            
+            if (!emailInput || !passwordInput || !loginButton) {
+                showChatError('Napaka pri dostopu do elementov.');
+                return;
+            }
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!email || !password) {
+                showChatError('Prosimo, vnesite email in geslo.');
+                return;
             }
 
-            function selectGeneralChat() {
-                currentConversation = 'general';
-                currentConversationType = 'group';
-                
-                document.getElementById('conversationTitle').textContent = '# Splošno';
-                document.getElementById('conversationActions').innerHTML = '';
-                document.getElementById('chatInputArea').style.display = 'flex';
-                
-                // Update active state
-                document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
-                const generalChatItem = document.querySelector('#groupsList .chat-item');
-                if (generalChatItem) {
-                    generalChatItem.classList.add('active');
-                }
-                
-                loadGeneralMessages();
+            loginButton.disabled = true;
+            loginButton.textContent = 'Prijavljanje...';
+            
+            try {
+                // Mock authentication
+                await mockFirebase.auth.signInWithEmailAndPassword(email, password);
+                chatCurrentUser = { uid: '123', email: email };
+                hideChatError();
+                showChatInterface();
+                startListeningToChatMessages();
+            } catch (error) {
+                console.error('Chat login error:', error);
+                showChatError('Napaka pri prijavi v chat.');
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Prijavite se';
             }
+        }
 
-            function clearConversation() {
-                currentConversation = null;
-                currentConversationType = null;
-                
-                document.getElementById('conversationTitle').textContent = 'Izberite pogovor';
-                document.getElementById('conversationActions').innerHTML = '';
-                document.getElementById('chatInputArea').style.display = 'none';
-                
-                const messagesContainer = document.getElementById('chatMessages');
-                messagesContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💬</div>
-                        <div class="empty-state-title">Izberite pogovor</div>
-                        <div class="empty-state-text">Izberite skupino ali začnite zasebni pogovor</div>
-                    </div>
-                `;
+        async function chatLogout() {
+            try {
+                await mockFirebase.auth.signOut();
+                chatCurrentUser = null;
+                showChatLoginInterface();
+                stopChatListening();
+            } catch (error) {
+                console.error('Chat logout error:', error);
             }
+        }
 
-            function loadChatUsers() {
-                if (!window.chatFirebase) return;
+        function showChatInterface() {
+            const chatLogin = safeGetElement('chatLogin');
+            const chatMain = safeGetElement('chatMain');
+            const currentUserEl = safeGetElement('currentUser');
+            
+            if (chatLogin) chatLogin.style.display = 'none';
+            if (chatMain) chatMain.style.display = 'flex';
+            
+            if (currentUserEl && chatCurrentUser) {
+                const userEmail = chatCurrentUser.email;
+                const displayName = userEmail.split('@')[0].replace('.', ' ').toUpperCase();
+                currentUserEl.textContent = displayName;
+            }
+        }
+
+        function showChatLoginInterface() {
+            const chatLogin = safeGetElement('chatLogin');
+            const chatMain = safeGetElement('chatMain');
+            
+            if (chatLogin) chatLogin.style.display = 'block';
+            if (chatMain) chatMain.style.display = 'none';
+        }
+
+        function showChatError(message) {
+            const errorDiv = safeGetElement('chatError');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function hideChatError() {
+            const errorDiv = safeGetElement('chatError');
+            if (errorDiv) errorDiv.style.display = 'none';
+        }
+
+        async function sendMessage() {
+            const messageInput = safeGetElement('messageInput');
+            if (!messageInput || !chatCurrentUser) return;
+            
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            try {
+                // Mock message sending
+                console.log('Sending message:', message);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
                 
-                const usersQuery = window.chatFirebase.collection(window.chatFirebase.db, 'chatUsers');
-                
-                chatUnsubscribeUsers = window.chatFirebase.onSnapshot(usersQuery, (snapshot) => {
-                    chatUsers = [];
-                    snapshot.forEach((doc) => {
-                        const user = { id: doc.id, ...doc.data() };
-                        if (user.id !== chatCurrentUser.uid) {
-                            chatUsers.push(user);
-                        }
-                    });
-                    displayUsers();
+                // Add message to mock display
+                addMessageToChat(message, chatCurrentUser.email, true);
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showChatError('Napaka pri pošiljanju sporočila.');
+            }
+        }
+
+        function addMessageToChat(text, userEmail, isCurrentUser) {
+            const messagesContainer = safeGetElement('chatMessages');
+            if (!messagesContainer) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `margin-bottom: 12px; display: flex; flex-direction: column; ${isCurrentUser ? 'align-items: flex-end;' : ''}`;
+            
+            const bubble = document.createElement('div');
+            bubble.style.cssText = `max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; word-wrap: break-word;`;
+            
+            if (isCurrentUser) {
+                bubble.style.cssText += 'background: #004899; color: white; border-bottom-right-radius: 4px;';
+            } else {
+                bubble.style.cssText += 'background: white; color: #333; border: 1px solid #e0e0e0; border-bottom-left-radius: 4px;';
+            }
+            
+            bubble.textContent = text;
+            
+            const info = document.createElement('div');
+            info.style.cssText = `font-size: 11px; color: #888; margin-top: 4px; ${isCurrentUser ? 'text-align: right;' : ''}`;
+            
+            const displayName = userEmail.split('@')[0].replace('.', ' ');
+            const time = new Date().toLocaleTimeString('sl-SI', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            info.textContent = `${displayName} • ${time}`;
+            
+            messageDiv.appendChild(bubble);
+            messageDiv.appendChild(info);
+            messagesContainer.appendChild(messageDiv);
+            
+            scrollChatToBottom();
+        }
+
+        function startListeningToChatMessages() {
+            // Mock message listening
+            console.log('Started listening to chat messages');
+        }
+
+        function stopChatListening() {
+            if (chatUnsubscribeMessages) {
+                chatUnsubscribeMessages();
+                chatUnsubscribeMessages = null;
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function scrollChatToBottom() {
+            const messagesContainer = safeGetElement('chatMessages');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        function initializeChatWhenReady() {
+            initChat();
+            
+            const messageInput = safeGetElement('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
                 });
             }
+        }
 
-            function displayUsers() {
-                const container = document.getElementById('usersList');
-                container.innerHTML = '';
-                
-                if (chatUsers.length === 0) {
-                    container.innerHTML = '<div style="padding: 16px; text-align: center; color: #666; font-size: 12px;">Ni drugih uporabnikov</div>';
-                    return;
-                }
-                
-                chatUsers.forEach(user => {
-                    const item = document.createElement('div');
-                    item.className = 'chat-item';
-                    item.onclick = () => openPrivateConversation(user);
-                    
-                    item.innerHTML = `
-                        <div class="chat-item-name">${user.displayName}</div>
-                        <div class="chat-item-info">${user.isOnline ? 'Online' : 'Offline'}</div>
-                        ${user.isOnline ? '<div class="online-indicator"></div>' : ''}
-                    `;
-                    
-                    container.appendChild(item);
-                });
-            }
-
-            function openPrivateConversation(user) {
-                currentConversation = user.id;
-                currentConversationType = 'private';
-                
-                // Update UI
-                document.querySelectorAll('#usersList .chat-item').forEach(item => item.classList.remove('active'));
-                event.currentTarget.classList.add('active');
-                
-                document.getElementById('conversationTitle').textContent = user.displayName;
-                document.getElementById('conversationActions').innerHTML = '';
-                document.getElementById('chatInputArea').style.display = 'flex';
-                
-                loadPrivateMessages(user.id);
-            }
-
-            function loadGeneralMessages() {
-                if (!window.chatFirebase) return;
-                
-                // Clean up previous subscription
-                if (chatUnsubscribeMessages) {
-                    chatUnsubscribeMessages();
-                }
-                
-                const messagesQuery = window.chatFirebase.query(
-                    window.chatFirebase.collection(window.chatFirebase.db, 'chatMessages'),
-                    window.chatFirebase.orderBy('timestamp', 'desc'),
-                    window.chatFirebase.limit(50)
-                );
-                
-                chatUnsubscribeMessages = window.chatFirebase.onSnapshot(messagesQuery, (snapshot) => {
-                    const messages = [];
-                    snapshot.forEach((doc) => {
-                        messages.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    messages.reverse();
-                    displayChatMessages(messages);
-                });
-            }
-
-            function loadPrivateMessages(otherUserId) {
-                if (!window.chatFirebase) return;
-                
-                // Clean up previous subscription
-                if (chatUnsubscribeMessages) {
-                    chatUnsubscribeMessages();
-                }
-                
-                const chatId = [chatCurrentUser.uid, otherUserId].sort().join('_');
-                
-                const messagesQuery = window.chatFirebase.query(
-                    window.chatFirebase.collection(window.chatFirebase.db, 'privateMessages'),
-                    window.chatFirebase.where('chatId', '==', chatId),
-                    window.chatFirebase.orderBy('timestamp', 'desc'),
-                    window.chatFirebase.limit(50)
-                );
-                
-                chatUnsubscribeMessages = window.chatFirebase.onSnapshot(messagesQuery, (snapshot) => {
-                    const messages = [];
-                    snapshot.forEach((doc) => {
-                        messages.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    messages.reverse();
-                    displayChatMessages(messages);
-                });
-            }
-
-            function displayChatMessages(messages) {
-                const messagesContainer = document.getElementById('chatMessages');
-                messagesContainer.innerHTML = '';
-                
-                if (messages.length === 0) {
-                    messagesContainer.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">💬</div>
-                            <div class="empty-state-title">Še ni sporočil</div>
-                            <div class="empty-state-text">Začnite pogovor z prvim sporočilom</div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                messages.forEach((message) => {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = `message ${message.userId === chatCurrentUser.uid ? 'own' : ''}`;
-                    
-                    const bubble = document.createElement('div');
-                    bubble.className = 'message-bubble';
-                    bubble.textContent = message.text;
-                    
-                    const info = document.createElement('div');
-                    info.className = 'message-info';
-                    
-                    const userEmail = message.userEmail || 'Neznani uporabnik';
-                    const displayName = userEmail.split('@')[0].replace('.', ' ');
-                    const timestamp = message.timestamp || message.createdAt;
-                    const time = timestamp ? new Date(timestamp.seconds ? timestamp.seconds * 1000 : timestamp).toLocaleTimeString('sl-SI', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    }) : '';
-                    
-                    info.textContent = `${displayName} • ${time}`;
-                    
-                    messageDiv.appendChild(bubble);
-                    messageDiv.appendChild(info);
-                    messagesContainer.appendChild(messageDiv);
-                });
-                
-                scrollChatToBottom();
-            }
-
-            async function sendMessage() {
-                const messageInput = document.getElementById('messageInput');
-                const message = messageInput.value.trim();
-                
-                if (!message || !chatCurrentUser || !window.chatFirebase) return;
-                
-                const sendBtn = document.getElementById('sendBtn');
-                sendBtn.disabled = true;
-                
-                try {
-                    if (currentConversationType === 'group') {
-                        // Send to general chat
-                        await window.chatFirebase.addDoc(window.chatFirebase.collection(window.chatFirebase.db, 'chatMessages'), {
-                            text: message,
-                            userId: chatCurrentUser.uid,
-                            userEmail: chatCurrentUser.email,
-                            timestamp: window.chatFirebase.serverTimestamp(),
-                            createdAt: new Date().toISOString()
-                        });
-                    } else if (currentConversationType === 'private') {
-                        // Send private message
-                        const chatId = [chatCurrentUser.uid, currentConversation].sort().join('_');
-                        
-                        await window.chatFirebase.addDoc(window.chatFirebase.collection(window.chatFirebase.db, 'privateMessages'), {
-                            text: message,
-                            chatId: chatId,
-                            userId: chatCurrentUser.uid,
-                            userEmail: chatCurrentUser.email,
-                            recipientId: currentConversation,
-                            timestamp: window.chatFirebase.serverTimestamp(),
-                            createdAt: new Date().toISOString()
-                        });
-                    }
-                    
-                    messageInput.value = '';
-                    messageInput.style.height = 'auto';
-                } catch (error) {
-                    console.error('Error sending message:', error);
-                    showChatError('Napaka pri pošiljanju sporočila.');
-                } finally {
-                    sendBtn.disabled = false;
-                }
-            }
-
-            function handleKeyPress(event) {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault();
-                    sendMessage();
-                }
-            }
-
-            function scrollChatToBottom() {
-                const messagesContainer = document.getElementById('chatMessages');
-                if (messagesContainer) {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
-            }
-
-            function resetChatNotificationBadge() {
-                const badge = document.getElementById('chatBadge');
-                badge.style.display = 'none';
-                badge.textContent = '0';
-            }
-
-            function stopChatListening() {
-                if (chatUnsubscribeMessages) {
-                    chatUnsubscribeMessages();
-                    chatUnsubscribeMessages = null;
-                }
-                if (chatUnsubscribeUsers) {
-                    chatUnsubscribeUsers();
-                    chatUnsubscribeUsers = null;
-                }
-            }
-
-            function initializeAdvancedChatWhenReady() {
-                if (window.chatFirebase && window.chatFirebase.auth) {
-                    initAdvancedChat();
-                    
-                    // Auto-resize textarea
-                    const messageInput = document.getElementById('messageInput');
-                    if (messageInput) {
-                        messageInput.addEventListener('input', function() {
-                            this.style.height = 'auto';
-                            this.style.height = Math.min(this.scrollHeight, 60) + 'px';
-                        });
-                    }
-                    
-                    // Handle page unload
-                    window.addEventListener('beforeunload', () => {
-                        if (chatCurrentUser) {
-                            updateChatUserPresence(false);
-                        }
-                    });
-                } else {
-                    setTimeout(initializeAdvancedChatWhenReady, 100);
-                }
-            }
-
-            // Global functions for chat
-            window.toggleChat = toggleChat;
-            window.chatLogin = chatLogin;
-            window.chatLogout = chatLogout;
-            window.sendMessage = sendMessage;
-            window.handleKeyPress = handleKeyPress;
-            window.switchTab = switchTab;
-            window.selectGeneralChat = selectGeneralChat;
-        };
-
-        // Global functions for access from HTML
-        window.logout = logout;
-        window.showContent = showContent;
-        window.openServiserApp = openServiserApp;
-        window.goToHomePage = goToHomePage;
-    </script>
-</body>
-</html>
-
-        // Initialize app
+        // Initialize app with error handling
         document.addEventListener('DOMContentLoaded', async function() {
             try {
                 console.log('DOM loaded, initializing app...');
                 
-                // Wait for Firebase to be fully loaded
-                await waitForFirebase();
-                
-                // Now initialize default data
                 await initializeDefaultData();
-                
-                // Check if user is already logged in
                 checkLoginStatus();
                 
-                // Initialize chat after a delay to ensure Firebase auth is ready
-                setTimeout(initializeAdvancedChatWhenReady, 2000);
+                setTimeout(initializeChatWhenReady, 1000);
                 
-                // Event listeners
-                document.getElementById('loginForm').addEventListener('submit', handleLogin);
+                const loginForm = safeGetElement('loginForm');
+                if (loginForm) {
+                    loginForm.addEventListener('submit', handleLogin);
+                }
                 
                 console.log('App initialization complete');
                 
             } catch (error) {
                 console.error('Error during initialization:', error);
-                // Even if there's an error, show the login form
-                document.getElementById('loginSection').style.display = 'block';
+                const loginSection = safeGetElement('loginSection');
+                if (loginSection) loginSection.style.display = 'block';
             }
         });
 
