@@ -359,10 +359,10 @@
             position: absolute;
             bottom: 80px;
             right: 0;
-            width: 380px;
+            width: 420px;
             max-width: 95vw;
-            height: 500px;
-            max-height: 70vh;
+            height: 650px;
+            max-height: 85vh;
             background: white;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -398,73 +398,54 @@
             padding: 4px;
         }
 
-        #chatLogin {
-            padding: 24px;
-            text-align: center;
-        }
-
-        #chatLogin h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        #chatLogin input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+        .chat-user-info {
+            background: rgba(251, 185, 0, 0.1);
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
             font-size: 14px;
+            color: #004899;
+            font-weight: 500;
         }
 
-        #chatLogin button {
-            width: 100%;
+        .chat-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .chat-tab {
+            flex: 1;
             padding: 12px;
-            background: #004899;
-            color: white;
+            background: none;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
         }
 
-        #chatError {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 8px;
-            display: none;
+        .chat-tab.active {
+            color: #004899;
+            border-bottom-color: #004899;
+            background: white;
         }
 
-        #chatMain {
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-section {
             display: none;
             flex-direction: column;
             flex: 1;
         }
 
-        .chat-user-info {
-            background: rgba(251, 185, 0, 0.1);
-            padding: 12px 20px;
-            border-bottom: 1px solid #e0e0e0;
+        .chat-section.active {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-        }
-
-        .chat-user-info span {
-            color: #004899;
-            font-weight: 500;
-        }
-
-        .chat-logout {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
         }
 
         #chatMessages {
@@ -503,6 +484,278 @@
             font-size: 14px;
         }
 
+        .groups-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .groups-header h4 {
+            margin: 0;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .add-group-btn {
+            background: #004899;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .groups-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .group-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .group-item:hover {
+            background: #f0f0f0;
+        }
+
+        .group-item.active {
+            background: #004899;
+            color: white;
+            border-color: #004899;
+        }
+
+        .group-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .group-members {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .group-item.active .group-members {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .group-action-btn {
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .group-action-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .group-item.active .group-action-btn {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .add-members-section {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .add-members-section h5 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .add-member-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .add-member-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .add-member-btn {
+            background: #004899;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .available-users h6 {
+            margin: 12px 0 8px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .user-chip {
+            display: inline-block;
+            background: #e9f0f7;
+            color: #004899;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #004899;
+            transition: all 0.2s ease;
+        }
+
+        .user-chip:hover {
+            background: #004899;
+            color: white;
+        }
+
+        .members-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .member-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .member-role {
+            font-size: 12px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .member-action-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-form input,
+        .modal-form textarea {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .modal-btn-primary {
+            background: #004899;
+            color: white;
+        }
+
+        .modal-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .dashboard-container {
                 flex-direction: column;
@@ -521,7 +774,7 @@
 <body>
     <!-- Chat Widget -->
     <div id="chatWidget">
-        <div id="chatBubble" onclick="toggleChat()">
+        <div id="chatBubble">
             <span class="icon">💬</span>
         </div>
 
@@ -531,33 +784,77 @@
                     <span>💬</span>
                     <span>Nomago Chat</span>
                 </div>
-                <button class="chat-close" onclick="toggleChat()">×</button>
+                <button class="chat-close">&times;</button>
             </div>
 
-            <div id="chatLogin">
-                <h3>Pridruži se pogovoru</h3>
-                <input type="email" id="emailInput" placeholder="Email naslov">
-                <input type="password" id="passwordInput" placeholder="Geslo">
-                <button id="loginButton" onclick="chatLogin()">Prijavite se</button>
-                <div id="chatError"></div>
+            <div class="chat-user-info">
+                <span id="chatCurrentUser">Neprijavljen uporabnik</span>
             </div>
-
-            <div id="chatMain">
-                <div class="chat-user-info">
-                    <span id="currentUser"></span>
-                    <button class="chat-logout" onclick="chatLogout()">Odjava</button>
+            
+            <div class="chat-tabs">
+                <button class="chat-tab active">💬 Sporočila</button>
+                <button class="chat-tab">👥 Skupine</button>
+                <button class="chat-tab">👤 Člani</button>
+            </div>
+            
+            <div class="chat-content">
+                <!-- Messages Section -->
+                <div class="chat-section active" id="messagesSection">
+                    <div id="chatMessages"></div>
+                    <div class="chat-input">
+                        <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
+                        <button id="sendBtn">Pošlji</button>
+                    </div>
                 </div>
-                <div id="chatMessages"></div>
-                <div class="chat-input">
-                    <textarea id="messageInput" placeholder="Napišite sporočilo..." onkeypress="handleKeyPress(event)"></textarea>
-                    <button onclick="sendMessage()">Pošlji</button>
+                
+                <!-- Groups Section -->
+                <div class="chat-section" id="groupsSection">
+                    <div class="groups-header">
+                        <h4>Pogovorne skupine</h4>
+                        <button class="add-group-btn" id="addGroupBtn">+ Dodaj</button>
+                    </div>
+                    <div class="groups-list" id="groupsList"></div>
+                </div>
+                
+                <!-- Members Section -->
+                <div class="chat-section" id="membersSection">
+                    <div class="add-members-section">
+                        <h5>Upravljanje članov</h5>
+                        <div class="add-member-form">
+                            <input type="text" class="add-member-input" id="newMemberName" placeholder="Ime in priimek">
+                            <button class="add-member-btn" id="addMemberBtn">Dodaj</button>
+                        </div>
+                        <div class="available-users">
+                            <h6>Dostopni uporabniki:</h6>
+                            <div id="availableUsers"></div>
+                        </div>
+                    </div>
+                    <div class="members-list" id="membersList"></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ustvari novo skupino</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <form class="modal-form" id="createGroupForm">
+                <input type="text" id="groupNameInput" placeholder="Ime skupine" required>
+                <textarea id="groupDescriptionInput" placeholder="Opis skupine (neobvezno)"></textarea>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-secondary" id="modalCancel">Prekliči</button>
+                    <button type="submit" class="modal-btn modal-btn-primary">Ustvari</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <header>
-        <div class="logo" onclick="goToHomePage()">
+        <div class="logo">
             <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
         </div>
         <div class="header-center">
@@ -565,7 +862,7 @@
         </div>
         <div class="header-controls">
             <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn" onclick="logout()">Odjava</button>
+            <button class="logout-button" id="headerLogoutBtn">Odjava</button>
         </div>
     </header>
 
@@ -599,32 +896,32 @@
                     </div>
                     <ul class="menu-list">
                         <li class="menu-item">
-                            <button class="menu-button active" onclick="showContent('dashboard')">
+                            <button class="menu-button active">
                                 🏠 Nadzorna plošča
                             </button>
                         </li>
                         <li class="menu-item" id="addUserMenuItem">
-                            <button class="menu-button" onclick="showContent('addUser')">
+                            <button class="menu-button">
                                 👤➕ Dodaj uporabnika
                             </button>
                         </li>
                         <li class="menu-item" id="serviserMenuItem">
-                            <button class="menu-button" onclick="openServiserApp()">
+                            <button class="menu-button">
                                 🔧 Pregledi ključavnic
                             </button>
                         </li>
                         <li class="menu-item" id="userSettingsMenuItem">
-                            <button class="menu-button" onclick="showContent('userSettings')">
+                            <button class="menu-button">
                                 👥 Nastavitve uporabnikov
                             </button>
                         </li>
                         <li class="menu-item" id="notificationsMenuItem">
-                            <button class="menu-button" onclick="showContent('notifications')">
+                            <button class="menu-button">
                                 📢 Obvestila
                             </button>
                         </li>
                         <li class="menu-item" id="generalSettingsMenuItem">
-                            <button class="menu-button" onclick="showContent('generalSettings')">
+                            <button class="menu-button">
                                 ⚙️ Splošne nastavitve
                             </button>
                         </li>
@@ -642,53 +939,9 @@
                         <div class="content-card welcome-card">
                             <div class="welcome-icon">🚴‍♂️</div>
                             <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
-                            <p class="welcome-description" id="welcomeMessage">
+                            <p class="welcome-description">
                                 Uporabite levi meni za navigacijo po različnih funkcijah portala.
                             </p>
-                        </div>
-                    </div>
-
-                    <!-- Add User Content -->
-                    <div class="content-section" id="addUserContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Dodaj uporabnika</h1>
-                            <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Dodajanje uporabnika funkcionalnost bo dodana kmalu.</p>
-                        </div>
-                    </div>
-
-                    <!-- User Settings Content -->
-                    <div class="content-section" id="userSettingsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Nastavitve uporabnikov</h1>
-                            <p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Nastavitve uporabnikov bodo dodane kmalu.</p>
-                        </div>
-                    </div>
-
-                    <!-- Notifications Content -->
-                    <div class="content-section" id="notificationsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Obvestila</h1>
-                            <p class="content-subtitle">Upravljajte obvestila</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Obvestila bodo dodana kmalu.</p>
-                        </div>
-                    </div>
-
-                    <!-- General Settings Content -->
-                    <div class="content-section" id="generalSettingsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Splošne nastavitve</h1>
-                            <p class="content-subtitle">Upravljajte sistemske nastavitve</p>
-                        </div>
-                        <div class="content-card">
-                            <p>Splošne nastavitve bodo dodane kmalu.</p>
                         </div>
                     </div>
                 </main>
@@ -699,579 +952,48 @@
     <script>
         // Global variables
         let currentUser = null;
-        let chatCurrentUser = null;
-        let chatUnsubscribeMessages = null;
-        let firebaseInitialized = false;
+        let currentChatRoom = null;
+        let chatGroups = [];
+        let currentActiveTab = 'messages';
+        let allUsers = [
+            { name: 'Admin Administrator', role: 'Admin' },
+            { name: 'Marko Serviser', role: 'Serviser' },
+            { name: 'Ana Novak', role: 'Študent' },
+            { name: 'Petra Kovač', role: 'Študent' },
+            { name: 'Janez Krajnc', role: 'Serviser' }
+        ];
 
-        // Mock Firebase for testing (replace with actual Firebase when ready)
-        const mockFirebase = {
-            db: {},
-            auth: {
-                currentUser: null,
-                onAuthStateChanged: (callback) => {
-                    setTimeout(() => callback(null), 100);
-                },
-                signInWithEmailAndPassword: (email, password) => {
-                    return new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            if (email && password) {
-                                const user = { uid: '123', email: email };
-                                mockFirebase.auth.currentUser = user;
-                                resolve(user);
-                            } else {
-                                reject(new Error('Invalid credentials'));
-                            }
-                        }, 500);
-                    });
-                },
-                signOut: () => {
-                    return new Promise((resolve) => {
-                        setTimeout(() => {
-                            mockFirebase.auth.currentUser = null;
-                            resolve();
-                        }, 100);
-                    });
-                },
-                createUserWithEmailAndPassword: (email, password) => {
-                    return new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            if (email && password) {
-                                const user = { uid: '123', email: email };
-                                mockFirebase.auth.currentUser = user;
-                                resolve(user);
-                            } else {
-                                reject(new Error('Invalid data'));
-                            }
-                        }, 500);
-                    });
-                }
-            },
-            firestore: {
-                collection: () => ({}),
-                doc: () => ({}),
-                addDoc: () => Promise.resolve({}),
-                onSnapshot: () => () => {},
-                orderBy: () => ({}),
-                limit: () => ({}),
-                query: () => ({}),
-                serverTimestamp: () => new Date(),
-                setDoc: () => Promise.resolve(),
-                getDoc: () => Promise.resolve({
-                    exists: () => true,
-                    data: () => ({
-                        ime: 'Test',
-                        priimek: 'User',
-                        uporabniskoIme: 'admin',
-                        geslo: 'admin123',
-                        vloga: 'admin',
-                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej']
-                    })
-                })
-            }
-        };
-
-        // Initialize mock data
-        async function initializeDefaultData() {
-            try {
-                console.log('Initializing default data...');
-                // Mock initialization - in real app, this would create Firebase documents
-                firebaseInitialized = true;
-                console.log('Default data initialized');
-            } catch (error) {
-                console.error('Error initializing default data:', error);
-            }
-        }
-
-        // Safe element getter
-        function safeGetElement(id) {
-            try {
-                return document.getElementById(id);
-            } catch (error) {
-                console.warn(`Element with id '${id}' not found:`, error);
-                return null;
-            }
-        }
-
-        // Login handling with improved error handling
-        async function handleLogin(event) {
+        // Login handling
+        function handleLogin(event) {
             event.preventDefault();
             
-            const loginButton = safeGetElement('loginButtonMain');
-            const usernameInput = safeGetElement('username');
-            const passwordInput = safeGetElement('password');
-            
-            if (!loginButton || !usernameInput || !passwordInput) {
-                console.error('Required login elements not found');
-                return;
-            }
-            
-            const username = usernameInput.value?.trim() || '';
-            const password = passwordInput.value?.trim() || '';
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
             
             if (!username || !password) {
                 showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
                 return;
             }
             
-            if (!firebaseInitialized) {
-                showMessage('Sistem se še nalaga. Poskusite znova.', 'error');
-                return;
-            }
-            
-            loginButton.textContent = 'Prijavljanje...';
-            loginButton.disabled = true;
-            
-            try {
-                // Mock authentication - replace with actual Firebase auth
-                if (username === 'admin' && password === 'admin123') {
-                    const user = {
-                        ime: 'Admin',
-                        priimek: 'Administrator',
-                        uporabniskoIme: 'admin',
-                        vloga: 'admin',
-                        sistemi: ['KolesCE', 'LUR', 'GO2GO', 'KOR', 'ZaNaprej']
-                    };
-                    
-                    currentUser = user;
-                    sessionStorage.setItem('currentUser', JSON.stringify(user));
-                    showMessage('Uspešna prijava!', 'success');
-                    setTimeout(() => showDashboard(user), 1000);
-                } else {
-                    showMessage('Napačno uporabniško ime ali geslo.', 'error');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                showMessage('Prišlo je do napake pri prijavi: ' + error.message, 'error');
-            } finally {
-                loginButton.textContent = 'Prijavi se';
-                loginButton.disabled = false;
+            if (username === 'admin' && password === 'admin123') {
+                const user = {
+                    ime: 'Admin',
+                    priimek: 'Administrator',
+                    uporabniskoIme: 'admin',
+                    vloga: 'admin'
+                };
+                
+                currentUser = user;
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+                showMessage('Uspešna prijava!', 'success');
+                setTimeout(() => showDashboard(user), 1000);
+            } else {
+                showMessage('Napačno uporabniško ime ali geslo. Poskusite admin/admin123', 'error');
             }
         }
 
         function showMessage(message, type) {
-            const errorMsg = safeGetElement('errorMessage');
-            const successMsg = safeGetElement('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
             
-            if (errorMsg) errorMsg.style.display = 'none';
-            if (successMsg) successMsg.style.display = 'none';
             
-            if (type === 'error' && errorMsg) {
-                errorMsg.textContent = message;
-                errorMsg.style.display = 'block';
-            } else if (type === 'success' && successMsg) {
-                successMsg.textContent = message;
-                successMsg.style.display = 'block';
-            }
-        }
-
-        function showDashboard(user) {
-            const loginSection = safeGetElement('loginSection');
-            const dashboardSection = safeGetElement('dashboardSection');
-            const userInfo = safeGetElement('userInfo');
-            const headerLogoutBtn = safeGetElement('headerLogoutBtn');
-            const headerTitle = safeGetElement('headerTitle');
-            const chatWidget = safeGetElement('chatWidget');
-            
-            if (loginSection) loginSection.style.display = 'none';
-            if (dashboardSection) dashboardSection.style.display = 'block';
-            if (userInfo) {
-                userInfo.style.display = 'block';
-                userInfo.textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
-            }
-            if (headerLogoutBtn) headerLogoutBtn.style.display = 'block';
-            if (headerTitle) headerTitle.style.display = 'block';
-            if (chatWidget) chatWidget.style.display = 'block';
-            
-            // Show/hide menu items based on user role
-            const menuItems = {
-                'addUserMenuItem': user.vloga === 'admin',
-                'userSettingsMenuItem': user.vloga === 'admin',
-                'notificationsMenuItem': user.vloga === 'admin',
-                'generalSettingsMenuItem': user.vloga === 'admin'
-            };
-            
-            Object.entries(menuItems).forEach(([itemId, shouldShow]) => {
-                const menuItem = safeGetElement(itemId);
-                if (menuItem) {
-                    menuItem.style.display = shouldShow ? 'block' : 'none';
-                }
-            });
-        }
-
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            sessionStorage.removeItem('serviserApp_currentUser');
-            
-            const loginSection = safeGetElement('loginSection');
-            const dashboardSection = safeGetElement('dashboardSection');
-            const userInfo = safeGetElement('userInfo');
-            const headerLogoutBtn = safeGetElement('headerLogoutBtn');
-            const headerTitle = safeGetElement('headerTitle');
-            const chatWidget = safeGetElement('chatWidget');
-            const chatWindow = safeGetElement('chatWindow');
-            const loginForm = safeGetElement('loginForm');
-            const errorMessage = safeGetElement('errorMessage');
-            const successMessage = safeGetElement('successMessage');
-            
-            if (loginSection) loginSection.style.display = 'block';
-            if (dashboardSection) dashboardSection.style.display = 'none';
-            if (userInfo) userInfo.style.display = 'none';
-            if (headerLogoutBtn) headerLogoutBtn.style.display = 'none';
-            if (headerTitle) headerTitle.style.display = 'none';
-            if (chatWidget) chatWidget.style.display = 'none';
-            if (chatWindow) chatWindow.style.display = 'none';
-            if (loginForm) loginForm.reset();
-            if (errorMessage) errorMessage.style.display = 'none';
-            if (successMessage) successMessage.style.display = 'none';
-        }
-
-        function goToHomePage() {
-            if (currentUser) {
-                showContent('dashboard');
-            }
-        }
-
-        function showContent(contentType) {
-            if (!currentUser) {
-                alert('Niste prijavljeni.');
-                return;
-            }
-            
-            // Hide all content sections
-            const sections = ['dashboardContent', 'addUserContent', 'userSettingsContent', 'notificationsContent', 'generalSettingsContent'];
-            sections.forEach(section => {
-                const el = safeGetElement(section);
-                if (el) el.style.display = 'none';
-            });
-
-            // Remove active class from all menu buttons
-            document.querySelectorAll('.menu-button').forEach(btn => {
-                if (btn) btn.classList.remove('active');
-            });
-
-            // Show selected content and mark menu as active
-            const contentMap = {
-                'dashboard': { content: 'dashboardContent', button: '[onclick="showContent(\'dashboard\')"]' },
-                'addUser': { content: 'addUserContent', button: '[onclick="showContent(\'addUser\')"]' },
-                'userSettings': { content: 'userSettingsContent', button: '[onclick="showContent(\'userSettings\')"]' },
-                'notifications': { content: 'notificationsContent', button: '[onclick="showContent(\'notifications\')"]' },
-                'generalSettings': { content: 'generalSettingsContent', button: '[onclick="showContent(\'generalSettings\')"]' }
-            };
-            
-            const config = contentMap[contentType];
-            if (config) {
-                const contentEl = safeGetElement(config.content);
-                if (contentEl) contentEl.style.display = 'block';
-                
-                const buttonEl = document.querySelector(config.button);
-                if (buttonEl) buttonEl.classList.add('active');
-            }
-        }
-
-        function openServiserApp() {
-            if (!currentUser) {
-                alert('Niste prijavljeni.');
-                return;
-            }
-            
-            if (currentUser.vloga === 'student') {
-                alert('Nimate dovoljenja za dostop do aplikacije za preglede.');
-                return;
-            }
-            
-            const userDataForApp = {
-                ...currentUser,
-                accessibleSystems: currentUser.sistemi || [],
-                accessibleLocations: []
-            };
-            
-            sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(userDataForApp));
-            window.open('nomago_pregledi_kljucavnic.html', '_blank');
-        }
-
-        function checkLoginStatus() {
-            try {
-                const savedUser = sessionStorage.getItem('currentUser');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    const loginSection = safeGetElement('loginSection');
-                    if (loginSection) loginSection.style.display = 'none';
-                    showDashboard(currentUser);
-                } else {
-                    const chatWidget = safeGetElement('chatWidget');
-                    if (chatWidget) chatWidget.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Error parsing saved user:', error);
-                sessionStorage.removeItem('currentUser');
-                const chatWidget = safeGetElement('chatWidget');
-                if (chatWidget) chatWidget.style.display = 'none';
-            }
-        }
-
-        // Chat Functions with improved error handling
-        function initChat() {
-            try {
-                const mainPortalUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-                if (mainPortalUser.ime && mainPortalUser.priimek) {
-                    const emailInput = safeGetElement('emailInput');
-                    if (emailInput) {
-                        if (mainPortalUser.email) {
-                            emailInput.value = mainPortalUser.email;
-                        } else {
-                            const firstName = mainPortalUser.ime.toLowerCase();
-                            const lastName = mainPortalUser.priimek.toLowerCase();
-                            emailInput.value = `${firstName}.${lastName}@nomago.si`;
-                        }
-                    }
-                }
-
-                // Mock auth state change
-                setTimeout(() => {
-                    if (chatCurrentUser) {
-                        showChatInterface();
-                        startListeningToChatMessages();
-                    } else {
-                        showChatLoginInterface();
-                        stopChatListening();
-                    }
-                }, 100);
-            } catch (error) {
-                console.error('Error initializing chat:', error);
-            }
-        }
-
-        function toggleChat() {
-            const chatWindow = safeGetElement('chatWindow');
-            if (!chatWindow) return;
-            
-            const isVisible = chatWindow.style.display === 'flex';
-            
-            if (isVisible) {
-                chatWindow.style.display = 'none';
-            } else {
-                chatWindow.style.display = 'flex';
-                if (chatCurrentUser) {
-                    const messageInput = safeGetElement('messageInput');
-                    if (messageInput) messageInput.focus();
-                }
-            }
-        }
-
-        async function chatLogin() {
-            const emailInput = safeGetElement('emailInput');
-            const passwordInput = safeGetElement('passwordInput');
-            const loginButton = safeGetElement('loginButton');
-            
-            if (!emailInput || !passwordInput || !loginButton) {
-                showChatError('Napaka pri dostopu do elementov.');
-                return;
-            }
-            
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
-            
-            if (!email || !password) {
-                showChatError('Prosimo, vnesite email in geslo.');
-                return;
-            }
-
-            loginButton.disabled = true;
-            loginButton.textContent = 'Prijavljanje...';
-            
-            try {
-                // Mock authentication
-                await mockFirebase.auth.signInWithEmailAndPassword(email, password);
-                chatCurrentUser = { uid: '123', email: email };
-                hideChatError();
-                showChatInterface();
-                startListeningToChatMessages();
-            } catch (error) {
-                console.error('Chat login error:', error);
-                showChatError('Napaka pri prijavi v chat.');
-            } finally {
-                loginButton.disabled = false;
-                loginButton.textContent = 'Prijavite se';
-            }
-        }
-
-        async function chatLogout() {
-            try {
-                await mockFirebase.auth.signOut();
-                chatCurrentUser = null;
-                showChatLoginInterface();
-                stopChatListening();
-            } catch (error) {
-                console.error('Chat logout error:', error);
-            }
-        }
-
-        function showChatInterface() {
-            const chatLogin = safeGetElement('chatLogin');
-            const chatMain = safeGetElement('chatMain');
-            const currentUserEl = safeGetElement('currentUser');
-            
-            if (chatLogin) chatLogin.style.display = 'none';
-            if (chatMain) chatMain.style.display = 'flex';
-            
-            if (currentUserEl && chatCurrentUser) {
-                const userEmail = chatCurrentUser.email;
-                const displayName = userEmail.split('@')[0].replace('.', ' ').toUpperCase();
-                currentUserEl.textContent = displayName;
-            }
-        }
-
-        function showChatLoginInterface() {
-            const chatLogin = safeGetElement('chatLogin');
-            const chatMain = safeGetElement('chatMain');
-            
-            if (chatLogin) chatLogin.style.display = 'block';
-            if (chatMain) chatMain.style.display = 'none';
-        }
-
-        function showChatError(message) {
-            const errorDiv = safeGetElement('chatError');
-            if (errorDiv) {
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-            }
-        }
-
-        function hideChatError() {
-            const errorDiv = safeGetElement('chatError');
-            if (errorDiv) errorDiv.style.display = 'none';
-        }
-
-        async function sendMessage() {
-            const messageInput = safeGetElement('messageInput');
-            if (!messageInput || !chatCurrentUser) return;
-            
-            const message = messageInput.value.trim();
-            if (!message) return;
-            
-            try {
-                // Mock message sending
-                console.log('Sending message:', message);
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                
-                // Add message to mock display
-                addMessageToChat(message, chatCurrentUser.email, true);
-            } catch (error) {
-                console.error('Error sending message:', error);
-                showChatError('Napaka pri pošiljanju sporočila.');
-            }
-        }
-
-        function addMessageToChat(text, userEmail, isCurrentUser) {
-            const messagesContainer = safeGetElement('chatMessages');
-            if (!messagesContainer) return;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = `margin-bottom: 12px; display: flex; flex-direction: column; ${isCurrentUser ? 'align-items: flex-end;' : ''}`;
-            
-            const bubble = document.createElement('div');
-            bubble.style.cssText = `max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; word-wrap: break-word;`;
-            
-            if (isCurrentUser) {
-                bubble.style.cssText += 'background: #004899; color: white; border-bottom-right-radius: 4px;';
-            } else {
-                bubble.style.cssText += 'background: white; color: #333; border: 1px solid #e0e0e0; border-bottom-left-radius: 4px;';
-            }
-            
-            bubble.textContent = text;
-            
-            const info = document.createElement('div');
-            info.style.cssText = `font-size: 11px; color: #888; margin-top: 4px; ${isCurrentUser ? 'text-align: right;' : ''}`;
-            
-            const displayName = userEmail.split('@')[0].replace('.', ' ');
-            const time = new Date().toLocaleTimeString('sl-SI', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            info.textContent = `${displayName} • ${time}`;
-            
-            messageDiv.appendChild(bubble);
-            messageDiv.appendChild(info);
-            messagesContainer.appendChild(messageDiv);
-            
-            scrollChatToBottom();
-        }
-
-        function startListeningToChatMessages() {
-            // Mock message listening
-            console.log('Started listening to chat messages');
-        }
-
-        function stopChatListening() {
-            if (chatUnsubscribeMessages) {
-                chatUnsubscribeMessages();
-                chatUnsubscribeMessages = null;
-            }
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        function scrollChatToBottom() {
-            const messagesContainer = safeGetElement('chatMessages');
-            if (messagesContainer) {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        }
-
-        function initializeChatWhenReady() {
-            initChat();
-            
-            const messageInput = safeGetElement('messageInput');
-            if (messageInput) {
-                messageInput.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-                });
-            }
-        }
-
-        // Initialize app with error handling
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                console.log('DOM loaded, initializing app...');
-                
-                await initializeDefaultData();
-                checkLoginStatus();
-                
-                setTimeout(initializeChatWhenReady, 1000);
-                
-                const loginForm = safeGetElement('loginForm');
-                if (loginForm) {
-                    loginForm.addEventListener('submit', handleLogin);
-                }
-                
-                console.log('App initialization complete');
-                
-            } catch (error) {
-                console.error('Error during initialization:', error);
-                const loginSection = safeGetElement('loginSection');
-                if (loginSection) loginSection.style.display = 'block';
-            }
-        });
-
-        // Global functions
-        window.logout = logout;
-        window.showContent = showContent;
-        window.openServiserApp = openServiserApp;
-        window.goToHomePage = goToHomePage;
-        window.toggleChat = toggleChat;
-        window.chatLogin = chatLogin;
-        window.chatLogout = chatLogout;
-        window.sendMessage = sendMessage;
-        window.handleKeyPress = handleKeyPress;
-    </script>
-</body>
-</html>
