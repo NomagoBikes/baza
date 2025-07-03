@@ -323,7 +323,7 @@
         }
 
         /* Chat Widget */
-        #chatWidget {
+        .chat-widget {
             position: fixed;
             bottom: 24px;
             right: 24px;
@@ -332,7 +332,7 @@
             display: none;
         }
 
-        #chatBubble {
+        .chat-bubble {
             position: relative;
             width: 60px;
             height: 60px;
@@ -346,16 +346,16 @@
             transition: all 0.3s ease;
         }
 
-        #chatBubble:hover {
+        .chat-bubble:hover {
             transform: scale(1.1);
         }
 
-        #chatBubble .icon {
+        .chat-bubble .icon {
             color: white;
             font-size: 24px;
         }
 
-        #chatWindow {
+        .chat-window {
             position: absolute;
             bottom: 80px;
             right: 0;
@@ -448,7 +448,7 @@
             display: flex;
         }
 
-        #chatMessages {
+        .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 16px;
@@ -773,18 +773,18 @@
 </head>
 <body>
     <!-- Chat Widget -->
-    <div id="chatWidget">
-        <div id="chatBubble">
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-bubble" onclick="toggleChat()">
             <span class="icon">💬</span>
         </div>
 
-        <div id="chatWindow">
+        <div class="chat-window" id="chatWindow">
             <div class="chat-header">
                 <div class="chat-title">
                     <span>💬</span>
                     <span>Nomago Chat</span>
                 </div>
-                <button class="chat-close">&times;</button>
+                <button class="chat-close" onclick="toggleChat()">&times;</button>
             </div>
 
             <div class="chat-user-info">
@@ -792,18 +792,18 @@
             </div>
             
             <div class="chat-tabs">
-                <button class="chat-tab active">💬 Sporočila</button>
-                <button class="chat-tab">👥 Skupine</button>
-                <button class="chat-tab">👤 Člani</button>
+                <button class="chat-tab active" onclick="switchChatTab('messages')">💬 Sporočila</button>
+                <button class="chat-tab" onclick="switchChatTab('groups')">👥 Skupine</button>
+                <button class="chat-tab" onclick="switchChatTab('members')">👤 Člani</button>
             </div>
             
             <div class="chat-content">
                 <!-- Messages Section -->
                 <div class="chat-section active" id="messagesSection">
-                    <div id="chatMessages"></div>
+                    <div class="chat-messages" id="chatMessages"></div>
                     <div class="chat-input">
                         <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
-                        <button id="sendBtn">Pošlji</button>
+                        <button onclick="sendMessage()">Pošlji</button>
                     </div>
                 </div>
                 
@@ -811,7 +811,7 @@
                 <div class="chat-section" id="groupsSection">
                     <div class="groups-header">
                         <h4>Pogovorne skupine</h4>
-                        <button class="add-group-btn" id="addGroupBtn">+ Dodaj</button>
+                        <button class="add-group-btn" onclick="showCreateGroupModal()">+ Dodaj</button>
                     </div>
                     <div class="groups-list" id="groupsList"></div>
                 </div>
@@ -822,7 +822,7 @@
                         <h5>Upravljanje članov</h5>
                         <div class="add-member-form">
                             <input type="text" class="add-member-input" id="newMemberName" placeholder="Ime in priimek">
-                            <button class="add-member-btn" id="addMemberBtn">Dodaj</button>
+                            <button class="add-member-btn" onclick="addMemberToCurrentGroup()">Dodaj</button>
                         </div>
                         <div class="available-users">
                             <h6>Dostopni uporabniki:</h6>
@@ -840,13 +840,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Ustvari novo skupino</h3>
-                <button class="modal-close" id="modalClose">&times;</button>
+                <button class="modal-close" onclick="closeCreateGroupModal()">&times;</button>
             </div>
-            <form class="modal-form" id="createGroupForm">
+            <form class="modal-form" onsubmit="createNewGroup(event)">
                 <input type="text" id="groupNameInput" placeholder="Ime skupine" required>
                 <textarea id="groupDescriptionInput" placeholder="Opis skupine (neobvezno)"></textarea>
                 <div class="modal-actions">
-                    <button type="button" class="modal-btn modal-btn-secondary" id="modalCancel">Prekliči</button>
+                    <button type="button" class="modal-btn modal-btn-secondary" onclick="closeCreateGroupModal()">Prekliči</button>
                     <button type="submit" class="modal-btn modal-btn-primary">Ustvari</button>
                 </div>
             </form>
@@ -862,7 +862,7 @@
         </div>
         <div class="header-controls">
             <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn">Odjava</button>
+            <button class="logout-button" id="headerLogoutBtn" onclick="logout()">Odjava</button>
         </div>
     </header>
 
@@ -871,16 +871,16 @@
         <div class="login-card" id="loginSection">
             <div class="bike-icon">🚲</div>
             <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
-            <form id="loginForm">
+            <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required>
+                    <input type="text" class="form-input" id="username" placeholder="admin" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Geslo</label>
-                    <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
+                    <input type="password" class="form-input" id="password" placeholder="admin123" required>
                 </div>
-                <button type="submit" class="login-button" id="loginButtonMain">Prijavi se</button>
+                <button type="submit" class="login-button">Prijavi se</button>
                 <div class="error-message" id="errorMessage"></div>
                 <div class="success-message" id="successMessage"></div>
             </form>
@@ -900,27 +900,27 @@
                                 🏠 Nadzorna plošča
                             </button>
                         </li>
-                        <li class="menu-item" id="addUserMenuItem">
+                        <li class="menu-item">
                             <button class="menu-button">
                                 👤➕ Dodaj uporabnika
                             </button>
                         </li>
-                        <li class="menu-item" id="serviserMenuItem">
+                        <li class="menu-item">
                             <button class="menu-button">
                                 🔧 Pregledi ključavnic
                             </button>
                         </li>
-                        <li class="menu-item" id="userSettingsMenuItem">
+                        <li class="menu-item">
                             <button class="menu-button">
                                 👥 Nastavitve uporabnikov
                             </button>
                         </li>
-                        <li class="menu-item" id="notificationsMenuItem">
+                        <li class="menu-item">
                             <button class="menu-button">
                                 📢 Obvestila
                             </button>
                         </li>
-                        <li class="menu-item" id="generalSettingsMenuItem">
+                        <li class="menu-item">
                             <button class="menu-button">
                                 ⚙️ Splošne nastavitve
                             </button>
@@ -929,8 +929,7 @@
                 </nav>
 
                 <main class="main-content">
-                    <!-- Dashboard Content -->
-                    <div class="content-section" id="dashboardContent" style="display: block;">
+                    <div class="content-section" style="display: block;">
                         <div class="content-header">
                             <h1 class="content-title">Nadzorna plošča</h1>
                             <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
@@ -941,6 +940,8 @@
                             <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
                             <p class="welcome-description">
                                 Uporabite levi meni za navigacijo po različnih funkcijah portala.
+                                <br><br>
+                                <strong>💬 Chat je aktiviran!</strong> Kliknite na chat ikono v spodnjem desnem kotu.
                             </p>
                         </div>
                     </div>
@@ -950,7 +951,7 @@
     </main>
 
     <script>
-        console.log('🚀 Nomago Script is loading...');
+        console.log("🚀 NOMAGO: Polna verzija se nalaga...");
         
         // Global variables
         let currentUser = null;
@@ -965,27 +966,13 @@
             { name: 'Janez Krajnc', role: 'Serviser' }
         ];
 
-        console.log('✅ Global variables initialized');
-
         // Login handling
         function handleLogin(event) {
             event.preventDefault();
+            console.log("🔐 NOMAGO: Poskus prijave...");
             
-            console.log('Login attempt started');
-            
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            
-            if (!usernameInput || !passwordInput) {
-                console.error('Username or password input not found');
-                showMessage('Napaka pri dostopu do elementov.', 'error');
-                return;
-            }
-            
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            
-            console.log('Username:', username, 'Password length:', password.length);
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
             
             if (!username || !password) {
                 showMessage('Prosimo, vnesite uporabniško ime in geslo.', 'error');
@@ -993,26 +980,9 @@
             }
             
             if (username === 'admin' && password === 'admin123') {
-                console.log('Login successful');
+                console.log("✅ NOMAGO: Prijava uspešna!");
                 const user = {
                     ime: 'Admin',
                     priimek: 'Administrator',
                     uporabniskoIme: 'admin',
                     vloga: 'admin'
-                };
-                
-                currentUser = user;
-                sessionStorage.setItem('currentUser', JSON.stringify(user));
-                showMessage('Uspešna prijava!', 'success');
-                setTimeout(() => showDashboard(user), 1000);
-            } else {
-                console.log('Login failed - incorrect credentials');
-                showMessage('Napačno uporabniško ime ali geslo. Poskusite admin/admin123', 'error');
-            }
-        }
-
-        function showMessage(message, type) {
-            const errorMsg = document.getElementById('errorMessage');
-            const successMsg = document.getElementById('successMessage');
-            
-            
