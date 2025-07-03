@@ -340,9 +340,8 @@
     </div>
 
     <script>
-        // Test if script loads
-        console.log("🚀 SCRIPT LOADING...");
-        alert("🚀 NOMAGO: Script se nalaga!");
+        // Clean version without alerts
+        console.log("🚀 NOMAGO: Script se nalaga...");
         
         let currentUser = null;
         
@@ -357,33 +356,28 @@
         }
         
         function doLogin() {
-            console.log("🔐 LOGIN CLICKED");
-            alert("🔐 LOGIN FUNCTION CALLED!");
+            console.log("🔐 Poskus prijave...");
             
             const usernameEl = document.getElementById('username');
             const passwordEl = document.getElementById('password');
             
             if (!usernameEl || !passwordEl) {
                 console.error("Elements not found!");
-                alert("❌ Elements not found!");
                 return;
             }
             
             const username = usernameEl.value.trim();
             const password = passwordEl.value.trim();
             
-            console.log("Input values:", username, password);
-            alert("📋 Username: " + username + ", Password: " + password);
+            console.log("📋 Username:", username, "Password length:", password.length);
             
             if (!username || !password) {
                 showMessage('Vnesite uporabniško ime in geslo!', 'error');
-                alert("⚠️ Empty fields!");
                 return;
             }
             
             if (username === 'admin' && password === 'admin123') {
-                console.log("✅ LOGIN SUCCESS");
-                alert("✅ LOGIN SUCCESS!");
+                console.log("✅ Prijava uspešna!");
                 
                 currentUser = {
                     ime: 'Admin',
@@ -397,15 +391,13 @@
                     showDashboard();
                 }, 1000);
             } else {
-                console.log("❌ LOGIN FAILED");
-                alert("❌ LOGIN FAILED - wrong credentials");
+                console.log("❌ Napačni podatki");
                 showMessage('Napačno uporabniško ime ali geslo!', 'error');
             }
         }
         
         function showDashboard() {
-            console.log("📊 SHOWING DASHBOARD");
-            alert("📊 SHOWING DASHBOARD");
+            console.log("📊 Prikazujem dashboard...");
             
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'block';
@@ -418,8 +410,7 @@
         }
         
         function doLogout() {
-            console.log("🚪 LOGOUT");
-            alert("🚪 LOGOUT");
+            console.log("🚪 Odjava...");
             
             currentUser = null;
             document.getElementById('loginSection').style.display = 'block';
@@ -435,7 +426,7 @@
         }
         
         function toggleChat() {
-            console.log("💬 TOGGLE CHAT");
+            console.log("💬 Preklapljam chat...");
             const chatWindow = document.getElementById('chatWindow');
             const isVisible = chatWindow.style.display === 'flex';
             chatWindow.style.display = isVisible ? 'none' : 'flex';
@@ -445,9 +436,9 @@
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
             
-            if (!message) return;
+            if (!message || !currentUser) return;
             
-            console.log("📩 SENDING MESSAGE:", message);
+            console.log("📩 Pošiljam sporočilo:", message);
             
             const chatContent = document.getElementById('chatContent');
             const messageDiv = document.createElement('div');
@@ -461,8 +452,7 @@
         
         // Add Enter key support
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("📋 DOM READY");
-            alert("📋 DOM READY!");
+            console.log("📋 DOM pripravljen!");
             
             const passwordInput = document.getElementById('password');
             if (passwordInput) {
@@ -482,10 +472,11 @@
                     }
                 });
             }
+            
+            console.log("🎉 Vse pripravljeno!");
         });
         
-        console.log("📝 SCRIPT LOADED");
-        alert("📝 SCRIPT LOADED!");
+        console.log("📝 Script naložen!");
     </script>
 </body>
 </html>
