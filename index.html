@@ -1,28 +1,28 @@
 <!DOCTYPE html>
+
 <html lang="sl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomago Bikes - BAZA Portal</title>
-    <!-- Favicon - različne velikosti za različne naprave -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-    <!-- Apple Touch Icon za iOS naprave -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <!-- Android Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/site.webmanifest">
-    <!-- MS Tiles za Windows -->
-    <meta name="msapplication-TileColor" content="#004899">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <!-- Theme color za mobile brskalnike -->
-    <meta name="theme-color" content="#004899">
-    
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nomago Bikes - BAZA Portal</title>
+<!-- Favicon - različne velikosti za različne naprave -->
+<link href="/favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/>
+<!-- Apple Touch Icon za iOS naprave -->
+<link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<!-- Android Chrome -->
+<link href="/android-chrome-192x192.png" rel="icon" sizes="192x192" type="image/png"/>
+<link href="/android-chrome-512x512.png" rel="icon" sizes="512x512" type="image/png"/>
+<!-- Web App Manifest -->
+<link href="/site.webmanifest" rel="manifest"/>
+<!-- MS Tiles za Windows -->
+<meta content="#004899" name="msapplication-TileColor"/>
+<meta content="/mstile-144x144.png" name="msapplication-TileImage"/>
+<!-- Theme color za mobile brskalnike -->
+<meta content="#004899" name="theme-color"/>
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -1220,537 +1220,471 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <div class="logo" onclick="goToHomePage()">
-                <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
-            </div>
-        </div>
-        <div class="header-center" id="headerCenter" style="display: none;">
-            <h1 style="color: white; font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; margin: 0;">BAZA</h1>
-        </div>
-        <div class="header-controls">
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn" onclick="logout()" style="display: none;" title="Odjavi se">
-                <span class="menu-icon">🚪</span>
-            </button>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Preklopi temo">
-                <span id="themeIcon">🌙</span>
-            </button>
-        </div>
-    </header>
-
-    <main>
-        <!-- Login Section -->
-        <div class="login-card" id="loginSection">
-            <div class="bike-icon">🚲</div>
-            <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required autofocus>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="password">Geslo</label>
-                    <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
-                </div>
-                <button type="submit" class="login-button" id="loginButton">Prijavi se</button>
-                <div class="error-message" id="errorMessage"></div>
-                <div class="success-message" id="successMessage"></div>
-            </form>
-        </div>
-
-        <!-- Dashboard Section -->
-        <div class="dashboard" id="dashboardSection">
-            <div class="dashboard-container">
-                <!-- Sidebar Menu -->
-                <nav class="sidebar">
-                    <div class="sidebar-header">
-                        <div class="sidebar-title">Upravljanje</div>
-                        <div class="sidebar-subtitle">Nomago Bikes Portal</div>
-                    </div>
-                    <ul class="menu-list">
-                        <li class="menu-item">
-                            <button class="menu-button active" onclick="showContent('dashboard')">
-                                <span class="menu-icon">🏠</span>
-                                <span>Nadzorna plošča</span>
-                            </button>
-                        </li>
-                        <li class="menu-item">
-                            <button class="menu-button" id="addUserMenu" onclick="showContent('addUser')">
-                                <span class="menu-icon">👤➕</span>
-                                <span>Dodaj uporabnika</span>
-                            </button>
-                        </li>
-                        <li class="menu-item" id="serviserMenuItem">
-                            <button class="menu-button" id="serviserMenu" onclick="openServiserApp()">
-                                <span class="menu-icon">🔧</span>
-                                <span>Pregledi ključavnic</span>
-                                <span class="alert-badge" id="inspectionAlerts" style="display: none;">0</span>
-                            </button>
-                        </li>
-                        <li class="menu-item">
-                            <button class="menu-button" id="userSettingsMenu" onclick="showContent('userSettings')">
-                                <span class="menu-icon">👥</span>
-                                <span>Nastavitve uporabnikov</span>
-                            </button>
-                        </li>
-                        <li class="menu-item">
-                            <button class="menu-button" id="notificationsMenu" onclick="showContent('notifications')">
-                                <span class="menu-icon">📢</span>
-                                <span>Obvestila</span>
-                            </button>
-                        </li>
-                        <li class="menu-item">
-                            <button class="menu-button" onclick="showContent('generalSettings')">
-                                <span class="menu-icon">⚙️</span>
-                                <span>Splošne nastavitve</span>
-                            </button>
-                        </li>
-                    </ul>
-                    <div class="logout-section">
-                        <button class="logout-button" onclick="logout()">
-                            <span class="menu-icon">🚪</span>
-                            <span>Odjavi se</span>
-                        </button>
-                    </div>
-                </nav>
-
-                <!-- Main Content Area -->
-                <main class="main-content">
-                    <!-- Dashboard Content -->
-                    <div class="content-section" id="dashboardContent" style="display: block;">
-                        <div class="content-header">
-                            <h1 class="content-title">Nadzorna plošča</h1>
-                            <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
-                        </div>
-
-                        <!-- Sync Status -->
-                        <div id="syncStatus" class="sync-status synced">
-                            <span>🔄</span>
-                            <span>Sinhronizirano z Firebase</span>
-                        </div>
-
-                        <!-- Inspection Widget -->
-                        <div class="inspection-widget" id="inspectionWidget">
-                            <h3>📋 Pregledi ključavnic</h3>
-                            
-                            <!-- Data Source Info -->
-                            <div style="background: rgba(0, 123, 255, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-dark);">
-                                <strong>📊 Vir podatkov:</strong> Firebase sistem | 
+<header>
+<div class="logo-container">
+<div class="logo" onclick="goToHomePage()">
+<span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
+</div>
+</div>
+<div class="header-center" id="headerCenter" style="display: none;">
+<h1 style="color: white; font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; margin: 0;">BAZA</h1>
+</div>
+<div class="header-controls">
+<div class="user-info" id="userInfo"></div>
+<button class="logout-button" id="headerLogoutBtn" onclick="logout()" style="display: none;" title="Odjavi se">
+<span class="menu-icon">🚪</span>
+</button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Preklopi temo">
+<span id="themeIcon">🌙</span>
+</button>
+</div>
+</header>
+<main>
+<!-- Login Section -->
+<div class="login-card" id="loginSection">
+<div class="bike-icon">🚲</div>
+<h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
+<form id="loginForm">
+<div class="form-group">
+<label class="form-label" for="username">Uporabniško ime</label>
+<input autofocus="" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required="" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="password">Geslo</label>
+<input class="form-input" id="password" placeholder="Vnesite geslo" required="" type="password"/>
+</div>
+<button class="login-button" id="loginButton" type="submit">Prijavi se</button>
+<div class="error-message" id="errorMessage"></div>
+<div class="success-message" id="successMessage"></div>
+</form>
+</div>
+<!-- Dashboard Section -->
+<div class="dashboard" id="dashboardSection">
+<div class="dashboard-container">
+<!-- Sidebar Menu -->
+<nav class="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-title">Upravljanje</div>
+<div class="sidebar-subtitle">Nomago Bikes Portal</div>
+</div>
+<ul class="menu-list">
+<li class="menu-item">
+<button class="menu-button active" onclick="showContent('dashboard')">
+<span class="menu-icon">🏠</span>
+<span>Nadzorna plošča</span>
+</button>
+</li>
+<li class="menu-item">
+<button class="menu-button" id="addUserMenu" onclick="showContent('addUser')">
+<span class="menu-icon">👤➕</span>
+<span>Dodaj uporabnika</span>
+</button>
+</li>
+<li class="menu-item" id="serviserMenuItem">
+<button class="menu-button" id="serviserMenu" onclick="openServiserApp()">
+<span class="menu-icon">🔧</span>
+<span>Pregledi ključavnic</span>
+<span class="alert-badge" id="inspectionAlerts" style="display: none;">0</span>
+</button>
+</li>
+<li class="menu-item">
+<button class="menu-button" id="userSettingsMenu" onclick="showContent('userSettings')">
+<span class="menu-icon">👥</span>
+<span>Nastavitve uporabnikov</span>
+</button>
+</li>
+<li class="menu-item">
+<button class="menu-button" id="notificationsMenu" onclick="showContent('notifications')">
+<span class="menu-icon">📢</span>
+<span>Obvestila</span>
+</button>
+</li>
+<li class="menu-item">
+<button class="menu-button" onclick="showContent('generalSettings')">
+<span class="menu-icon">⚙️</span>
+<span>Splošne nastavitve</span>
+</button>
+</li>
+</ul>
+<div class="logout-section">
+<button class="logout-button" onclick="logout()">
+<span class="menu-icon">🚪</span>
+<span>Odjavi se</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="main-content">
+<!-- Dashboard Content -->
+<div class="content-section" id="dashboardContent" style="display: block;">
+<div class="content-header">
+<h1 class="content-title">Nadzorna plošča</h1>
+<p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
+</div>
+<!-- Sync Status -->
+<div class="sync-status synced" id="syncStatus">
+<span>🔄</span>
+<span>Sinhronizirano z Firebase</span>
+</div>
+<!-- Inspection Widget -->
+<div class="inspection-widget" id="inspectionWidget">
+<h3>📋 Pregledi ključavnic</h3>
+<!-- Data Source Info -->
+<div style="background: rgba(0, 123, 255, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-dark);">
+<strong>📊 Vir podatkov:</strong> Firebase sistem | 
                                 <strong>Zadnja osvežitev:</strong> <span id="lastRefreshTime">Nalaganje...</span> |
                                 <button onclick="refreshInspectionData()" style="background: none; border: none; color: var(--primary-blue); cursor: pointer; text-decoration: underline;">🔄 Osveži zdaj</button>
-                            </div>
-                            
-                            <div class="inspection-stats" id="inspectionStats">
-                                <div class="stat-item" id="overdueStats">
-                                    <div class="stat-number danger" id="overdueCount">0</div>
-                                    <div class="stat-label">Zamujeni pregledi</div>
-                                </div>
-                                <div class="stat-item" id="dueSoonStats">
-                                    <div class="stat-number warning" id="dueSoonCount">0</div>
-                                    <div class="stat-label">Pregledi kmalu</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-number success" id="totalCount">0</div>
-                                    <div class="stat-label">Skupaj ključavnic</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Debug Info for Admins -->
-                            <div id="debugInfo" style="display: none; background: rgba(108, 117, 125, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-light);">
-                                <strong>🔍 Debug podatki:</strong><br>
-                                <span id="debugText">Nalaganje debug informacij...</span>
-                            </div>
-                            
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button class="inspection-button" onclick="openServiserApp()" style="flex: 1;">
+</div>
+<div class="inspection-stats" id="inspectionStats">
+<div class="stat-item" id="overdueStats">
+<div class="stat-number danger" id="overdueCount">0</div>
+<div class="stat-label">Zamujeni pregledi</div>
+</div>
+<div class="stat-item" id="dueSoonStats">
+<div class="stat-number warning" id="dueSoonCount">0</div>
+<div class="stat-label">Pregledi kmalu</div>
+</div>
+<div class="stat-item">
+<div class="stat-number success" id="totalCount">0</div>
+<div class="stat-label">Skupaj ključavnic</div>
+</div>
+</div>
+<!-- Debug Info for Admins -->
+<div id="debugInfo" style="display: none; background: rgba(108, 117, 125, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-light);">
+<strong>🔍 Debug podatki:</strong><br/>
+<span id="debugText">Nalaganje debug informacij...</span>
+</div>
+<div style="display: flex; gap: 0.5rem;">
+<button class="inspection-button" onclick="openServiserApp()" style="flex: 1;">
                                     🔧 Odpri aplikacijo za preglede
                                 </button>
-                                <button onclick="toggleDebugInfo()" class="btn" style="background: var(--text-light); color: white; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem;">
+<button class="btn" onclick="toggleDebugInfo()" style="background: var(--text-light); color: white; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem;">
                                     🐛 Debug
                                 </button>
-                            </div>
-                        </div>
-
-                        <!-- Notifications Display -->
-                        <div id="notificationsDisplay"></div>
-
-                        <div class="content-card welcome-card">
-                            <div class="welcome-icon">🚴‍♂️</div>
-                            <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
-                            <p class="welcome-description" id="welcomeMessage">
+</div>
+</div>
+<!-- Notifications Display -->
+<div id="notificationsDisplay"></div>
+<div class="content-card welcome-card">
+<div class="welcome-icon">🚴‍♂️</div>
+<h2 class="welcome-text">Uspešno ste se prijavili!</h2>
+<p class="welcome-description" id="welcomeMessage">
                                 Uporabite levi meni za navigacijo po različnih funkcijah portala.
                             </p>
-                        </div>
-                    </div>
-
-                    <!-- Add User Content -->
-                    <div class="content-section" id="addUserContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Dodaj uporabnika</h1>
-                            <p class="content-subtitle">Ustvarite nov uporabniški račun</p>
-                        </div>
-                        <div class="content-card">
-                            <form id="addUserForm" autocomplete="off">
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label" for="newFirstName">Ime *</label>
-                                        <input type="text" class="form-input" id="newFirstName" placeholder="Vnesite ime" required autocomplete="new-password">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="newLastName">Priimek *</label>
-                                        <input type="text" class="form-input" id="newLastName" placeholder="Vnesite priimek" required autocomplete="new-password">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="newUsername">Uporabniško ime *</label>
-                                    <input type="text" class="form-input" id="newUsername" placeholder="Vnesite uporabniško ime" required autocomplete="new-password">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="newPassword">Geslo *</label>
-                                    <input type="password" class="form-input" id="newPassword" placeholder="Vnesite geslo" required autocomplete="new-password">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="newRole">Vloga *</label>
-                                    <select class="form-input" id="newRole" required>
-                                        <option value="">Izberite vlogo</option>
-                                        <option value="admin">Administrator</option>
-                                        <option value="serviser">Serviser</option>
-                                        <option value="student">Študent</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Sistemi za dostop *</label>
-                                    <div id="systemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="KolesCE">
-                                            <span>KolesCE</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="LUR">
-                                            <span>LUR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="GO2GO">
-                                            <span>GO2GO</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="KOR">
-                                            <span>KOR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="newSystems" value="ZaNaprej">
-                                            <span>ZaNaprej</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <button type="submit" class="login-button">
-                                    <span class="loading-spinner" id="addUserSpinner" style="display: none;"></span>
-                                    <span id="addUserText">Ustvari uporabnika</span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- User Settings Content -->
-                    <div class="content-section" id="userSettingsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Nastavitve uporabnikov</h1>
-                            <p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
-                        </div>
-                        <div class="content-card">
-                            <div id="usersList">
-                                <!-- Users will be loaded here dynamically -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Edit User Modal -->
-                    <div id="editUserModal" class="modal">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h2 class="modal-title">Uredi uporabnika</h2>
-                                <button class="close" onclick="closeEditModal()">&times;</button>
-                            </div>
-                            <form id="editUserForm">
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label" for="editFirstName">Ime *</label>
-                                        <input type="text" class="form-input" id="editFirstName" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="editLastName">Priimek *</label>
-                                        <input type="text" class="form-input" id="editLastName" required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="editUsername">Uporabniško ime *</label>
-                                    <input type="text" class="form-input" id="editUsername" readonly style="background: #f8f9fa; color: #6c757d;">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="editPassword">Novo geslo (pustite prazno za ohranitev)</label>
-                                    <input type="password" class="form-input" id="editPassword" placeholder="Vnesite novo geslo">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="editRole">Vloga *</label>
-                                    <select class="form-input" id="editRole" required>
-                                        <option value="admin">Administrator</option>
-                                        <option value="serviser">Serviser</option>
-                                        <option value="student">Študent</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Sistemi za dostop *</label>
-                                    <div id="editSystemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="KolesCE">
-                                            <span>KolesCE</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="LUR">
-                                            <span>LUR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="GO2GO">
-                                            <span>GO2GO</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="KOR">
-                                            <span>KOR</span>
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
-                                            <input type="checkbox" name="editSystems" value="ZaNaprej">
-                                            <span>ZaNaprej</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                                    <button type="submit" class="login-button" style="flex: 1;">
-                                        <span class="loading-spinner" id="editUserSpinner" style="display: none;"></span>
-                                        <span id="editUserText">Posodobi uporabnika</span>
-                                    </button>
-                                    <button type="button" class="btn" onclick="closeEditModal()" style="flex: 1; background: #6c757d; color: white;">
+</div>
+</div>
+<!-- Add User Content -->
+<div class="content-section" id="addUserContent">
+<div class="content-header">
+<h1 class="content-title">Dodaj uporabnika</h1>
+<p class="content-subtitle">Ustvarite nov uporabniški račun</p>
+</div>
+<div class="content-card">
+<form autocomplete="off" id="addUserForm">
+<div class="form-grid">
+<div class="form-group">
+<label class="form-label" for="newFirstName">Ime *</label>
+<input autocomplete="new-password" class="form-input" id="newFirstName" placeholder="Vnesite ime" required="" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="newLastName">Priimek *</label>
+<input autocomplete="new-password" class="form-input" id="newLastName" placeholder="Vnesite priimek" required="" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label" for="newUsername">Uporabniško ime *</label>
+<input autocomplete="new-password" class="form-input" id="newUsername" placeholder="Vnesite uporabniško ime" required="" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="newPassword">Geslo *</label>
+<input autocomplete="new-password" class="form-input" id="newPassword" placeholder="Vnesite geslo" required="" type="password"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="newRole">Vloga *</label>
+<select class="form-input" id="newRole" required="">
+<option value="">Izberite vlogo</option>
+<option value="admin">Administrator</option>
+<option value="serviser">Serviser</option>
+<option value="student">Študent</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Sistemi za dostop *</label>
+<div id="systemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="newSystems" type="checkbox" value="KolesCE"/>
+<span>KolesCE</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="newSystems" type="checkbox" value="LUR"/>
+<span>LUR</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="newSystems" type="checkbox" value="GO2GO"/>
+<span>GO2GO</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="newSystems" type="checkbox" value="KOR"/>
+<span>KOR</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="newSystems" type="checkbox" value="ZaNaprej"/>
+<span>ZaNaprej</span>
+</label>
+</div>
+</div>
+<button class="login-button" type="submit">
+<span class="loading-spinner" id="addUserSpinner" style="display: none;"></span>
+<span id="addUserText">Ustvari uporabnika</span>
+</button>
+</form>
+</div>
+</div>
+<!-- User Settings Content -->
+<div class="content-section" id="userSettingsContent">
+<div class="content-header">
+<h1 class="content-title">Nastavitve uporabnikov</h1>
+<p class="content-subtitle">Upravljajte obstoječe uporabniške račune</p>
+</div>
+<div class="content-card">
+<div id="usersList">
+<!-- Users will be loaded here dynamically -->
+</div>
+</div>
+</div>
+<!-- Edit User Modal -->
+<div class="modal" id="editUserModal">
+<div class="modal-content">
+<div class="modal-header">
+<h2 class="modal-title">Uredi uporabnika</h2>
+<button class="close" onclick="closeEditModal()">×</button>
+</div>
+<form id="editUserForm">
+<div class="form-grid">
+<div class="form-group">
+<label class="form-label" for="editFirstName">Ime *</label>
+<input class="form-input" id="editFirstName" required="" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="editLastName">Priimek *</label>
+<input class="form-input" id="editLastName" required="" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label" for="editUsername">Uporabniško ime *</label>
+<input class="form-input" id="editUsername" readonly="" style="background: #f8f9fa; color: #6c757d;" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="editPassword">Novo geslo (pustite prazno za ohranitev)</label>
+<input class="form-input" id="editPassword" placeholder="Vnesite novo geslo" type="password"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="editRole">Vloga *</label>
+<select class="form-input" id="editRole" required="">
+<option value="admin">Administrator</option>
+<option value="serviser">Serviser</option>
+<option value="student">Študent</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Sistemi za dostop *</label>
+<div id="editSystemCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="editSystems" type="checkbox" value="KolesCE"/>
+<span>KolesCE</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="editSystems" type="checkbox" value="LUR"/>
+<span>LUR</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="editSystems" type="checkbox" value="GO2GO"/>
+<span>GO2GO</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="editSystems" type="checkbox" value="KOR"/>
+<span>KOR</span>
+</label>
+<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light-blue); border-radius: 6px; cursor: pointer;">
+<input name="editSystems" type="checkbox" value="ZaNaprej"/>
+<span>ZaNaprej</span>
+</label>
+</div>
+</div>
+<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+<button class="login-button" style="flex: 1;" type="submit">
+<span class="loading-spinner" id="editUserSpinner" style="display: none;"></span>
+<span id="editUserText">Posodobi uporabnika</span>
+</button>
+<button class="btn" onclick="closeEditModal()" style="flex: 1; background: #6c757d; color: white;" type="button">
                                         Prekliči
                                     </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Notifications Content -->
-                    <div class="content-section" id="notificationsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Upravljanje obvestil</h1>
-                            <p class="content-subtitle">Dodajte in upravljajte obvestila za vse uporabnike</p>
-                        </div>
-                        <div class="content-card">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Dodaj novo obvestilo</h3>
-                            <form id="addNotificationForm">
-                                <div class="form-group">
-                                    <label class="form-label" for="notificationTitle">Naslov obvestila *</label>
-                                    <input type="text" class="form-input" id="notificationTitle" placeholder="Vnesite naslov obvestila" required>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="notificationMessage">Sporočilo *</label>
-                                    <textarea class="form-input" id="notificationMessage" rows="4" placeholder="Vnesite sporočilo obvestila" required style="resize: vertical; min-height: 100px;"></textarea>
-                                </div>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label" for="notificationType">Tip obvestila *</label>
-                                        <select class="form-input" id="notificationType" required>
-                                            <option value="">Izberite tip</option>
-                                            <option value="info">Informacija (modra)</option>
-                                            <option value="warning">Opozorilo (rumena)</option>
-                                            <option value="success">Uspeh (zelena)</option>
-                                            <option value="error">Napaka (rdeča)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="notificationPriority">Prioriteta</label>
-                                        <select class="form-input" id="notificationPriority">
-                                            <option value="normal">Normalna</option>
-                                            <option value="high">Visoka</option>
-                                            <option value="urgent">Nujna</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">
-                                        <input type="checkbox" id="notificationActive" checked style="margin-right: 0.5rem;">
+</div>
+</form>
+</div>
+</div>
+<!-- Notifications Content -->
+<div class="content-section" id="notificationsContent">
+<div class="content-header">
+<h1 class="content-title">Upravljanje obvestil</h1>
+<p class="content-subtitle">Dodajte in upravljajte obvestila za vse uporabnike</p>
+</div>
+<div class="content-card">
+<h3 style="margin-bottom: 1rem; color: var(--text-dark);">Dodaj novo obvestilo</h3>
+<form id="addNotificationForm">
+<div class="form-group">
+<label class="form-label" for="notificationTitle">Naslov obvestila *</label>
+<input class="form-input" id="notificationTitle" placeholder="Vnesite naslov obvestila" required="" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label" for="notificationMessage">Sporočilo *</label>
+<textarea class="form-input" id="notificationMessage" placeholder="Vnesite sporočilo obvestila" required="" rows="4" style="resize: vertical; min-height: 100px;"></textarea>
+</div>
+<div class="form-grid">
+<div class="form-group">
+<label class="form-label" for="notificationType">Tip obvestila *</label>
+<select class="form-input" id="notificationType" required="">
+<option value="">Izberite tip</option>
+<option value="info">Informacija (modra)</option>
+<option value="warning">Opozorilo (rumena)</option>
+<option value="success">Uspeh (zelena)</option>
+<option value="error">Napaka (rdeča)</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label" for="notificationPriority">Prioriteta</label>
+<select class="form-input" id="notificationPriority">
+<option value="normal">Normalna</option>
+<option value="high">Visoka</option>
+<option value="urgent">Nujna</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">
+<input checked="" id="notificationActive" style="margin-right: 0.5rem;" type="checkbox"/>
                                         Aktivno obvestilo
                                     </label>
-                                </div>
-                                <button type="submit" class="login-button">
-                                    <span class="loading-spinner" id="notificationSpinner" style="display: none;"></span>
-                                    <span id="notificationText">Dodaj obvestilo</span>
-                                </button>
-                            </form>
-                        </div>
-                        <div class="content-card">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Obstoječa obvestila</h3>
-                            <div id="notificationsList">
-                                <!-- Notifications will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- General Settings Content -->
-                    <div class="content-section" id="generalSettingsContent">
-                        <div class="content-header">
-                            <h1 class="content-title">Splošne nastavitve</h1>
-                            <p class="content-subtitle">Upravljajte sistemske nastavitve</p>
-                        </div>
-                        <div class="content-card">
-                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">Firebase stanje</h3>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <button class="login-button" onclick="checkFirebaseConnection()" style="flex: 1; min-width: 200px;">
-                                    <span class="loading-spinner" id="connectSpinner" style="display: none;"></span>
-                                    <span id="connectText">Preveri povezavo</span>
-                                </button>
-                                <button class="login-button" onclick="reinitializeDefaultData()" style="flex: 1; min-width: 200px; background: var(--warning);">
-                                    <span class="loading-spinner" id="initSpinner" style="display: none;"></span>
-                                    <span id="initText">Ponastavi začetne podatke</span>
-                                </button>
-                            </div>
-                            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">
-                                <p><strong>Preveri povezavo:</strong> Testira povezavo z Firebase</p>
-                                <p><strong>Ponastavi začetne podatke:</strong> Naredi osnovni admin račun če ga ni</p>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
-        </div>
-    </main>
-
-    <!-- Chat Widget -->
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-bubble" onclick="toggleChat()">
-            <span class="icon">💬</span>
-        </div>
-        <div class="chat-window" id="chatWindow">
-            <div class="chat-header">
-                <div class="chat-title">
-                    <span>💬</span>
-                    <span>Nomago Chat</span>
-                </div>
-                <button class="chat-close" onclick="toggleChat()">&times;</button>
-            </div>
-            <div class="chat-user-info" id="chatUser">Chat uporabnik</div>
-            
-            <div class="chat-tabs">
-                <button class="chat-tab active" onclick="switchChatTab('messages')">💬 Sporočila</button>
-                <button class="chat-tab" onclick="switchChatTab('groups')">👥 Skupine</button>
-                <button class="chat-tab" onclick="switchChatTab('members')">👤 Člani</button>
-            </div>
-            
-            <div class="chat-content">
-                <!-- Messages Section -->
-                <div class="chat-section active" id="messagesSection">
-                    <div class="chat-messages" id="chatMessages">
-                        <div style="text-align: center; padding: 20px; color: #666;">
-                            <strong>🎉 Dobrodošli v Nomago Chat!</strong><br>
+</div>
+<button class="login-button" type="submit">
+<span class="loading-spinner" id="notificationSpinner" style="display: none;"></span>
+<span id="notificationText">Dodaj obvestilo</span>
+</button>
+</form>
+</div>
+<div class="content-card">
+<h3 style="margin-bottom: 1rem; color: var(--text-dark);">Obstoječa obvestila</h3>
+<div id="notificationsList">
+<!-- Notifications will be loaded here -->
+</div>
+</div>
+</div>
+<!-- General Settings Content -->
+<div class="content-section" id="generalSettingsContent">
+<div class="content-header">
+<h1 class="content-title">Splošne nastavitve</h1>
+<p class="content-subtitle">Upravljajte sistemske nastavitve</p>
+</div>
+<div class="content-card">
+<h3 style="margin-bottom: 1rem; color: var(--text-dark);">Firebase stanje</h3>
+<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+<button class="login-button" onclick="checkFirebaseConnection()" style="flex: 1; min-width: 200px;">
+<span class="loading-spinner" id="connectSpinner" style="display: none;"></span>
+<span id="connectText">Preveri povezavo</span>
+</button>
+<button class="login-button" onclick="reinitializeDefaultData()" style="flex: 1; min-width: 200px; background: var(--warning);">
+<span class="loading-spinner" id="initSpinner" style="display: none;"></span>
+<span id="initText">Ponastavi začetne podatke</span>
+</button>
+</div>
+<div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">
+<p><strong>Preveri povezavo:</strong> Testira povezavo z Firebase</p>
+<p><strong>Ponastavi začetne podatke:</strong> Naredi osnovni admin račun če ga ni</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</main>
+<!-- Chat Widget -->
+<div class="chat-widget" id="chatWidget">
+<div class="chat-bubble" onclick="toggleChat()">
+<span class="icon">💬</span>
+</div>
+<div class="chat-window" id="chatWindow">
+<div class="chat-header">
+<div class="chat-title">
+<span>💬</span>
+<span>Nomago Chat</span>
+</div>
+<button class="chat-close" onclick="toggleChat()">×</button>
+</div>
+<div class="chat-user-info" id="chatUser">Chat uporabnik</div>
+<div class="chat-tabs">
+<button class="chat-tab active" onclick="switchChatTab('messages')">💬 Sporočila</button>
+<button class="chat-tab" onclick="switchChatTab('groups')">👥 Skupine</button>
+<button class="chat-tab" onclick="switchChatTab('members')">👤 Člani</button>
+</div>
+<div class="chat-content">
+<!-- Messages Section -->
+<div class="chat-section active" id="messagesSection">
+<div class="chat-messages" id="chatMessages">
+<div style="text-align: center; padding: 20px; color: #666;">
+<strong>🎉 Dobrodošli v Nomago Chat!</strong><br/>
                             Chat sistem je pripravljen za uporabo.
                         </div>
-                    </div>
-                    <div class="chat-input">
-                        <textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
-                        <button onclick="sendMessage()">Pošlji</button>
-                    </div>
-                </div>
-                
-                <!-- Groups Section -->
-                <div class="chat-section" id="groupsSection">
-                    <div class="groups-header">
-                        <h4>Pogovorne skupine</h4>
-                        <button class="add-group-btn" onclick="showCreateGroupModal()">+ Dodaj</button>
-                    </div>
-                    <div class="groups-list" id="groupsList"></div>
-                </div>
-                
-                <!-- Members Section -->
-                <div class="chat-section" id="membersSection">
-                    <div class="add-members-section">
-                        <h5>Upravljanje članov</h5>
-                        <div class="add-member-form">
-                            <input type="text" class="add-member-input" id="newMemberName" placeholder="Ime in priimek">
-                            <button class="add-member-btn" onclick="addMemberToCurrentGroup()">Dodaj</button>
-                        </div>
-                        <div class="available-users">
-                            <h6>Dostopni uporabniki:</h6>
-                            <div id="availableUsers"></div>
-                        </div>
-                    </div>
-                    <div class="members-list" id="membersList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Group Modal -->
-    <div id="createGroupModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Ustvari novo skupino</h3>
-                <button class="close" onclick="closeCreateGroupModal()">&times;</button>
-            </div>
-            <form class="modal-form" onsubmit="createNewGroup(event)">
-                <input type="text" id="groupNameInput" placeholder="Ime skupine" required>
-                <textarea id="groupDescriptionInput" placeholder="Opis skupine (neobvezno)"></textarea>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button type="button" class="btn" onclick="closeCreateGroupModal()" style="flex: 1; background: #6c757d; color: white;">Prekliči</button>
-                    <button type="submit" class="login-button" style="flex: 1;">Ustvari</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Firebase Integration Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            setDoc, 
-            getDoc, 
-            getDocs, 
-            deleteDoc,
-            updateDoc,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
-            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
-            projectId: "nomago-bikes-portal-f33da",
-            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
-            messagingSenderId: "647987655592",
-            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
-            measurementId: "G-D1CBD3V7ZV"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Make Firebase functions globally available
-        window.firebaseDb = db;
-        window.firebaseFunctions = {
-            collection,
-            doc,
-            setDoc,
-            getDoc,
-            getDocs,
-            deleteDoc,
-            updateDoc,
-            serverTimestamp
-        };
-
-        console.log("Firebase initialized successfully");
-    </script>
-
-    <script>
+</div>
+<div class="chat-input">
+<textarea id="messageInput" placeholder="Napišite sporočilo..."></textarea>
+<button onclick="sendMessage()">Pošlji</button>
+</div>
+</div>
+<!-- Groups Section -->
+<div class="chat-section" id="groupsSection">
+<div class="groups-header">
+<h4>Pogovorne skupine</h4>
+<button class="add-group-btn" onclick="showCreateGroupModal()">+ Dodaj</button>
+</div>
+<div class="groups-list" id="groupsList"></div>
+</div>
+<!-- Members Section -->
+<div class="chat-section" id="membersSection">
+<div class="add-members-section">
+<h5>Upravljanje članov</h5>
+<div class="add-member-form">
+<input class="add-member-input" id="newMemberName" placeholder="Ime in priimek" type="text"/>
+<button class="add-member-btn" onclick="addMemberToCurrentGroup()">Dodaj</button>
+</div>
+<div class="available-users">
+<h6>Dostopni uporabniki:</h6>
+<div id="availableUsers"></div>
+</div>
+</div>
+<div class="members-list" id="membersList"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Create Group Modal -->
+<div class="modal" id="createGroupModal">
+<div class="modal-content">
+<div class="modal-header">
+<h3 class="modal-title">Ustvari novo skupino</h3>
+<button class="close" onclick="closeCreateGroupModal()">×</button>
+</div>
+<form class="modal-form" onsubmit="createNewGroup(event)">
+<input id="groupNameInput" placeholder="Ime skupine" required="" type="text"/>
+<textarea id="groupDescriptionInput" placeholder="Opis skupine (neobvezno)"></textarea>
+<div style="display: flex; gap: 1rem; margin-top: 1rem;">
+<button class="btn" onclick="closeCreateGroupModal()" style="flex: 1; background: #6c757d; color: white;" type="button">Prekliči</button>
+<button class="login-button" style="flex: 1;" type="submit">Ustvari</button>
+</div>
+</form>
+</div>
+</div>
+<!-- Firebase Integration Script -->
+<script>
         // System mapping for Firebase compatibility
         const SYSTEM_MAPPING = {
             'KolesCE': 'KOLESCE',
@@ -3503,124 +3437,77 @@
         window.removeMemberFromGroup = removeMemberFromGroup;
         window.goToHomePage = goToHomePage;
     </script>
-
 <!-- Chat Oblaček -->
 <div id="chatBubble" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;">
-  <button onclick="window.open('chat.html', '_blank', 'width=1000,height=800')" 
-          style="width: 60px; height: 60px; border-radius: 50%; border: none; 
+<button onclick="window.open('chat.html', '_blank', 'width=1000,height=800')" style="width: 60px; height: 60px; border-radius: 50%; border: none; 
                  background: linear-gradient(135deg, #004899, #fbb900); 
                  color: white; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
-                 cursor: pointer;" 
-          title="Odpri klepet">
+                 cursor: pointer;" title="Odpri klepet">
     💬
   </button>
 </div>
-
-
 <!-- Firebase + Chat Badge Script -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
-    authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
-    projectId: "nomago-bikes-portal-f33da",
-    storageBucket: "nomago-bikes-portal-f33da.appspot.com",
-    messagingSenderId: "647987655592",
-    appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
-    measurementId: "G-D1CBD3V7ZV"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  const chatBubble = document.getElementById("chatBubble");
-
-  // Create badge element
-  const badge = document.createElement("div");
-  badge.id = "chatUnreadBadge";
-  badge.style.position = "absolute";
-  badge.style.top = "0";
-  badge.style.right = "0";
-  badge.style.background = "red";
-  badge.style.color = "white";
-  badge.style.fontSize = "12px";
-  badge.style.fontWeight = "bold";
-  badge.style.padding = "2px 6px";
-  badge.style.borderRadius = "50%";
-  badge.style.transform = "translate(50%, -50%)";
-  badge.style.display = "none";
-
-  chatBubble.style.position = "relative";
-  chatBubble.appendChild(badge);
-
-  const currentUser = localStorage.getItem("currentUser");
-
-  if (currentUser) {
-    const messagesRef = collection(db, "messages");
-    const q = query(messagesRef, where("recipient", "==", currentUser), where("read", "==", false));
-
-    onSnapshot(q, (snapshot) => {
-      const unreadCount = snapshot.size;
-      badge.style.display = unreadCount > 0 ? "block" : "none";
-      badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
-    });
-  }
-</script>
-
-
 <!-- Firebase Messaging -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
-    authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
-    projectId: "nomago-bikes-portal-f33da",
-    storageBucket: "nomago-bikes-portal-f33da.appspot.com",
-    messagingSenderId: "647987655592",
-    appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
-    measurementId: "G-D1CBD3V7ZV"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+  authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+  projectId: "nomago-bikes-portal-f33da",
+  storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+  messagingSenderId: "647987655592",
+  appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+  measurementId: "G-D1CBD3V7ZV"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const messaging = getMessaging(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+console.log("✅ Firebase initialized: ", firebaseConfig.projectId);
 
-  const currentUser = localStorage.getItem("currentUser");
-
-  if (currentUser) {
-    Notification.requestPermission().then((permission) => {
-      if (permission === 'granted') {
-        getToken(messaging, { vapidKey: "47kUsRhptIxJgNJGkrYJqjB3oyebqGVHaIXh7UEPJyI" })
-          .then((currentToken) => {
-            if (currentToken) {
-              const tokenRef = doc(db, "userTokens", currentUser);
-              setDoc(tokenRef, { token: currentToken }, { merge: true });
-              console.log("Push token saved:", currentToken);
-            } else {
-              console.log("Ni bilo mogoče pridobiti FCM žetona.");
-            }
-          }).catch((err) => {
-            console.log("Napaka pri pridobivanju FCM žetona:", err);
-          });
-      }
-    });
-
-    onMessage(messaging, (payload) => {
-      console.log("Prejeto sporočilo v ospredju:", payload);
-      const notificationTitle = payload.notification.title;
-      const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/android-chrome-192x192.png'
-      };
-      new Notification(notificationTitle, notificationOptions);
-    });
+// DEBUG test: preberi uporabnike
+window.testFirebaseUsers = async () => {
+  try {
+    const usersSnap = await getDocs(collection(db, "users"));
+    console.log("📦 Št. uporabnikov:", usersSnap.size);
+    usersSnap.forEach(doc => console.log("👤", doc.id, doc.data()));
+  } catch (e) {
+    console.error("❌ Napaka pri branju uporabnikov:", e);
   }
-</script>
+};
+window.testFirebaseUsers();
 
-</body>
+// Spremljamo oddajo obrazca in preverimo, ali uporabnik res pride v bazo
+const addUserForm = document.getElementById("addUserForm");
+if (addUserForm) {
+  addUserForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("newUsername")?.value || "";
+    const firstName = document.getElementById("newFirstName")?.value || "";
+    const lastName = document.getElementById("newLastName")?.value || "";
+    const role = document.getElementById("newRole")?.value || "";
+    const systems = [...document.querySelectorAll('input[name="newSystems"]:checked')].map(i => i.value);
+
+    try {
+      const userRef = collection(db, "users");
+      await window.firebaseFunctions.setDoc(
+        window.firebaseFunctions.doc(db, "users", username),
+        {
+          ime: firstName,
+          priimek: lastName,
+          vloga: role,
+          sistemi: systems,
+          uporabniskoIme: username
+        }
+      );
+      console.log("✅ Uporabnik dodan:", username);
+      alert("✅ Uporabnik uspešno dodan v Firebase!");
+    } catch (err) {
+      console.error("❌ Napaka pri dodajanju uporabnika:", err);
+      alert("❌ Napaka pri shranjevanju uporabnika.");
+    }
+  });
+}
+</script></body>
 </html>
