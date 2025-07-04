@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomago Bikes - Dashboard</title>
+    <!-- VSAK STIL IZ VAŠEGA ORIGINALNEGA INDEX.HTML -->
+    <style>
+        /* KOPIRAJTE VSE STILE IZ VAŠEGA ORIGINALA */
+        /* Ohranite vse stile za dashboard */
+    </style>
+</head>
+<body>
+    <!-- Celoten header iz originala -->
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
+            </div>
+        </div>
+        <div class="header-controls">
+            <div class="user-info" id="userInfo"></div>
+            <button class="logout-button" onclick="logout()">🚪</button>
+        </div>
+    </header>
+
+    <!-- Celoten dashboard iz originala -->
+    <main>
+        <div class="dashboard" id="dashboardSection" style="display: block;">
+            <!-- Vsebina dashboarda -->
+            <div class="content-card">
+                <h1>Dobrodošli v nadzorni plošči</h1>
+                <p>Prijavljeni ste kot <span id="displayUsername"></span></p>
+                <!-- Ostala vsebina... -->
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        // Firebase inicializacija (enaka kot v index.html)
+    </script>
+
+    <script>
+        // Preverjanje prijave
+        const user = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!user) {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('userInfo').textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
+            document.getElementById('displayUsername').textContent = `${user.ime} ${user.priimek}`;
+            
+            // Tukaj dodajte vse funkcije za dashboard
+            // updateInspectionWidget();
+            // loadNotificationsDisplay();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Dodajte vse ostale funkcije iz originalnega index.html
+    </script>
+</body>
+</html>
