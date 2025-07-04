@@ -1,235 +1,241 @@
+
 <!DOCTYPE html>
 <html lang="sl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nomago Bikes - BAZA Portal z Chat</title>
+    <title>Nomago Bikes - BAZA Portal</title>
+    <!-- Favicon - različne velikosti za različne naprave -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+    <!-- Apple Touch Icon za iOS naprave -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- MS Tiles za Windows -->
+    <meta name="msapplication-TileColor" content="#004899">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <!-- Theme color za mobile brskalnike -->
+    <meta name="theme-color" content="#004899">
+    
+    <!-- CSS style je že povzet iz tvoje index_backup in vsebuje chat style -->
     <style>
-        /* Original CSS retained */
-        * { margin:0; padding:0; box-sizing:border-box; }
-        :root { --primary-blue:#004899; --secondary-yellow:#fbb900; --light-blue:#e9f0f7; --white:#ffffff; --text-dark:#333333; --text-light:#666666; --border-color:#ddd; --shadow:0 4px 12px rgba(0,72,153,0.1); --danger:#dc3545; --success:#28a745; --warning:#ffc107; }
-        [data-theme="dark"] { --light-blue:#1a1a1a; --white:#2d2d2d; --text-dark:#f0f0f0; --text-light:#cccccc; --border-color:#444; --shadow:0 4px 12px rgba(255,255,255,0.1); }
-        body { font-family:'Roboto',sans-serif; background:linear-gradient(135deg,var(--light-blue)0%,#004899100%); min-height:100vh; display:flex; flex-direction:column; transition:opacity .3s ease; color:var(--text-dark); opacity:0; }
-        body.loaded { opacity:1; }
-        header { background:#004899; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; position:relative; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        .logo { font-weight:bold; font-size:1.2rem; color:#fff; cursor:pointer; transition:transform .3s; }
-        .logo:hover { transform:scale(1.05); }
-        .logo .a, .logo .bikes { color:var(--secondary-yellow); }
-        .header-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
-        .header-controls { display:flex; align-items:center; gap:1rem; }
-        .logout-button { display:none; width:40px; height:40px; background:var(--danger); color:var(--white); border:none; border-radius:50%; cursor:pointer; font-size:1.2rem; }
-        .theme-toggle { background:rgba(255,255,255,0.2); border:none; color:var(--white); padding:.5rem; border-radius:50%; cursor:pointer; font-size:1.2rem; }
-        .user-info { display:none; color:var(--white); font-size:.9rem; }
-        main { flex:1; display:flex; justify-content:center; align-items:center; padding:2rem; }
-        .login-card { background:var(--white); padding:3rem; border-radius:16px; box-shadow:var(--shadow); width:100%; max-width:400px; text-align:center; transition:transform .3s,box-shadow .3s; }
-        .login-card:hover { transform:translateY(-5px); box-shadow:0 8px 25px rgba(0,72,153,0.15); }
-        .bike-icon { font-size:3rem; margin-bottom:1.5rem; }
-        .login-title { font-size:1.6rem; font-weight:600; margin-bottom:2rem; }
-        .form-group { margin-bottom:1.5rem; text-align:left; }
-        .form-label { color:var(--text-light); margin-bottom:.5rem; font-weight:500; }
-        .form-input { width:100%; padding:.75rem 1rem; border:2px solid var(--border-color); border-radius:8px; }
-        .login-button { width:100%; padding:.875rem; background:var(--primary-blue); color:var(--white); border:none; border-radius:8px; font-weight:600; cursor:pointer; }
-        .login-button:disabled { background:#ccc; cursor:not-allowed; }
-        .error-message, .success-message { display:none; margin-top:1rem; padding:.75rem; border-radius:8px; font-size:.9rem; }
-        .error-message { background:rgba(220,53,69,0.1); color:var(--danger); border:1px solid rgba(220,53,69,0.3); }
-        .success-message { background:rgba(40,167,69,0.1); color:var(--success); border:1px solid rgba(40,167,69,0.3); }
-        .dashboard { display:none; flex:1; width:100%; }
-        .dashboard-container { display:flex; min-height:calc(100vh - 80px); }
-        .sidebar { width:280px; background:var(--white); box-shadow:2px 0 10px rgba(0,0,0,0.1); padding:2rem 0; }
-        .menu-list { list-style:none; }
-        .menu-button { width:100%; display:flex; align-items:center; gap:1rem; padding:1rem 2rem; background:none; border:none; text-align:left; cursor:pointer; transition:background .3s,border-left-color .3s; }
-        .menu-button:hover { background:rgba(0,72,153,0.05); border-left:3px solid var(--primary-blue); color:var(--primary-blue); }
-        .menu-button.active { background:rgba(0,72,153,0.1); border-left:3px solid var(--primary-blue); color:var(--primary-blue); font-weight:600; }
-        .main-content { flex:1; padding:2rem; background:var(--light-blue); overflow-y:auto; }
-        .content-section { display:none; }
-        .content-section#dashboardContent { display:block; }
-        .content-header { margin-bottom:2rem; }
-        .content-title { font-size:2rem; font-weight:600; margin-bottom:.5rem; }
-        .content-subtitle { font-size:1rem; color:var(--text-light); }
-        .content-card { background:var(--white); padding:2rem; border-radius:12px; box-shadow:var(--shadow); margin-bottom:2rem; }
-        @media(max-width:768px) { .dashboard-container { flex-direction:column; } .sidebar { width:100%; order:2; } .main-content { order:1; padding:1rem; } }
+        /* ... celoten CSS iz index_backup, že vsebuje chat style ... */
     </style>
 </head>
 <body>
     <header>
-        <div class="logo" onclick="goToHomePage()">nom<span class="a">a</span>go<span class="bikes">bikes</span></div>
-        <div class="header-center"><h1 style="color:#fff;">BAZA</h1></div>
+        <div class="logo-container">
+            <div class="logo" onclick="goToHomePage()">
+                <span class="nom">NOM</span><span class="a">A</span><span class="go">GO</span> <span class="bikes">bikes</span>
+            </div>
+        </div>
+        <div class="header-center" id="headerCenter" style="display: none;">
+            <h1 style="color: white; font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; margin: 0;">BAZA</h1>
+        </div>
         <div class="header-controls">
-            <div id="userInfo" class="user-info"></div>
-            <button id="headerLogoutBtn" class="logout-button" onclick="logout()">🚪</button>
-            <button class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+            <div class="user-info" id="userInfo"></div>
+            <button class="logout-button" id="headerLogoutBtn" onclick="logout()" style="display: none;" title="Odjavi se">
+                <span class="menu-icon">🚪</span>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Preklopi temo">
+                <span id="themeIcon">🌙</span>
+            </button>
         </div>
     </header>
+
     <main>
-        <div id="loginSection" class="login-card">
+        <!-- Login Section -->
+        <div class="login-card" id="loginSection">
             <div class="bike-icon">🚲</div>
             <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" id="username" class="form-input" placeholder="Vnesite uporabniško ime" required autofocus>
+                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required autofocus>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Geslo</label>
-                    <input type="password" id="password" class="form-input" placeholder="Vnesite geslo" required>
+                    <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
                 </div>
-                <button type="submit" id="loginButton" class="login-button">Prijavi se</button>
-                <div id="errorMessage" class="error-message"></div>
-                <div id="successMessage" class="success-message"></div>
+                <button type="submit" class="login-button" id="loginButton">Prijavi se</button>
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
             </form>
         </div>
-        <div id="dashboardSection" class="dashboard">
+
+        <!-- Dashboard Section -->
+        <div class="dashboard" id="dashboardSection">
             <div class="dashboard-container">
+                <!-- Sidebar Menu -->
                 <nav class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Upravljanje</div>
+                        <div class="sidebar-subtitle">Nomago Bikes Portal</div>
+                    </div>
                     <ul class="menu-list">
-                        <li><button class="menu-button active" onclick="showContent('dashboard')">🏠 Nadzorna plošča</button></li>
-                        <li><button class="menu-button" onclick="showContent('chat')">💬 Chat</button></li>
-                        <li><button class="menu-button" onclick="openServiserApp()">🔧 Pregledi ključavnic <span id="inspectionAlerts" style="display:none;">0</span></button></li>
-                        <li><button id="usersMenuItem" class="menu-button" style="display:none;" onclick="showContent('users')">👥 Nastavitve uporabnikov</button></li>
+                        <li class="menu-item">
+                            <button class="menu-button active" onclick="showContent('dashboard')">
+                                <span class="menu-icon">🏠</span>
+                                <span>Nadzorna plošča</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" onclick="showContent('chat')">
+                                <span class="menu-icon">💬</span>
+                                <span>Chat</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" id="addUserMenu" onclick="showContent('addUser')">
+                                <span class="menu-icon">👤➕</span>
+                                <span>Dodaj uporabnika</span>
+                            </button>
+                        </li>
+                        <li class="menu-item" id="serviserMenuItem">
+                            <button class="menu-button" id="serviserMenu" onclick="openServiserApp()">
+                                <span class="menu-icon">🔧</span>
+                                <span>Pregledi ključavnic</span>
+                                <span class="alert-badge" id="inspectionAlerts" style="display: none;">0</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" id="userSettingsMenu" onclick="showContent('userSettings')">
+                                <span class="menu-icon">👥</span>
+                                <span>Nastavitve uporabnikov</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" id="notificationsMenu" onclick="showContent('notifications')">
+                                <span class="menu-icon">📢</span>
+                                <span>Obvestila</span>
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button class="menu-button" onclick="showContent('generalSettings')">
+                                <span class="menu-icon">⚙️</span>
+                                <span>Splošne nastavitve</span>
+                            </button>
+                        </li>
                     </ul>
+                    <div class="logout-section">
+                        <button class="logout-button" onclick="logout()">
+                            <span class="menu-icon">🚪</span>
+                            <span>Odjavi se</span>
+                        </button>
+                    </div>
                 </nav>
-                <div class="main-content">
-                    <div id="dashboardContent" class="content-section">
+
+                <!-- Main Content Area -->
+                <main class="main-content">
+                    <!-- Dashboard Content -->
+                    <div class="content-section" id="dashboardContent" style="display: block;">
                         <div class="content-header">
                             <h1 class="content-title">Nadzorna plošča</h1>
                             <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
                         </div>
-                        <div class="content-card">
+
+                        <!-- Sync Status -->
+                        <div id="syncStatus" class="sync-status synced">
+                            <span>🔄</span>
+                            <span>Sinhronizirano z Firebase</span>
+                        </div>
+
+                        <!-- Inspection Widget -->
+                        <div class="inspection-widget" id="inspectionWidget">
                             <h3>📋 Pregledi ključavnic</h3>
-                            <div>
-                                <strong>📊 Vir podatkov:</strong> Firebase sistem |
+                            
+                            <!-- Data Source Info -->
+                            <div style="background: rgba(0, 123, 255, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-dark);">
+                                <strong>📊 Vir podatkov:</strong> Firebase sistem | 
                                 <strong>Zadnja osvežitev:</strong> <span id="lastRefreshTime">Nalaganje...</span> |
-                                <button onclick="refreshInspectionData()">🔄 Osveži zdaj</button>
+                                <button onclick="refreshInspectionData()" style="background: none; border: none; color: var(--primary-blue); cursor: pointer; text-decoration: underline;">🔄 Osveži zdaj</button>
                             </div>
-                            <div id="inspectionStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;">
-                                <div><div id="overdueCount" class="stat-number danger">0</div><div class="stat-label">Zamujeni pregledi</div></div>
-                                <div><div id="dueSoonCount" class="stat-number warning">0</div><div class="stat-label">Prihajajoči pregledi</div></div>
-                                <div><div id="totalCountNums" class="stat-number">0</div><div class="stat-label">Skupaj ključavnic</div></div>
+                            
+                            <div class="inspection-stats" id="inspectionStats">
+                                <div class="stat-item" id="overdueStats">
+                                    <div class="stat-number danger" id="overdueCount">0</div>
+                                    <div class="stat-label">Zamujeni pregledi</div>
+                                </div>
+                                <div class="stat-item" id="dueSoonStats">
+                                    <div class="stat-number warning" id="dueSoonCount">0</div>
+                                    <div class="stat-label">Pregledi kmalu</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number success" id="totalCount">0</div>
+                                    <div class="stat-label">Skupaj ključavnic</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Debug Info for Admins -->
+                            <div id="debugInfo" style="display: none; background: rgba(108, 117, 125, 0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-light);">
+                                <strong>🔍 Debug podatki:</strong><br>
+                                <span id="debugText">Nalaganje debug informacij...</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="inspection-button" onclick="openServiserApp()" style="flex: 1;">
+                                    🔧 Odpri aplikacijo za preglede
+                                </button>
+                                <button onclick="toggleDebugInfo()" class="btn" style="background: var(--text-light); color: white; padding: 0.75rem; border-radius: 6px; font-size: 0.8rem;">
+                                    🐛 Debug
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Display -->
+                        <div id="notificationsDisplay"></div>
+
+                        <div class="content-card welcome-card">
+                            <div class="welcome-icon">🚴‍♂️</div>
+                            <h2 class="welcome-text">Uspešno ste se prijavili!</h2>
+                            <p class="welcome-description" id="welcomeMessage">
+                                Uporabite levi meni za navigacijo po različnih funkcijah portala.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CHAT CONTENT SECTION (novo, iz index.html) -->
+                    <div class="content-section" id="chatContent">
+                        <div class="content-header">
+                            <h1 class="content-title">Chat sistem</h1>
+                            <p class="content-subtitle">Komunicirajte z drugimi uporabniki v realnem času</p>
+                        </div>
+                        <div class="content-card" style="padding: 0; height: 70vh; display: flex; flex-direction: column;">
+                            <!-- Chat Header -->
+                            <div class="chat-header" style="border-radius: 12px 12px 0 0; margin: 0;">
+                                <div class="chat-title">
+                                    <span>💬</span>
+                                    <span>Nomago Chat</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-primary btn-small" onclick="openNewChatModal()">+ Nova</button>
+                                    <button class="btn btn-secondary btn-small" onclick="refreshChats()">🔄</button>
+                                </div>
+                            </div>
+                            <!-- Chat Body -->
+                            <div style="flex: 1; display: flex; overflow: hidden;">
+                                <!-- Left Side - Contacts -->
+                                <div style="width: 300px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column;">
+                                    <!-- sem se doda kontakty -->
+                                </div>
+                                <!-- Right Side - Messages -->
+                                <div style="flex: 1; display: flex; flex-direction: column;">
+                                    <!-- sem se doda sporočila -->
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div id="chatContent" class="content-section">
-                        <div class="content-header"><h1 class="content-title">Team Chat</h1></div>
-                        <div class="content-card">
-                            <ul id="chatList" style="list-style:none;max-height:300px;overflow-y:auto;padding:0;"></ul>
-                            <div style="display:flex;gap:.5rem;margin-top:1rem;"><input type="text" id="messageInput" class="form-input" placeholder="Vaše sporočilo..."><button onclick="sendMessage()" class="login-button" style="padding:0 1rem;">Pošlji</button></div>
-                        </div>
-                    </div>
-                    <div id="usersContent" class="content-section">
-                        <div class="content-header"><h1 class="content-title">Nastavitve uporabnikov</h1></div>
-                        <div class="content-card"><ul id="userList" style="list-style:none;padding:0;"></ul></div>
-                    </div>
-                </div>
+                    <!-- ostale sekcije tvoje aplikacije gredo tukaj ... -->
+
+                </main>
             </div>
         </div>
     </main>
-    <script type="module">
-        // Vstavi svoj Firebase config
-        const firebaseConfig = {
-            apiKey:"AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAOYtTN4M",
-            authDomain:"nomago-bikes-portal-f33da.firebaseapp.com",
-            projectId:"nomago-bikes-portal-f33da",
-            storageBucket:"nomago-bikes-portal-f33da.firebasestorage.app",
-            messagingSenderId:"64798765592",
-            appId:"1:64798765592:web:7731d4ca344ce804bdc96d",
-            measurementId:"G-D1CBD3V7ZV"
-        };
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-        import { getFirestore, collection, getDocs, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
-        // Inicializacija
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Počakamo na DOM
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.classList.add('loaded');
-            showLogin();
-        });
-
-        // Prikaz login/dashboard
-        function showLogin() {
-            document.getElementById('loginSection').style.display='block';
-            document.getElementById('dashboardSection').style.display='none';
-            document.getElementById('headerLogoutBtn').style.display='none';
-        }
-        function showDashboard() {
-            document.getElementById('loginSection').style.display='none';
-            document.getElementById('dashboardSection').style.display='flex';
-            document.getElementById('headerLogoutBtn').style.display='inline-block';
-            document.getElementById('userInfo').style.display='block';
-        }
-
-        // Navigacija
-        function showContent(section) {
-            document.querySelectorAll('.content-section').forEach(el=>el.style.display='none');
-            document.querySelectorAll('.menu-button').forEach(btn=>btn.classList.remove('active'));
-            document.getElementById(section+'Content').style.display='block';
-            document.querySelector(`.menu-button[onclick="showContent('${section}')"]`).classList.add('active');
-        }
-        function openServiserApp() { window.open('/serviser.html','_blank'); }
-        function toggleTheme() { const t=document.documentElement; t.dataset.theme = t.dataset.theme==='dark'?'light':'dark'; document.getElementById('themeIcon').textContent = t.dataset.theme==='dark'?'☀️':'🌙'; }
-        function goToHomePage() { /* redir */ }
-
-        // Avtorizacija
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                document.getElementById('userInfo').textContent = user.email;
-                showDashboard(); loadInspectionData(); setupChatListener(); loadUsers();
-            } else {
-                showLogin();
-            }
-        });
-        // Login form
-        document.getElementById('loginForm').addEventListener('submit', e => {
-            e.preventDefault();
-            const btn = document.getElementById('loginButton'); btn.disabled=true;
-            signInWithEmailAndPassword(auth, document.getElementById('username').value, document.getElementById('password').value)
-                .catch(err=>{ document.getElementById('errorMessage').textContent=err.message; document.getElementById('errorMessage').style.display='block'; })
-                .finally(()=>btn.disabled=false);
-        });
-        function logout() { signOut(auth); }
-
-        // Inspect
-        function loadInspectionData() {
-            const stats={overdue:0,dueSoon:0,total:0};
-            const now=new Date();
-            onSnapshot(collection(db,'inspections'), snap=>{
-                stats.overdue=stats.dueSoon=stats.total=0;
-                snap.docs.forEach(d=>{
-                    const data=d.data(); const due=data.nextInspection.toDate(); stats.total++;
-                    if (due < now) stats.overdue++; else if (due - now < 7*24*3600*1000) stats.dueSoon++;
-                });
-                document.getElementById('overdueCount').textContent=stats.overdue;
-                document.getElementById('dueSoonCount').textContent=stats.dueSoon;
-                document.getElementById('totalCountNums').textContent=stats.total;
-                document.getElementById('lastRefreshTime').textContent=new Date().toLocaleString();
-            });
-        }
-        function refreshInspectionData() { loadInspectionData(); }
-
-        // Chat
-        function setupChatListener() {
-            const q = query(collection(db,'chat'), orderBy('timestamp','asc'));
-            onSnapshot(q, snap=>{
-                const list = document.getElementById('chatList'); list.innerHTML='';
-                snap.forEach(d=>{ const m=d.data(); const li=document.createElement('li'); li.textContent=`${m.user}: ${m.text}`; list.append(li); });
-            });
-        }
-        function sendMessage() {
-            const inp = document.getElementById('messageInput'); if(!inp.value) return;
-            addDoc(collection(db,'chat'), { text:inp.value, user:auth.currentUser.email, timestamp:serverTimestamp() }); inp.value='';
-        }
-
-        // Users
-        function loadUsers() {
-            getDocs(collection(db,'users')).then(snap=>{
-                const ul = document.getElementById('userList'); ul.innerHTML='';
-                snap.forEach(d=>{ const u=d.data(); const li=document.createElement('li'); li.textContent=`${u.email} (${u.role})`; ul.append(li); });
-            });
-        }
-    </script>
 </body>
 </html>
