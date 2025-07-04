@@ -3503,5 +3503,124 @@
         window.removeMemberFromGroup = removeMemberFromGroup;
         window.goToHomePage = goToHomePage;
     </script>
+
+<!-- Chat Oblaček -->
+<div id="chatBubble" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;">
+  <button onclick="window.open('chat.html', '_blank', 'width=1000,height=800')" 
+          style="width: 60px; height: 60px; border-radius: 50%; border: none; 
+                 background: linear-gradient(135deg, #004899, #fbb900); 
+                 color: white; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+                 cursor: pointer;" 
+          title="Odpri klepet">
+    💬
+  </button>
+</div>
+
+
+<!-- Firebase + Chat Badge Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+    authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+    projectId: "nomago-bikes-portal-f33da",
+    storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+    messagingSenderId: "647987655592",
+    appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+    measurementId: "G-D1CBD3V7ZV"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const chatBubble = document.getElementById("chatBubble");
+
+  // Create badge element
+  const badge = document.createElement("div");
+  badge.id = "chatUnreadBadge";
+  badge.style.position = "absolute";
+  badge.style.top = "0";
+  badge.style.right = "0";
+  badge.style.background = "red";
+  badge.style.color = "white";
+  badge.style.fontSize = "12px";
+  badge.style.fontWeight = "bold";
+  badge.style.padding = "2px 6px";
+  badge.style.borderRadius = "50%";
+  badge.style.transform = "translate(50%, -50%)";
+  badge.style.display = "none";
+
+  chatBubble.style.position = "relative";
+  chatBubble.appendChild(badge);
+
+  const currentUser = localStorage.getItem("currentUser");
+
+  if (currentUser) {
+    const messagesRef = collection(db, "messages");
+    const q = query(messagesRef, where("recipient", "==", currentUser), where("read", "==", false));
+
+    onSnapshot(q, (snapshot) => {
+      const unreadCount = snapshot.size;
+      badge.style.display = unreadCount > 0 ? "block" : "none";
+      badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
+    });
+  }
+</script>
+
+
+<!-- Firebase Messaging -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+    authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+    projectId: "nomago-bikes-portal-f33da",
+    storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+    messagingSenderId: "647987655592",
+    appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+    measurementId: "G-D1CBD3V7ZV"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+  const db = getFirestore(app);
+
+  const currentUser = localStorage.getItem("currentUser");
+
+  if (currentUser) {
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        getToken(messaging, { vapidKey: "47kUsRhptIxJgNJGkrYJqjB3oyebqGVHaIXh7UEPJyI" })
+          .then((currentToken) => {
+            if (currentToken) {
+              const tokenRef = doc(db, "userTokens", currentUser);
+              setDoc(tokenRef, { token: currentToken }, { merge: true });
+              console.log("Push token saved:", currentToken);
+            } else {
+              console.log("Ni bilo mogoče pridobiti FCM žetona.");
+            }
+          }).catch((err) => {
+            console.log("Napaka pri pridobivanju FCM žetona:", err);
+          });
+      }
+    });
+
+    onMessage(messaging, (payload) => {
+      console.log("Prejeto sporočilo v ospredju:", payload);
+      const notificationTitle = payload.notification.title;
+      const notificationOptions = {
+        body: payload.notification.body,
+        icon: '/android-chrome-192x192.png'
+      };
+      new Notification(notificationTitle, notificationOptions);
+    });
+  }
+</script>
+
 </body>
 </html>
