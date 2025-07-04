@@ -6,7 +6,7 @@
     <title>Nomago Bikes - BAZA Portal z Chat</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary-blue: #004899;
             --secondary-yellow: #fbb900;
@@ -26,45 +26,37 @@
             --text-dark: #f0f0f0;
             --text-light: #cccccc;
             --border-color: #444;
-            --shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 12px rgba(255,255,255,0.1);
         }
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-            color: var(--text-dark);
-        }
-        body.loaded { opacity: 1; }
-        header { background: #004899; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo-container { display: flex; align-items: center; gap: 1rem; }
-        .logo { font-weight: bold; font-size: 1.2rem; color: white; cursor: pointer; transition: transform 0.3s; }
-        .logo:hover { transform: scale(1.05); }
-        .header-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-        .header-controls { display: flex; align-items: center; gap: 1rem; }
-        .logout-button { width: 40px; height: 40px; background: var(--danger); color: var(--white); border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: none; }
-        .theme-toggle { background: rgba(255,255,255,0.2); border: none; color: var(--white); padding: 0.5rem; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
-        .user-info { color: var(--white); font-size: 0.9rem; display: none; }
+        body { font-family:'Roboto',sans-serif; background:linear-gradient(135deg,var(--light-blue) 0%,#004899 100%); min-height:100vh; display:flex; flex-direction:column; transition:opacity 0.3s ease; color:var(--text-dark); opacity:0; }
+        body.loaded { opacity:1; }
+        header { background:#004899; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; position:relative; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        .logo { font-weight:bold; font-size:1.2rem; color:#fff; cursor:pointer; transition:transform 0.3s; }
+        .logo:hover { transform:scale(1.05); }
+        .logo .a, .logo .bikes { color:var(--secondary-yellow); }
+        .header-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+        .header-controls { display:flex; align-items:center; gap:1rem; }
+        .logout-button { display:none; width:40px; height:40px; background:var(--danger); color:var(--white); border:none; border-radius:50%; cursor:pointer; font-size:1.2rem; }
+        .theme-toggle { background:rgba(255,255,255,0.2); border:none; color:var(--white); padding:0.5rem; border-radius:50%; cursor:pointer; font-size:1.2rem; }
+        .user-info { display:none; color:var(--white); font-size:0.9rem; }
         main { flex:1; display:flex; justify-content:center; align-items:center; padding:2rem; }
-        .login-card { background: var(--white); padding:3rem; border-radius:16px; box-shadow: var(--shadow); width:100%; max-width:400px; text-align:center; transition: transform 0.3s, box-shadow 0.3s; }
-        .login-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,72,153,0.15); }
+        .login-card { background:var(--white); padding:3rem; border-radius:16px; box-shadow:var(--shadow); width:100%; max-width:400px; text-align:center; transition:transform 0.3s,box-shadow 0.3s; }
+        .login-card:hover { transform:translateY(-5px); box-shadow:0 8px 25px rgba(0,72,153,0.15); }
         .bike-icon { font-size:3rem; margin-bottom:1.5rem; }
         .login-title { font-size:1.6rem; font-weight:600; margin-bottom:2rem; }
         .form-group { margin-bottom:1.5rem; text-align:left; }
-        .form-label { display:block; color: var(--text-light); margin-bottom:0.5rem; font-weight:500; }
+        .form-label { color:var(--text-light); margin-bottom:0.5rem; font-weight:500; }
         .form-input { width:100%; padding:0.75rem 1rem; border:2px solid var(--border-color); border-radius:8px; }
-        .login-button { width:100%; padding:0.875rem; background:#004899; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+        .login-button { width:100%; padding:0.875rem; background:var(--primary-blue); color:var(--white); border:none; border-radius:8px; font-weight:600; cursor:pointer; }
         .login-button:disabled { background:#ccc; cursor:not-allowed; }
         .error-message, .success-message { display:none; margin-top:1rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; }
         .error-message { background:rgba(220,53,69,0.1); color:var(--danger); border:1px solid rgba(220,53,69,0.3); }
         .success-message { background:rgba(40,167,69,0.1); color:var(--success); border:1px solid rgba(40,167,69,0.3); }
-        .dashboard { display:none; flex:1; }
+        .dashboard { display:none; flex:1; width:100%; }
         .dashboard-container { display:flex; min-height:calc(100vh - 80px); }
         .sidebar { width:280px; background:var(--white); box-shadow:2px 0 10px rgba(0,0,0,0.1); padding:2rem 0; }
         .menu-list { list-style:none; }
-        .menu-button { width:100%; display:flex; align-items:center; gap:1rem; padding:1rem 2rem; background:none; border:none; text-align:left; cursor:pointer; transition: background 0.3s, border-left-color 0.3s; }
+        .menu-button { width:100%; display:flex; align-items:center; gap:1rem; padding:1rem 2rem; background:none; border:none; text-align:left; cursor:pointer; transition:background 0.3s,border-left-color 0.3s; }
         .menu-button:hover { background:rgba(0,72,153,0.05); border-left:3px solid var(--primary-blue); color:var(--primary-blue); }
         .menu-button.active { background:rgba(0,72,153,0.1); border-left:3px solid var(--primary-blue); color:var(--primary-blue); font-weight:600; }
         .main-content { flex:1; padding:2rem; background:var(--light-blue); overflow-y:auto; }
@@ -74,70 +66,180 @@
         .content-title { font-size:2rem; font-weight:600; margin-bottom:0.5rem; }
         .content-subtitle { font-size:1rem; color:var(--text-light); }
         .content-card { background:var(--white); padding:2rem; border-radius:12px; box-shadow:var(--shadow); margin-bottom:2rem; }
-        /* Responsive */
         @media(max-width:768px) { .dashboard-container { flex-direction:column; } .sidebar { width:100%; order:2; } .main-content { order:1; padding:1rem; } }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo-container"><div class="logo" onclick="goToHomePage()">NOM<span style="color:#fbb900;">A</span>GO<span style="color:#fbb900;">bikes</span></div></div>
+        <div class="logo" onclick="goToHomePage()">nom<span class="a">a</span>go<span class="bikes">bikes</span></div>
         <div class="header-center" id="headerCenter"><h1 style="color:#fff;">BAZA</h1></div>
         <div class="header-controls">
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-button" id="headerLogoutBtn" onclick="logout()">🚪</button>
+            <div id="userInfo" class="user-info"></div>
+            <button id="headerLogoutBtn" class="logout-button" onclick="logout()">🚪</button>
             <button class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
         </div>
     </header>
     <main>
-        <div class="login-card" id="loginSection">
+        <div id="loginSection" class="login-card">
             <div class="bike-icon">🚲</div>
             <h1 class="login-title">Dobrodošli v Nomago Bikes</h1>
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label" for="username">Uporabniško ime</label>
-                    <input type="text" class="form-input" id="username" placeholder="Vnesite uporabniško ime" required autofocus>
+                    <input type="text" id="username" class="form-input" placeholder="Vnesite uporabniško ime" required autofocus>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Geslo</label>
-                    <input type="password" class="form-input" id="password" placeholder="Vnesite geslo" required>
+                    <input type="password" id="password" class="form-input" placeholder="Vnesite geslo" required>
                 </div>
-                <button type="submit" class="login-button" id="loginButton">Prijavi se</button>
-                <div class="error-message" id="errorMessage"></div>
-                <div class="success-message" id="successMessage"></div>
+                <button type="submit" id="loginButton" class="login-button">Prijavi se</button>
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
             </form>
         </div>
-        <div class="dashboard" id="dashboardSection">
+        <div id="dashboardSection" class="dashboard">
             <div class="dashboard-container">
                 <nav class="sidebar">
                     <ul class="menu-list">
                         <li><button class="menu-button active" onclick="showContent('dashboard')">🏠 Nadzorna plošča</button></li>
                         <li><button class="menu-button" onclick="showContent('chat')">💬 Chat</button></li>
-                        <li><button class="menu-button" onclick="openServiserApp()">🔧 Pregledi ključavnic <span id="inspectionAlerts" class="alert-badge" style="display:none;">0</span></button></li>
-                        <li id="usersMenuItem" style="display:none;"><button class="menu-button" onclick="showContent('users')">👥 Nastavitve uporabnikov</button></li>
+                        <li><button class="menu-button" onclick="openServiserApp()">🔧 Pregledi ključavnic <span id="inspectionAlerts" style="display:none;">0</span></button></li>
+                        <li><button id="usersMenuItem" class="menu-button" style="display:none;" onclick="showContent('users')">👥 Nastavitve uporabnikov</button></li>
                     </ul>
                 </nav>
                 <div class="main-content">
-                    <!-- Dashboard Content -->
-                    <div class="content-section" id="dashboardContent">
-                        <!-- ... inspection widget & welcome ... -->
+                    <div id="dashboardContent" class="content-section">
+                        <div class="content-header">
+                            <h1 class="content-title">Nadzorna plošča</h1>
+                            <p class="content-subtitle">Dobrodošli v Nomago Bikes upravljavskem portalu</p>
+                        </div>
+                        <div class="content-card">
+                            <h3>📋 Pregledi ključavnic</h3>
+                            <div>
+                                <strong>📊 Vir podatkov:</strong> Firebase sistem |
+                                <strong>Zadnja osvežitev:</strong> <span id="lastRefreshTime">Nalaganje...</span> |
+                                <button onclick="refreshInspectionData()">🔄 Osveži zdaj</button>
+                            </div>
+                            <div id="inspectionStats" style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1rem;">
+                                <div class="stat-item">
+                                    <div id="overdueCount" class="stat-number danger">0</div>
+                                    <div class="stat-label">Zamujeni pregledi</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div id="dueSoonCount" class="stat-number warning">0</div>
+                                    <div class="stat-label">Prihajajoči pregledi</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div id="totalCountNums" class="stat-number">0</div>
+                                    <div class="stat-label">Skupaj ključavnic</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Chat Content -->
-                    <div class="content-section" id="chatContent">
-                        <!-- ... chat markup ... -->
+                    <div id="chatContent" class="content-section">
+                        <div class="content-header">
+                            <h1 class="content-title">Team Chat</h1>
+                        </div>
+                        <div class="content-card">
+                            <ul id="chatList" style="list-style:none; max-height:300px; overflow-y:auto; padding:0;"></ul>
+                            <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                                <input type="text" id="messageInput" class="form-input" placeholder="Vaše sporočilo...">
+                                <button onclick="sendMessage()" class="login-button" style="padding:0 1rem;">Pošlji</button>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Users Content -->
-                    <div class="content-section" id="usersContent">
-                        <!-- ... user management markup ... -->
+                    <div id="usersContent" class="content-section">
+                        <div class="content-header">
+                            <h1 class="content-title">Nastavitve uporabnikov</h1>
+                        </div>
+                        <div class="content-card">
+                            <ul id="userList" style="list-style:none; padding:0;"></ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
     <script type="module">
-        // Firebase initialization (from second file)
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+        import { getFirestore, collection, getDocs, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        const app = initializeApp(firebaseConfig);
+        window.auth = getAuth(app);
+        window.db = getFirestore(app);
+        window.dispatchEvent(new Event('firebaseReady'));
     </script>
     <script>
-        // All core functions: login, toggleTheme, showContent, chat, users, inspection, logout, goToHomePage, DOMContentLoaded listener
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('loaded');
+            showLogin();
+        });
+        function goToHomePage() { /* home redirect */ }
+        function toggleTheme() { const t=document.documentElement; t.dataset.theme = t.dataset.theme==='dark'?'light':'dark'; document.getElementById('themeIcon').textContent = t.dataset.theme==='dark'?'☀️':'🌙'; }
+        function showLogin() {
+            document.getElementById('loginSection').style.display='block';
+            document.getElementById('dashboardSection').style.display='none';
+            document.getElementById('headerLogoutBtn').style.display='none';
+        }
+        function showDashboard() {
+            document.getElementById('loginSection').style.display='none';
+            document.getElementById('dashboardSection').style.display='flex';
+            document.getElementById('headerLogoutBtn').style.display='inline-block';
+            document.getElementById('userInfo').style.display='block';
+        }
+        function showContent(section) {
+            document.querySelectorAll('.content-section').forEach(el=>el.style.display='none');
+            document.querySelectorAll('.menu-button').forEach(btn=>btn.classList.remove('active'));
+            document.getElementById(section+'Content').style.display='block';
+            document.querySelector(`.menu-button[onclick="showContent('${section}')"]`).classList.add('active');
+        }
+        function openServiserApp() { window.open('/serviser.html','_blank'); }
+        const { signInWithEmailAndPassword, onAuthStateChanged, signOut } = window.firebaseAuth || window;
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                document.getElementById('userInfo').textContent = user.email;
+                showDashboard(); loadInspectionData(); setupChatListener(); loadUsers();
+            } else showLogin();
+        });
+        document.getElementById('loginForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const btn=document.getElementById('loginButton'); btn.disabled=true;
+            signInWithEmailAndPassword(auth, document.getElementById('username').value, document.getElementById('password').value)
+                .catch(err=>{document.getElementById('errorMessage').textContent=err.message; document.getElementById('errorMessage').style.display='block';})
+                .finally(()=>btn.disabled=false);
+        });
+        function logout(){ signOut(auth); }
+        function loadInspectionData() {
+            const stats={overdue:0,dueSoon:0,total:0}, now=new Date();
+            onSnapshot(collection(db,'inspections'), snap=>{
+                stats.overdue=stats.dueSoon=stats.total=0;
+                snap.docs.forEach(d=>{ const data=d.data(), due=data.nextInspection.toDate(); stats.total++; if(due<now) stats.overdue++; else if(due-now<7*24*3600*1e3) stats.dueSoon++; });
+                document.getElementById('overdueCount').textContent=stats.overdue;
+                document.getElementById('dueSoonCount').textContent=stats.dueSoon;
+                document.getElementById('totalCountNums').textContent=stats.total;
+                document.getElementById('lastRefreshTime').textContent=new Date().toLocaleString();
+            });
+        }
+        function refreshInspectionData(){ loadInspectionData(); }
+        function setupChatListener() {
+            const q=query(collection(db,'chat'),orderBy('timestamp','asc'));
+            onSnapshot(q, snap=>{ const list=document.getElementById('chatList'); list.innerHTML=''; snap.docs.forEach(d=>{ const m=d.data(), li=document.createElement('li'); li.textContent=`${m.user}: ${m.text}`; list.append(li); }); });
+        }
+        function sendMessage() {
+            const inp=document.getElementById('messageInput'); if(!inp.value) return;
+            addDoc(collection(db,'chat'),{ text:inp.value, user:auth.currentUser.email, timestamp:serverTimestamp() }); inp.value='';
+        }
+        function loadUsers() {
+            getDocs(collection(db,'users')).then(snap=>{ const ul=document.getElementById('userList'); ul.innerHTML=''; snap.docs.forEach(d=>{ const u=d.data(), li=document.createElement('li'); li.textContent=`${u.email} (${u.role})`; ul.append(li); }); });
+        }
     </script>
 </body>
 </html>
