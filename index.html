@@ -6,64 +6,46 @@
     <title>Nomago Bikes - BAZA Portal z Chat</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
+        /* Original CSS retained */
         * { margin:0; padding:0; box-sizing:border-box; }
-        :root {
-            --primary-blue: #004899;
-            --secondary-yellow: #fbb900;
-            --light-blue: #e9f0f7;
-            --white: #ffffff;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --border-color: #ddd;
-            --shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
-            --danger: #dc3545;
-            --success: #28a745;
-            --warning: #ffc107;
-        }
-        [data-theme="dark"] {
-            --light-blue: #1a1a1a;
-            --white: #2d2d2d;
-            --text-dark: #f0f0f0;
-            --text-light: #cccccc;
-            --border-color: #444;
-            --shadow: 0 4px 12px rgba(255,255,255,0.1);
-        }
-        body { font-family:'Roboto',sans-serif; background:linear-gradient(135deg,var(--light-blue) 0%,#004899 100%); min-height:100vh; display:flex; flex-direction:column; transition:opacity 0.3s ease; color:var(--text-dark); opacity:0; }
+        :root { --primary-blue:#004899; --secondary-yellow:#fbb900; --light-blue:#e9f0f7; --white:#ffffff; --text-dark:#333333; --text-light:#666666; --border-color:#ddd; --shadow:0 4px 12px rgba(0,72,153,0.1); --danger:#dc3545; --success:#28a745; --warning:#ffc107; }
+        [data-theme="dark"] { --light-blue:#1a1a1a; --white:#2d2d2d; --text-dark:#f0f0f0; --text-light:#cccccc; --border-color:#444; --shadow:0 4px 12px rgba(255,255,255,0.1); }
+        body { font-family:'Roboto',sans-serif; background:linear-gradient(135deg,var(--light-blue)0%,#004899100%); min-height:100vh; display:flex; flex-direction:column; transition:opacity .3s ease; color:var(--text-dark); opacity:0; }
         body.loaded { opacity:1; }
         header { background:#004899; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; position:relative; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        .logo { font-weight:bold; font-size:1.2rem; color:#fff; cursor:pointer; transition:transform 0.3s; }
+        .logo { font-weight:bold; font-size:1.2rem; color:#fff; cursor:pointer; transition:transform .3s; }
         .logo:hover { transform:scale(1.05); }
         .logo .a, .logo .bikes { color:var(--secondary-yellow); }
         .header-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
         .header-controls { display:flex; align-items:center; gap:1rem; }
         .logout-button { display:none; width:40px; height:40px; background:var(--danger); color:var(--white); border:none; border-radius:50%; cursor:pointer; font-size:1.2rem; }
-        .theme-toggle { background:rgba(255,255,255,0.2); border:none; color:var(--white); padding:0.5rem; border-radius:50%; cursor:pointer; font-size:1.2rem; }
-        .user-info { display:none; color:var(--white); font-size:0.9rem; }
+        .theme-toggle { background:rgba(255,255,255,0.2); border:none; color:var(--white); padding:.5rem; border-radius:50%; cursor:pointer; font-size:1.2rem; }
+        .user-info { display:none; color:var(--white); font-size:.9rem; }
         main { flex:1; display:flex; justify-content:center; align-items:center; padding:2rem; }
-        .login-card { background:var(--white); padding:3rem; border-radius:16px; box-shadow:var(--shadow); width:100%; max-width:400px; text-align:center; transition:transform 0.3s,box-shadow 0.3s; }
+        .login-card { background:var(--white); padding:3rem; border-radius:16px; box-shadow:var(--shadow); width:100%; max-width:400px; text-align:center; transition:transform .3s,box-shadow .3s; }
         .login-card:hover { transform:translateY(-5px); box-shadow:0 8px 25px rgba(0,72,153,0.15); }
         .bike-icon { font-size:3rem; margin-bottom:1.5rem; }
         .login-title { font-size:1.6rem; font-weight:600; margin-bottom:2rem; }
         .form-group { margin-bottom:1.5rem; text-align:left; }
-        .form-label { color:var(--text-light); margin-bottom:0.5rem; font-weight:500; }
-        .form-input { width:100%; padding:0.75rem 1rem; border:2px solid var(--border-color); border-radius:8px; }
-        .login-button { width:100%; padding:0.875rem; background:var(--primary-blue); color:var(--white); border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+        .form-label { color:var(--text-light); margin-bottom:.5rem; font-weight:500; }
+        .form-input { width:100%; padding:.75rem 1rem; border:2px solid var(--border-color); border-radius:8px; }
+        .login-button { width:100%; padding:.875rem; background:var(--primary-blue); color:var(--white); border:none; border-radius:8px; font-weight:600; cursor:pointer; }
         .login-button:disabled { background:#ccc; cursor:not-allowed; }
-        .error-message, .success-message { display:none; margin-top:1rem; padding:0.75rem; border-radius:8px; font-size:0.9rem; }
+        .error-message, .success-message { display:none; margin-top:1rem; padding:.75rem; border-radius:8px; font-size:.9rem; }
         .error-message { background:rgba(220,53,69,0.1); color:var(--danger); border:1px solid rgba(220,53,69,0.3); }
         .success-message { background:rgba(40,167,69,0.1); color:var(--success); border:1px solid rgba(40,167,69,0.3); }
         .dashboard { display:none; flex:1; width:100%; }
         .dashboard-container { display:flex; min-height:calc(100vh - 80px); }
         .sidebar { width:280px; background:var(--white); box-shadow:2px 0 10px rgba(0,0,0,0.1); padding:2rem 0; }
         .menu-list { list-style:none; }
-        .menu-button { width:100%; display:flex; align-items:center; gap:1rem; padding:1rem 2rem; background:none; border:none; text-align:left; cursor:pointer; transition:background 0.3s,border-left-color 0.3s; }
+        .menu-button { width:100%; display:flex; align-items:center; gap:1rem; padding:1rem 2rem; background:none; border:none; text-align:left; cursor:pointer; transition:background .3s,border-left-color .3s; }
         .menu-button:hover { background:rgba(0,72,153,0.05); border-left:3px solid var(--primary-blue); color:var(--primary-blue); }
         .menu-button.active { background:rgba(0,72,153,0.1); border-left:3px solid var(--primary-blue); color:var(--primary-blue); font-weight:600; }
         .main-content { flex:1; padding:2rem; background:var(--light-blue); overflow-y:auto; }
         .content-section { display:none; }
         .content-section#dashboardContent { display:block; }
         .content-header { margin-bottom:2rem; }
-        .content-title { font-size:2rem; font-weight:600; margin-bottom:0.5rem; }
+        .content-title { font-size:2rem; font-weight:600; margin-bottom:.5rem; }
         .content-subtitle { font-size:1rem; color:var(--text-light); }
         .content-card { background:var(--white); padding:2rem; border-radius:12px; box-shadow:var(--shadow); margin-bottom:2rem; }
         @media(max-width:768px) { .dashboard-container { flex-direction:column; } .sidebar { width:100%; order:2; } .main-content { order:1; padding:1rem; } }
@@ -72,7 +54,7 @@
 <body>
     <header>
         <div class="logo" onclick="goToHomePage()">nom<span class="a">a</span>go<span class="bikes">bikes</span></div>
-        <div class="header-center" id="headerCenter"><h1 style="color:#fff;">BAZA</h1></div>
+        <div class="header-center"><h1 style="color:#fff;">BAZA</h1></div>
         <div class="header-controls">
             <div id="userInfo" class="user-info"></div>
             <button id="headerLogoutBtn" class="logout-button" onclick="logout()">🚪</button>
@@ -120,70 +102,54 @@
                                 <strong>Zadnja osvežitev:</strong> <span id="lastRefreshTime">Nalaganje...</span> |
                                 <button onclick="refreshInspectionData()">🔄 Osveži zdaj</button>
                             </div>
-                            <div id="inspectionStats" style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1rem;">
-                                <div class="stat-item">
-                                    <div id="overdueCount" class="stat-number danger">0</div>
-                                    <div class="stat-label">Zamujeni pregledi</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div id="dueSoonCount" class="stat-number warning">0</div>
-                                    <div class="stat-label">Prihajajoči pregledi</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div id="totalCountNums" class="stat-number">0</div>
-                                    <div class="stat-label">Skupaj ključavnic</div>
-                                </div>
+                            <div id="inspectionStats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;">
+                                <div><div id="overdueCount" class="stat-number danger">0</div><div class="stat-label">Zamujeni pregledi</div></div>
+                                <div><div id="dueSoonCount" class="stat-number warning">0</div><div class="stat-label">Prihajajoči pregledi</div></div>
+                                <div><div id="totalCountNums" class="stat-number">0</div><div class="stat-label">Skupaj ključavnic</div></div>
                             </div>
                         </div>
                     </div>
                     <div id="chatContent" class="content-section">
-                        <div class="content-header">
-                            <h1 class="content-title">Team Chat</h1>
-                        </div>
+                        <div class="content-header"><h1 class="content-title">Team Chat</h1></div>
                         <div class="content-card">
-                            <ul id="chatList" style="list-style:none; max-height:300px; overflow-y:auto; padding:0;"></ul>
-                            <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-                                <input type="text" id="messageInput" class="form-input" placeholder="Vaše sporočilo...">
-                                <button onclick="sendMessage()" class="login-button" style="padding:0 1rem;">Pošlji</button>
-                            </div>
+                            <ul id="chatList" style="list-style:none;max-height:300px;overflow-y:auto;padding:0;"></ul>
+                            <div style="display:flex;gap:.5rem;margin-top:1rem;"><input type="text" id="messageInput" class="form-input" placeholder="Vaše sporočilo..."><button onclick="sendMessage()" class="login-button" style="padding:0 1rem;">Pošlji</button></div>
                         </div>
                     </div>
                     <div id="usersContent" class="content-section">
-                        <div class="content-header">
-                            <h1 class="content-title">Nastavitve uporabnikov</h1>
-                        </div>
-                        <div class="content-card">
-                            <ul id="userList" style="list-style:none; padding:0;"></ul>
-                        </div>
+                        <div class="content-header"><h1 class="content-title">Nastavitve uporabnikov</h1></div>
+                        <div class="content-card"><ul id="userList" style="list-style:none;padding:0;"></ul></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
     <script type="module">
+        // Vstavi svoj Firebase config
+        const firebaseConfig = {
+            apiKey:"AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAOYtTN4M",
+            authDomain:"nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId:"nomago-bikes-portal-f33da",
+            storageBucket:"nomago-bikes-portal-f33da.firebasestorage.app",
+            messagingSenderId:"64798765592",
+            appId:"1:64798765592:web:7731d4ca344ce804bdc96d",
+            measurementId:"G-D1CBD3V7ZV"
+        };
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
         import { getFirestore, collection, getDocs, onSnapshot, addDoc, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        // Inicializacija
         const app = initializeApp(firebaseConfig);
-        window.auth = getAuth(app);
-        window.db = getFirestore(app);
-        window.dispatchEvent(new Event('firebaseReady'));
-    </script>
-    <script>
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Počakamo na DOM
         document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('loaded');
             showLogin();
         });
-        function goToHomePage() { /* home redirect */ }
-        function toggleTheme() { const t=document.documentElement; t.dataset.theme = t.dataset.theme==='dark'?'light':'dark'; document.getElementById('themeIcon').textContent = t.dataset.theme==='dark'?'☀️':'🌙'; }
+
+        // Prikaz login/dashboard
         function showLogin() {
             document.getElementById('loginSection').style.display='block';
             document.getElementById('dashboardSection').style.display='none';
@@ -195,6 +161,8 @@
             document.getElementById('headerLogoutBtn').style.display='inline-block';
             document.getElementById('userInfo').style.display='block';
         }
+
+        // Navigacija
         function showContent(section) {
             document.querySelectorAll('.content-section').forEach(el=>el.style.display='none');
             document.querySelectorAll('.menu-button').forEach(btn=>btn.classList.remove('active'));
@@ -202,43 +170,65 @@
             document.querySelector(`.menu-button[onclick="showContent('${section}')"]`).classList.add('active');
         }
         function openServiserApp() { window.open('/serviser.html','_blank'); }
-        const { signInWithEmailAndPassword, onAuthStateChanged, signOut } = window.firebaseAuth || window;
+        function toggleTheme() { const t=document.documentElement; t.dataset.theme = t.dataset.theme==='dark'?'light':'dark'; document.getElementById('themeIcon').textContent = t.dataset.theme==='dark'?'☀️':'🌙'; }
+        function goToHomePage() { /* redir */ }
+
+        // Avtorizacija
         onAuthStateChanged(auth, user => {
             if (user) {
                 document.getElementById('userInfo').textContent = user.email;
                 showDashboard(); loadInspectionData(); setupChatListener(); loadUsers();
-            } else showLogin();
+            } else {
+                showLogin();
+            }
         });
+        // Login form
         document.getElementById('loginForm').addEventListener('submit', e => {
             e.preventDefault();
-            const btn=document.getElementById('loginButton'); btn.disabled=true;
+            const btn = document.getElementById('loginButton'); btn.disabled=true;
             signInWithEmailAndPassword(auth, document.getElementById('username').value, document.getElementById('password').value)
-                .catch(err=>{document.getElementById('errorMessage').textContent=err.message; document.getElementById('errorMessage').style.display='block';})
+                .catch(err=>{ document.getElementById('errorMessage').textContent=err.message; document.getElementById('errorMessage').style.display='block'; })
                 .finally(()=>btn.disabled=false);
         });
-        function logout(){ signOut(auth); }
+        function logout() { signOut(auth); }
+
+        // Inspect
         function loadInspectionData() {
-            const stats={overdue:0,dueSoon:0,total:0}, now=new Date();
+            const stats={overdue:0,dueSoon:0,total:0};
+            const now=new Date();
             onSnapshot(collection(db,'inspections'), snap=>{
                 stats.overdue=stats.dueSoon=stats.total=0;
-                snap.docs.forEach(d=>{ const data=d.data(), due=data.nextInspection.toDate(); stats.total++; if(due<now) stats.overdue++; else if(due-now<7*24*3600*1e3) stats.dueSoon++; });
+                snap.docs.forEach(d=>{
+                    const data=d.data(); const due=data.nextInspection.toDate(); stats.total++;
+                    if (due < now) stats.overdue++; else if (due - now < 7*24*3600*1000) stats.dueSoon++;
+                });
                 document.getElementById('overdueCount').textContent=stats.overdue;
                 document.getElementById('dueSoonCount').textContent=stats.dueSoon;
                 document.getElementById('totalCountNums').textContent=stats.total;
                 document.getElementById('lastRefreshTime').textContent=new Date().toLocaleString();
             });
         }
-        function refreshInspectionData(){ loadInspectionData(); }
+        function refreshInspectionData() { loadInspectionData(); }
+
+        // Chat
         function setupChatListener() {
-            const q=query(collection(db,'chat'),orderBy('timestamp','asc'));
-            onSnapshot(q, snap=>{ const list=document.getElementById('chatList'); list.innerHTML=''; snap.docs.forEach(d=>{ const m=d.data(), li=document.createElement('li'); li.textContent=`${m.user}: ${m.text}`; list.append(li); }); });
+            const q = query(collection(db,'chat'), orderBy('timestamp','asc'));
+            onSnapshot(q, snap=>{
+                const list = document.getElementById('chatList'); list.innerHTML='';
+                snap.forEach(d=>{ const m=d.data(); const li=document.createElement('li'); li.textContent=`${m.user}: ${m.text}`; list.append(li); });
+            });
         }
         function sendMessage() {
-            const inp=document.getElementById('messageInput'); if(!inp.value) return;
-            addDoc(collection(db,'chat'),{ text:inp.value, user:auth.currentUser.email, timestamp:serverTimestamp() }); inp.value='';
+            const inp = document.getElementById('messageInput'); if(!inp.value) return;
+            addDoc(collection(db,'chat'), { text:inp.value, user:auth.currentUser.email, timestamp:serverTimestamp() }); inp.value='';
         }
+
+        // Users
         function loadUsers() {
-            getDocs(collection(db,'users')).then(snap=>{ const ul=document.getElementById('userList'); ul.innerHTML=''; snap.docs.forEach(d=>{ const u=d.data(), li=document.createElement('li'); li.textContent=`${u.email} (${u.role})`; ul.append(li); }); });
+            getDocs(collection(db,'users')).then(snap=>{
+                const ul = document.getElementById('userList'); ul.innerHTML='';
+                snap.forEach(d=>{ const u=d.data(); const li=document.createElement('li'); li.textContent=`${u.email} (${u.role})`; ul.append(li); });
+            });
         }
     </script>
 </body>
