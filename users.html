@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nastavitve uporabnikov - NOMAGO bikes</title>
+    <style>
+        /* Dodaj vse CSS pravile iz index.html ali uporabi iste kot v dashboard.html */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .header { text-align: center; padding: 20px; background-color: #007bff; color: white; }
+        .nav { background-color: #333; color: white; padding: 10px; }
+        .nav a { color: white; text-decoration: none; margin: 0 15px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .menu { background-color: #007bff; padding: 10px; border-radius: 8px; }
+        .menu a { color: white; text-decoration: none; display: block; padding: 10px; }
+        .menu a:hover { background-color: #0056b3; }
+        .users { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .users input, .users select { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>NOMAGO bikes</h1>
+    </div>
+
+    <div class="nav">
+        <a href="index.html">BAZA</a>
+    </div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="index.html">🏠 Nadzorna plošča</a>
+            <a href="#">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="users.html">👥 Nastavitve uporabnikov</a>
+            <a href="notifications.html">📢 Obvestila</a>
+            <a href="settings.html">⚙️ Splošne nastavitve</a>
+            <a href="#">🚪 Odjavi se</a>
+        </div>
+
+        <!-- Vsebina za upravljanje uporabnikov ostane enaka -->
+        <div class="users">
+            <h2>Dodaj uporabnika</h2>
+            <p>Ustvarite nov uporabniški račun</p>
+            <form id="addUserForm">
+                <!-- Form fields remain the same -->
+            </form>
+        </div>
+
+        <div class="users">
+            <h2>Nastavitve uporabnikov</h2>
+            <p>Upravljajte obstoječe uporabniške račune</p>
+            <div id="usersList">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+
+        <div class="users">
+            <h2>Uredi uporabnika</h2>
+            <form id="editUserForm">
+                <!-- Edit form fields remain the same -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Integration Script (enak kot v dashboard.html) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.firebaseDb = db;
+        window.firebaseFunctions = {
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            serverTimestamp
+        };
+    </script>
+
+    <!-- JavaScript za upravljanje uporabnikov -->
+    <script>
+        // Funkcije za upravljanje uporabnikov
+        async function loadUsers() {
+            try {
+                const usersSnapshot = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
+                );
+                
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
+                
+                usersSnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    // Prikaži uporabnike v tabeli
+                });
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function addUser(event) {
+            event.preventDefault();
+            // Implementacija dodajanja uporabnika
+        }
+
+        async function editUser(username) {
+            // Implementacija urejanja uporabnika
+        }
+
+        async function deleteUser(username) {
+            // Implementacija brisanja uporabnika
+        }
+
+        // Inicializacija
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('addUserForm').addEventListener('submit', addUser);
+            document.getElementById('editUserForm').addEventListener('submit', editUser);
+            loadUsers();
+        });
+
+        // Globalne funkcije
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+    </script>
+</body>
+</html>
