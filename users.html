@@ -259,15 +259,7 @@
             width: auto;
         }
         
-        /* Status indicators */
-        .status-active {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .status-inactive {
-            color: #dc3545;
-            font-weight: bold;
-        }
+        /* Status indicators - removed */
         
         /* Modal styles */
         .modal {
@@ -362,7 +354,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'">
+        <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
         <div class="user-info" id="userInfo">
             <span id="userName"></span>
@@ -372,16 +364,15 @@
     </div>
 
     <div class="nav">
-        <a href="#" onclick="showNotification('BAZA funkcionalnost še ni implementirana')">BAZA</a>
-        <a href="dashboard.html">Nadzorna plošča</a>
-        <a href="users.html" class="active">Uporabniki</a>
+        <a href="dashboard.html" class="active">BAZA</a>
+        <a href="users.html" id="usersNavLink" style="display: none;">Uporabniki</a>
     </div>
 
     <div class="container">
         <div class="menu">
             <a href="dashboard.html">🏠 Nadzorna plošča</a>
             <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
-            <a href="users.html" class="active">👥 Uporabniki</a>
+            <a href="users.html" class="active" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
             <a href="#" onclick="logout()">🚪 Odjavi se</a>
@@ -445,14 +436,6 @@
                         <option value="serviser">Serviser</option>
                         <option value="student">Študent</option>
                     </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Status *</label>
-                    <div style="display: flex; gap: 15px;">
-                        <label><input type="radio" name="status" value="active" checked> Aktiven</label>
-                        <label><input type="radio" name="status" value="inactive"> Neaktiven</label>
-                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -533,6 +516,12 @@
             // Set user info
             document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
             
+            // Show users navigation links for admin
+            if (currentUser.vloga === 'admin') {
+                document.getElementById('usersNavLink').style.display = 'inline-block';
+                document.getElementById('usersMenuLink').style.display = 'inline-block';
+            }
+            
             // Initialize theme
             initializeTheme();
             
@@ -548,7 +537,16 @@
         function checkAuth() {
             const savedUser = sessionStorage.getItem('currentUser');
             if (savedUser) {
-                return JSON.parse(savedUser);
+                const user = JSON.parse(savedUser);
+                
+                // Check if user is admin, if not redirect to dashboard
+                if (user.vloga !== 'admin') {
+                    alert('Dostop zavrnjen. Samo administratorji lahko upravljajo uporabnike.');
+                    window.location.href = 'dashboard.html';
+                    return null;
+                }
+                
+                return user;
             } else {
                 alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
                 window.location.href = 'index.html';
@@ -625,7 +623,6 @@
                                 <th>Uporabniško ime</th>
                                 <th>Vloga</th>
                                 <th>Sistemi</th>
-                                <th>Status</th>
                                 <th>Dejanja</th>
                             </tr>
                         </thead>
@@ -634,8 +631,6 @@
                 
                 usersSnapshot.forEach((doc) => {
                     const user = doc.data();
-                    const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
-                    const statusText = user.status === 'active' ? 'Aktiven' : 'Neaktiven';
                     
                     html += `
                         <tr>
@@ -644,7 +639,6 @@
                             <td>${user.uporabniskoIme || ''}</td>
                             <td>${user.vloga || ''}</td>
                             <td>${user.sistemi ? user.sistemi.join(', ') : ''}</td>
-                            <td class="${statusClass}">${statusText}</td>
                             <td>
                                 <button onclick="editUser('${doc.id}')" class="action-btn edit-btn">Uredi</button>
                                 <button onclick="deleteUser('${doc.id}')" class="action-btn delete-btn">Izbriši</button>
@@ -674,9 +668,6 @@
             editingUserId = null;
             document.getElementById('modalTitle').textContent = 'Dodaj novega uporabnika';
             document.getElementById('userForm').reset();
-            
-            // Set default status to active
-            document.querySelector('input[name="status"][value="active"]').checked = true;
             
             // Show modal
             document.getElementById('userModal').style.display = 'block';
@@ -711,9 +702,6 @@
                 document.getElementById('password').value = '';
                 document.getElementById('role').value = user.vloga || '';
                 
-                // Set status
-                document.querySelector(`input[name="status"][value="${user.status || 'active'}"]`).checked = true;
-                
                 // Check systems
                 document.querySelectorAll('input[name="systems"]').forEach(checkbox => {
                     checkbox.checked = user.sistemi && user.sistemi.includes(checkbox.value);
@@ -743,7 +731,6 @@
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
                 const role = document.getElementById('role').value;
-                const status = document.querySelector('input[name="status"]:checked').value;
                 
                 // Get selected systems
                 const systemCheckboxes = document.querySelectorAll('input[name="systems"]:checked');
@@ -766,7 +753,6 @@
                     priimek: lastName,
                     uporabniskoIme: username,
                     vloga: role,
-                    status: status,
                     sistemi: systems,
                     updatedAt: window.firebaseFunctions.serverTimestamp()
                 };
