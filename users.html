@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAZA | Uporabniki</title>
+    <title>NOMAGO bikes - Uporabniki</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -30,60 +30,528 @@
             --nav-text: #ffffff;
         }
 
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
+        body { 
+            font-family: 'Roboto', Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
             color: var(--text-color);
             transition: all 0.3s ease;
         }
+        .header { 
+            display: flex;
+            align-items: center;
+            padding: 20px; 
+            background-color: var(--primary-blue);
+            color: white;
+            position: relative;
+        }
+        .logo-left {
+            height: 50px;
+        }
+        .logo-center {
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .user-info {
+            position: absolute;
+            right: 80px;
+            color: white;
+            font-weight: 400;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .nav { 
+            display: flex;
+            justify-content: center;
+            background-color: var(--nav-bg);
+            color: var(--nav-text); 
+            padding: 10px; 
+            font-weight: 700;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .nav a { 
+            color: var(--nav-text);
+            text-decoration: none; 
+            margin: 0 15px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active {
+            background-color: rgba(255,255,255,0.3);
+        }
+        .container { 
+            display: flex;
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            flex-direction: column;
+        }
+        .menu { 
+            width: 100%;
+            background-color: var(--menu-bg);
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .menu a { 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 15px;
+            font-weight: 400;
+            border-radius: 4px;
+            flex-grow: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .menu a:hover, .menu a.active { 
+            background-color: #003366;
+        }
+        .content {
+            width: 100%;
+        }
+        .dashboard { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .dashboard-actions button {
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        button { 
+            background-color: var(--primary-blue);
+            color: white; 
+            border: none; 
+            padding: 10px 20px;
+            cursor: pointer; 
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        button:hover:not(:disabled) { 
+            background-color: #003366;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .highlight {
+            color: var(--secondary-yellow);
+            font-weight: 700;
+        }
+        h2, h3 {
+            color: var(--primary-blue);
+        }
+        .dark-mode h2, .dark-mode h3 {
+            color: var(--secondary-yellow);
+        }
+        
+        /* Users table */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .users-table th, .users-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .users-table th {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        .dark-mode .users-table th {
+            background-color: var(--menu-bg);
+        }
+        .users-table tr:hover {
+            background-color: rgba(0,72,153,0.1);
+        }
+        .action-btn {
+            padding: 5px 10px;
+            margin: 0 3px;
+            font-size: 12px;
+            min-width: auto;
+        }
+        .edit-btn {
+            background-color: #28a745;
+        }
+        .edit-btn:hover {
+            background-color: #218838;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+        
+        /* System checkboxes */
+        .systems-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .system-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--light-blue);
+            border-radius: 4px;
+        }
+        .dark-mode .system-checkbox {
+            background-color: var(--menu-bg);
+        }
+        .system-checkbox input {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        /* Status indicators */
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        /* Role badges */
+        .role-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .role-admin {
+            background-color: #dc3545;
+            color: white;
+        }
+        .role-serviser {
+            background-color: #007bff;
+            color: white;
+        }
+        .role-student {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+        .dark-mode .modal-title {
+            color: var(--secondary-yellow);
+        }
+        .close {
+            color: var(--text-light);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close:hover {
+            color: var(--text-dark);
+        }
+        
+        /* Messages */
+        .message {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header {
+                padding: 15px;
+            }
+            .logo-left, .logo-center {
+                height: 40px;
+            }
+            .user-info {
+                right: 60px;
+                font-size: 14px;
+                max-width: 120px;
+            }
+            .menu a {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+            .users-table {
+                font-size: 0.9em;
+            }
+            .users-table th,
+            .users-table td {
+                padding: 8px 4px;
+            }
+            .action-btn {
+                padding: 3px 6px;
+                font-size: 10px;
+        }
 
-        /* Ostali CSS stili ostanejo enaki kot v prejšnji kodi */
-        /* ... */
+        // Close modal
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+            editingUserId = null;
+        }
 
+        // Refresh user list
+        function refreshUserList() {
+            loadUsers();
+        }
+
+        // Global functions
+        window.showAddUserForm = showAddUserForm;
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+        window.closeModal = closeModal;
+        window.refreshUserList = refreshUserList;
+        window.logout = logout;
+        window.showNotification = showNotification;
+    </script>
+</body>
+</html>
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="Bikes_kolesar_belorumen_RGB.png" alt="BAZA logo" class="logo-left">
-        <img src="Bikes_belorumen_RGB.png" alt="BAZA portal logo" class="logo-center">
-        <div class="user-info" id="userInfo"></div>
-        <button class="theme-toggle" id="themeToggle">🌓</button>
+        <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'">
+        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
+        <div class="user-info" id="userInfo">
+            <span id="userName"></span>
+            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
 
     <div class="nav">
+        <a href="#" onclick="showNotification('BAZA funkcionalnost še ni implementirana')">BAZA</a>
         <a href="dashboard.html">Nadzorna plošča</a>
-        <a href="locks.html">Ključavnice</a>
         <a href="users.html" class="active">Uporabniki</a>
-        <a href="reports.html">Poročila</a>
     </div>
 
     <div class="container">
         <div class="menu">
             <a href="dashboard.html">🏠 Nadzorna plošča</a>
-            <a href="locks.html">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
             <a href="users.html" class="active">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
-            <a href="index.html" id="logoutBtn">🚪 Odjavi se</a>
+            <a href="#" onclick="logout()">🚪 Odjavi se</a>
         </div>
 
         <div class="content">
             <div class="dashboard">
                 <h2>Upravljanje uporabnikov</h2>
-                <p id="accessMessage">Nalagam podatke...</p>
+                <p>Dodajajte in upravljajte uporabniške račune sistema <span class="highlight">NOMAGO bikes</span></p>
                 
-                <div class="dashboard-actions" id="adminActions" style="display: none;">
-                    <button onclick="showAddUserForm()">➕ Dodaj uporabnika</button>
+                <div id="messageContainer"></div>
+                
+                <div class="dashboard-actions">
+                    <button onclick="showAddUserForm()" id="addUserBtn">➕ Dodaj uporabnika</button>
                     <button onclick="refreshUserList()">🔄 Osveži seznam</button>
-                    <button onclick="exportUsersToCSV()">📤 Izvoz v CSV</button>
                 </div>
 
                 <div id="usersList">
-                    <p>Nalagam seznam uporabnikov...</p>
+                    <div style="text-align: center; padding: 20px;">
+                        <p>Nalagam seznam uporabnikov...</p>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Dodaj novega uporabnika</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                
+                <div class="form-group">
+                    <label for="firstName">Ime *</label>
+                    <input type="text" id="firstName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Priimek *</label>
+                    <input type="text" id="lastName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Uporabniško ime *</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Geslo *</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Vloga *</label>
+                    <select id="role" required>
+                        <option value="">Izberite vlogo</option>
+                        <option value="admin">Administrator</option>
+                        <option value="serviser">Serviser</option>
+                        <option value="student">Študent</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status *</label>
+                    <div style="display: flex; gap: 15px;">
+                        <label><input type="radio" name="status" value="active" checked> Aktiven</label>
+                        <label><input type="radio" name="status" value="inactive"> Neaktiven</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sistemi za dostop *</label>
+                    <div class="systems-container">
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KolesCE"> KolesCE</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="LUR"> LUR</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="GO2GO"> GO2GO</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KOR"> KOR</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="ZaNaprej"> ZaNaprej</label>
+                    </div>
+                </div>
+                
+                <div class="dashboard-actions">
+                    <button type="submit" id="saveUserBtn">Shrani uporabnika</button>
+                    <button type="button" onclick="closeModal()" style="background: #6c757d;">Prekliči</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -98,7 +566,6 @@
             getDoc, 
             getDocs, 
             deleteDoc,
-            updateDoc,
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
@@ -116,49 +583,99 @@
         const db = getFirestore(app);
 
         window.firebaseDb = db;
-        window.firebaseFunctions = { collection, doc, setDoc, getDoc, getDocs, deleteDoc, updateDoc, serverTimestamp };
+        window.firebaseFunctions = {
+            collection, doc, setDoc, getDoc, getDocs, deleteDoc, serverTimestamp
+        };
     </script>
 
     <script>
-        // Globalne spremenljivke
         let currentUser = null;
         let editingUserId = null;
 
-        // Preveri dostop ob nalaganju strani
-        document.addEventListener('DOMContentLoaded', async () => {
-            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            await loadUsers();
+            initializeTheme();
             
-            if (!currentUser) {
-                alert('Niste prijavljeni!');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
-            
-            if (currentUser.vloga === 'admin') {
-                document.getElementById('accessMessage').textContent = 'Dostop imajo samo administratorji';
-                document.getElementById('adminActions').style.display = 'flex';
-                await loadUsers();
-            } else {
-                document.getElementById('accessMessage').textContent = 'Nimate pravic za dostop!';
-                setTimeout(() => window.location.href = 'dashboard.html', 2000);
-            }
-
-            // Nastavi temni način
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeToggle').textContent = '☀️';
-            }
-
-            // Logout gumb
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                sessionStorage.removeItem('currentUser');
-                window.location.href = 'index.html';
-            });
+            document.getElementById('userForm').addEventListener('submit', handleUserFormSubmit);
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         });
 
-        // Naloži uporabnike iz Firebase
+        // Auth check
+        async function checkAuth() {
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
+                
+                // Hide add button for non-admins
+                if (currentUser.vloga !== 'admin') {
+                    document.getElementById('addUserBtn').style.display = 'none';
+                }
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            alert(message);
+        }
+
+        // Show message
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            container.innerHTML = '';
+            container.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Theme management
+        function initializeTheme() {
+            const currentTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                themeToggle.textContent = '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeToggle');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load users
         async function loadUsers() {
             try {
                 const usersSnapshot = await window.firebaseFunctions.getDocs(
@@ -181,6 +698,7 @@
                                 <th>Priimek</th>
                                 <th>Uporabniško ime</th>
                                 <th>Vloga</th>
+                                <th>Sistemi</th>
                                 <th>Status</th>
                                 <th>Dejanja</th>
                             </tr>
@@ -191,17 +709,21 @@
                 usersSnapshot.forEach((doc) => {
                     const user = doc.data();
                     const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
+                    const roleClass = `role-${user.vloga || 'unknown'}`;
                     
                     html += `
                         <tr>
                             <td>${user.ime || ''}</td>
                             <td>${user.priimek || ''}</td>
                             <td>${user.uporabniskoIme || ''}</td>
-                            <td>${user.vloga || ''}</td>
+                            <td><span class="role-badge ${roleClass}">${user.vloga || ''}</span></td>
+                            <td>${user.sistemi ? user.sistemi.join(', ') : ''}</td>
                             <td class="${statusClass}">${user.status === 'active' ? 'Aktiven' : 'Neaktiven'}</td>
                             <td>
-                                <button onclick="editUser('${doc.id}')" class="action-btn edit-btn">Uredi</button>
-                                <button onclick="deleteUser('${doc.id}')" class="action-btn delete-btn">Izbriši</button>
+                                ${currentUser.vloga === 'admin' ? `
+                                    <button onclick="editUser('${doc.id}')" class="action-btn edit-btn">Uredi</button>
+                                    ${doc.id !== 'admin' ? `<button onclick="deleteUser('${doc.id}')" class="action-btn delete-btn">Izbriši</button>` : ''}
+                                ` : ''}
                             </td>
                         </tr>
                     `;
@@ -211,15 +733,168 @@
                 usersList.innerHTML = html;
                 
             } catch (error) {
-                console.error('Napaka pri nalaganju uporabnikov:', error);
-                document.getElementById('usersList').innerHTML = '<p>Napaka pri nalaganju uporabnikov.</p>';
+                console.error('Error loading users:', error);
+                showMessage('Napaka pri nalaganju uporabnikov: ' + error.message, 'error');
             }
         }
 
-        // Ostale funkcije (editUser, deleteUser, showAddUserForm...) ostanejo enake kot v prejšnji kodi
-        // ... 
+        // Show add user form
+        function showAddUserForm() {
+            if (currentUser.vloga !== 'admin') {
+                showMessage('Samo administratorji lahko dodajajo uporabnike.', 'error');
+                return;
+            }
+            
+            editingUserId = null;
+            document.getElementById('modalTitle').textContent = 'Dodaj novega uporabnika';
+            document.getElementById('userForm').reset();
+            document.getElementById('password').required = true;
+            
+            // Set default status
+            document.querySelector('input[name="status"][value="active"]').checked = true;
+            
+            document.getElementById('userModal').style.display = 'block';
+        }
 
-        window.loadUsers = loadUsers;
-    </script>
-</body>
-</html>
+        // Edit user
+        async function editUser(userId) {
+            if (currentUser.vloga !== 'admin') {
+                showMessage('Samo administratorji lahko urejajo uporabnike.', 'error');
+                return;
+            }
+            
+            try {
+                const userDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', userId)
+                );
+                
+                if (!userDoc.exists()) {
+                    showMessage('Uporabnik ne obstaja.', 'error');
+                    return;
+                }
+                
+                const user = userDoc.data();
+                editingUserId = userId;
+                
+                document.getElementById('modalTitle').textContent = 'Uredi uporabnika';
+                document.getElementById('userId').value = userId;
+                document.getElementById('firstName').value = user.ime || '';
+                document.getElementById('lastName').value = user.priimek || '';
+                document.getElementById('username').value = user.uporabniskoIme || '';
+                document.getElementById('password').value = '';
+                document.getElementById('password').required = false;
+                document.getElementById('role').value = user.vloga || '';
+                
+                // Set status
+                document.querySelector(`input[name="status"][value="${user.status || 'active'}"]`).checked = true;
+                
+                // Check systems
+                document.querySelectorAll('input[name="systems"]').forEach(checkbox => {
+                    checkbox.checked = user.sistemi && user.sistemi.includes(checkbox.value);
+                });
+                
+                document.getElementById('userModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading user:', error);
+                showMessage('Napaka pri nalaganju uporabnika: ' + error.message, 'error');
+            }
+        }
+
+        // Handle form submit
+        async function handleUserFormSubmit(event) {
+            event.preventDefault();
+            
+            const saveButton = document.getElementById('saveUserBtn');
+            const originalText = saveButton.textContent;
+            saveButton.textContent = 'Shranjujem...';
+            saveButton.disabled = true;
+            
+            try {
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const role = document.getElementById('role').value;
+                const status = document.querySelector('input[name="status"]:checked').value;
+                
+                // Get selected systems
+                const systemCheckboxes = document.querySelectorAll('input[name="systems"]:checked');
+                const systems = Array.from(systemCheckboxes).map(cb => cb.value);
+                
+                if (!firstName || !lastName || !username || !role || systems.length === 0) {
+                    showMessage('Prosimo, izpolnite vsa obvezna polja.', 'error');
+                    return;
+                }
+                
+                // Check for new users without password
+                if (!editingUserId && !password) {
+                    showMessage('Geslo je obvezno za nove uporabnike.', 'error');
+                    return;
+                }
+                
+                const userData = {
+                    ime: firstName,
+                    priimek: lastName,
+                    uporabniskoIme: username,
+                    vloga: role,
+                    status: status,
+                    sistemi: systems,
+                    updatedAt: window.firebaseFunctions.serverTimestamp()
+                };
+                
+                if (password) {
+                    userData.geslo = password;
+                }
+                
+                if (!editingUserId) {
+                    userData.createdAt = window.firebaseFunctions.serverTimestamp();
+                }
+                
+                const userRef = editingUserId ? 
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', editingUserId) :
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
+                
+                await window.firebaseFunctions.setDoc(userRef, userData, { merge: true });
+                
+                showMessage(`Uporabnik ${username} je bil uspešno ${editingUserId ? 'posodobljen' : 'dodan'}!`);
+                closeModal();
+                loadUsers();
+                
+            } catch (error) {
+                console.error('Error saving user:', error);
+                showMessage('Napaka pri shranjevanju: ' + error.message, 'error');
+            } finally {
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userId) {
+            if (currentUser.vloga !== 'admin') {
+                showMessage('Samo administratorji lahko brišejo uporabnike.', 'error');
+                return;
+            }
+            
+            if (userId === 'admin') {
+                showMessage('Admin uporabnika ni mogoče izbrisati!', 'error');
+                return;
+            }
+            
+            if (!confirm('Ali ste prepričani, da želite izbrisati tega uporabnika?')) {
+                return;
+            }
+            
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', userId)
+                );
+                
+                showMessage('Uporabnik je bil uspešno izbrisan!');
+                loadUsers();
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showMessage('Napaka pri brisanju: ' + error.message, 'error');
+            }
+        
