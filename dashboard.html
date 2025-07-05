@@ -21,7 +21,6 @@
             color: white; 
         }
         .logo {
-            width: 50px;
             height: 50px;
             margin-right: 15px;
             margin-left: 10px; /* "0" odmik od roba */
@@ -30,17 +29,25 @@
             flex: 1;
             text-align: center;
             font-weight: 700; /* Roboto Bold */
+            font-size: 24px;
+            color: white;
         }
         .nav { 
-            background-color: #333; 
-            color: white; 
+            background-color: #fbb900; /* Sekundarna rumena barva */ 
+            color: #333; 
             padding: 10px; 
-            font-weight: 400; /* Roboto Regular */
+            font-weight: 700; /* Roboto Bold */
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
         .nav a { 
-            color: white; 
+            color: #333; /* Temna barva za boljšo berljivost na rumeni */ 
             text-decoration: none; 
-            margin: 0 15px; 
+            margin: 0 15px;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.3);
         }
         .container { 
             display: flex;
@@ -100,9 +107,9 @@
 </head>
 <body>
     <div class="header">
-        <img src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" alt="Kolesar logo" class="logo">
+        <img src="Bikes_kolesar_basic_RGB.png" alt="NOMAGO bikes logo" class="logo">
         <div class="header-title">
-            <h1>NOMAGO bikes</h1>
+            NOMAGO bikes
         </div>
     </div>
 
