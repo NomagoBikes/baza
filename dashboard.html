@@ -1,61 +1,69 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOMAGO bikes</title>
+    <title>NOMAGO bikes - Nadzorna plošča</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-        .header { text-align: center; padding: 20px; background-color: #007bff; color: white; }
-        .nav { background-color: #333; color: white; padding: 10px; }
-        .nav a { color: white; text-decoration: none; margin: 0 15px; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .dashboard, .chat { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .menu { background-color: #007bff; padding: 10px; border-radius: 8px; }
-        .menu a { color: white; text-decoration: none; display: block; padding: 10px; }
-        .menu a:hover { background-color: #0056b3; }
-        .chat { position: fixed; bottom: 20px; right: 20px; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f4f4f4; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .header { 
+            text-align: center; 
+            padding: 20px; 
+            background-color: #004899; 
+            color: white; 
+        }
+        .nav { 
+            background-color: #333; 
+            color: white; 
+            padding: 10px; 
+        }
+        .nav a { 
+            color: white; 
+            text-decoration: none; 
+            margin: 0 15px; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .dashboard { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+        }
+        .menu { 
+            background-color: #004899; 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+        }
+        .menu a { 
+            color: white; 
+            text-decoration: none; 
+            display: block; 
+            padding: 10px; 
+        }
+        .menu a:hover { 
+            background-color: #003366; 
+        }
+        button { 
+            background-color: #004899; 
+            color: white; 
+            border: none; 
+            padding: 10px; 
+            cursor: pointer; 
+            margin: 5px 0;
+        }
+        button:hover { 
+            background-color: #003366; 
+        }
     </style>
 </head>
 <body>
@@ -71,55 +79,39 @@
         <div class="menu">
             <a href="#">🏠 Nadzorna plošča</a>
             <a href="#">🔧 Pregledi ključavnic <span>0</span></a>
-            <a href="users.html">👥 Nastavitve uporabnikov</a>
+            <a href="users.html">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
-            <a href="settings.html">⚙️ Splošne nastavitve</a>
-            <a href="login.html">🚪 Odjavi se</a>
+            <a href="settings.html">⚙️ Nastavitve</a>
+            <a href="index.html">🚪 Odjavi se</a>
         </div>
 
         <div class="dashboard">
             <h2>Nadzorna plošča</h2>
-            <p>Dobrodošli v Nomago Bikes upravljavskem portalu</p>
-            <p>🔄 Sinhronizirano z Firebase</p>
+            <p>Dobrodošli v upravljavskem portalu Nomago Bikes</p>
+            <p>🔄 Povezano s Firebase</p>
+            
             <h3>📋 Pregledi ključavnic</h3>
-            <p>📊 Vir podatkov: Firebase sistem | Zadnja osvežitev: Nalaganje... | <a href="#">🔄 Osveži zdaj</a></p>
+            <p>📊 Vir podatkov: Firebase | Zadnja osvežitev: <span id="lastUpdate">Nalaganje...</span></p>
+            
             <div>
                 <p><strong>0</strong> Zamujeni pregledi</p>
                 <p><strong>0</strong> Pregledi kmalu</p>
                 <p><strong>0</strong> Skupaj ključavnic</p>
             </div>
-            <p>🔍 Debug podatki: Nalaganje debug informacij...</p>
-            <button>🔧 Odpri aplikacijo za preglede</button>
-            <button>🐛 Debug</button>
+            
+            <button>🔧 Odpri preglede</button>
         </div>
     </div>
 
-    <div class="chat">
-        <button>💬</button>
-        <div>
-            <h3>💬 Nomago Chat</h3>
-            <div>
-                <button>💬 Sporočila</button>
-                <button>👥 Skupine</button>
-                <button>👤 Člani</button>
-            </div>
-            <div>
-                <h4>🎉 Dobrodošli v Nomago Chat!</h4>
-                <p>Chat sistem je pripravljen za uporabo.</p>
-                <input type="text" placeholder="Sporočilo...">
-                <button>Pošlji</button>
-            </div>
-            <div>
-                <h4>Pogovorne skupine</h4>
-                <button>+ Dodaj</button>
-            </div>
-            <div>
-                <h4>Upravljanje članov</h4>
-                <button>Dodaj</button>
-                <p>Dostopni uporabniki:</p>
-                <!-- Placeholder for users -->
-            </div>
-        </div>
-    </div>
+    <script>
+        // Preveri če je uporabnik prijavljen
+        const currentUser = sessionStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+        
+        // Posodobi čas zadnje osvežitve
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+    </script>
 </body>
 </html>

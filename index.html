@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomago Bikes - Prijava</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--light-blue) 0%, #004899 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 72, 153, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        #errorMessage {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div style="font-size: 3rem; margin-bottom: 1.5rem;">🚲</div>
+        <h1 style="font-size: 1.6rem; margin-bottom: 2rem;">Dobrodošli v Nomago Bikes</h1>
+        <form id="loginForm">
+            <label>Uporabniško ime</label>
+            <input type="text" id="username" required>
+            
+            <label>Geslo</label>
+            <input type="password" id="password" required>
+            
+            <button type="submit">Prijavi se</button>
+            <div id="errorMessage"></div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+            
+            try {
+                const userDoc = await getDoc(doc(db, 'uporabniki', username));
+                
+                if (userDoc.exists()) {
+                    const user = userDoc.data();
+                    if (user.geslo === password) {
+                        sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        errorMsg.textContent = 'Napačno geslo';
+                        errorMsg.style.display = 'block';
+                    }
+                } else {
+                    errorMsg.textContent = 'Uporabnik ne obstaja';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Napaka pri prijavi';
+                errorMsg.style.display = 'block';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
