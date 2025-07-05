@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAZA | Nadzorna plošča</title>
+    <title>NOMAGO bikes - Nadzorna plošča</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -74,6 +74,10 @@
             font-size: 24px;
             cursor: pointer;
             z-index: 1;
+            transition: opacity 0.3s;
+        }
+        .theme-toggle:hover {
+            opacity: 0.8;
         }
         .nav { 
             display: flex;
@@ -90,6 +94,7 @@
             margin: 0 15px;
             padding: 5px 10px;
             border-radius: 4px;
+            transition: background-color 0.3s;
         }
         .nav a:hover, .nav a.active {
             background-color: rgba(255,255,255,0.3);
@@ -119,6 +124,7 @@
             border-radius: 4px;
             flex-grow: 1;
             text-align: center;
+            transition: background-color 0.3s;
         }
         .menu a:hover, .menu a.active { 
             background-color: #003366;
@@ -152,6 +158,7 @@
             border-radius: 4px;
             font-family: 'Roboto', sans-serif;
             font-weight: 700;
+            transition: background-color 0.3s;
         }
         button:hover { 
             background-color: #003366;
@@ -162,6 +169,58 @@
         }
         h2, h3 {
             color: var(--primary-blue);
+        }
+        .dark-mode h2, .dark-mode h3 {
+            color: var(--secondary-yellow);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--primary-blue);
+        }
+        .dark-mode .stat-card {
+            background: var(--menu-bg);
+            border-left-color: var(--secondary-yellow);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+        .dark-mode .stat-number {
+            color: var(--secondary-yellow);
+        }
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
         }
         @media (max-width: 768px) {
             .container {
@@ -184,89 +243,151 @@
             }
             .dashboard-actions button {
                 width: 100%;
+                margin-bottom: 10px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="Bikes_kolesar_belorumen_RGB.png" alt="BAZA logo" class="logo-left">
-        <img src="Bikes_belorumen_RGB.png" alt="BAZA portal logo" class="logo-center">
-        <div class="user-info" id="userInfo"></div>
-        <button class="theme-toggle" id="themeToggle">🌓</button>
+        <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'">
+        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
+        <div class="user-info" id="userInfo">
+            <span id="userName"></span>
+            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
 
     <div class="nav">
+        <a href="#" onclick="showNotification('BAZA funkcionalnost še ni implementirana')">BAZA</a>
         <a href="dashboard.html" class="active">Nadzorna plošča</a>
-        <a href="locks.html">Ključavnice</a>
         <a href="users.html">Uporabniki</a>
-        <a href="reports.html">Poročila</a>
     </div>
 
     <div class="container">
         <div class="menu">
             <a href="dashboard.html" class="active">🏠 Nadzorna plošča</a>
-            <a href="locks.html">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
             <a href="users.html">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
-            <a href="index.html">🚪 Odjavi se</a>
+            <a href="#" onclick="logout()">🚪 Odjavi se</a>
         </div>
 
         <div class="content">
             <div class="dashboard">
                 <h2>Nadzorna plošča</h2>
-                <p>Dobrodošli v upravljavskem portalu <span class="highlight">BAZA</span></p>
-                <p>🔄 Povezano s Firebase</p>
+                <p>Dobrodošli v upravljavskem portalu <span class="highlight">NOMAGO bikes</span></p>
+                <div class="connection-status">
+                    <span>🔄</span> Povezano s Firebase
+                </div>
                 
                 <h3>📋 Pregledi ključavnic</h3>
                 <p>📊 Vir podatkov: Firebase | Zadnja osvežitev: <span id="lastUpdate">Nalaganje...</span></p>
                 
-                <div>
-                    <p><strong>0</strong> Zamujeni pregledi</p>
-                    <p><strong>0</strong> Pregledi kmalu</p>
-                    <p><strong>0</strong> Skupaj ključavnic</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div>Zamujeni pregledi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div>Pregledi kmalu</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div>Skupaj ključavnic</div>
+                    </div>
                 </div>
                 
                 <div class="dashboard-actions">
-                    <button>🔧 Odpri preglede</button>
-                    <button>📊 Statistika</button>
-                    <button>✉️ Pošlji obvestilo</button>
+                    <button onclick="showNotification('Pregledi - funkcionalnost v razvoju')">🔧 Odpri preglede</button>
+                    <button onclick="showNotification('Statistika - funkcionalnost v razvoju')">📊 Statistika</button>
+                    <button onclick="showNotification('Obvestila - funkcionalnost v razvoju')">✉️ Pošlji obvestilo</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Preveri če je uporabnik prijavljen in admin
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        if (!currentUser || currentUser.vloga !== 'admin') {
-            window.location.href = 'index.html';
-        } else {
-            document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
+        // Preveri če je uporabnik prijavljen
+        function checkAuth() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
+                window.location.href = 'index.html';
+                return null;
+            }
+            return currentUser;
+        }
+
+        // Odjava
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Prikaži obvestilo
+        function showNotification(message) {
+            alert(message);
+        }
+
+        // Inicializacija
+        const currentUser = checkAuth();
+        if (currentUser) {
+            document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
         }
         
-        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        // Posodobi čas zadnje osvežitve
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
 
         // Temni način
         const themeToggle = document.getElementById('themeToggle');
-        if (localStorage.getItem('theme') === 'dark') {
+        
+        // Preveri lokalno shrambo za shranjeno temo
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
             document.body.classList.add('dark-mode');
             themeToggle.textContent = '☀️';
+        } else {
+            themeToggle.textContent = '🌙';
         }
-
+        
+        // Poslušalec za gumb za preklop teme
         themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-            themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-        });
-
-        // Označi aktivno stran
-        document.querySelectorAll('.nav a').forEach(link => {
-            if (link.href === window.location.href) {
-                link.classList.add('active');
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
             }
         });
+
+        // Prilagodi velikost logotipov za mobilne naprave
+        function adjustLogoSize() {
+            const logos = document.querySelectorAll('.logo-left, .logo-center');
+            const size = window.innerWidth <= 768 ? '40px' : '50px';
+            logos.forEach(logo => {
+                logo.style.height = size;
+            });
+        }
+
+        window.addEventListener('resize', adjustLogoSize);
+        adjustLogoSize();
+
+        // Posodobi čas vsako minuto
+        setInterval(() => {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
+        }, 60000);
     </script>
 </body>
 </html>
