@@ -426,15 +426,6 @@
         function refreshUserList() {
             loadUsers();
         }
-
-        // Global functions
-        window.showAddUserForm = showAddUserForm;
-        window.editUser = editUser;
-        window.deleteUser = deleteUser;
-        window.closeModal = closeModal;
-        window.refreshUserList = refreshUserList;
-        window.logout = logout;
-        window.showNotification = showNotification;
     </script>
 </body>
 </html>
@@ -446,13 +437,13 @@
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
         <div class="user-info" id="userInfo">
             <span id="userName"></span>
-            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+            <button class="logout-btn" id="logoutBtn" title="Odjavi se">🚪</button>
         </div>
         <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
 
     <div class="nav">
-        <a href="#" onclick="showNotification('BAZA funkcionalnost še ni implementirana')">BAZA</a>
+        <a href="#" id="bazaLink">BAZA</a>
         <a href="dashboard.html">Nadzorna plošča</a>
         <a href="users.html" class="active">Uporabniki</a>
     </div>
@@ -460,11 +451,11 @@
     <div class="container">
         <div class="menu">
             <a href="dashboard.html">🏠 Nadzorna plošča</a>
-            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="#" id="pregledLink">🔧 Pregledi ključavnic <span>0</span></a>
             <a href="users.html" class="active">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
-            <a href="#" onclick="logout()">🚪 Odjavi se</a>
+            <a href="#" id="logoutMenuLink">🚪 Odjavi se</a>
         </div>
 
         <div class="content">
@@ -475,8 +466,8 @@
                 <div id="messageContainer"></div>
                 
                 <div class="dashboard-actions">
-                    <button onclick="showAddUserForm()" id="addUserBtn">➕ Dodaj uporabnika</button>
-                    <button onclick="refreshUserList()">🔄 Osveži seznam</button>
+                    <button id="addUserBtn">➕ Dodaj uporabnika</button>
+                    <button id="refreshBtn">🔄 Osveži seznam</button>
                 </div>
 
                 <div id="usersList">
@@ -493,7 +484,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Dodaj novega uporabnika</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" id="closeModal">&times;</span>
             </div>
             <form id="userForm">
                 <input type="hidden" id="userId">
@@ -549,7 +540,7 @@
                 
                 <div class="dashboard-actions">
                     <button type="submit" id="saveUserBtn">Shrani uporabnika</button>
-                    <button type="button" onclick="closeModal()" style="background: #6c757d;">Prekliči</button>
+                    <button type="button" id="cancelBtn" style="background: #6c757d;">Prekliči</button>
                 </div>
             </form>
         </div>
@@ -591,6 +582,15 @@
     <script>
         let currentUser = null;
         let editingUserId = null;
+
+        // Global functions - define immediately
+        window.showAddUserForm = showAddUserForm;
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+        window.closeModal = closeModal;
+        window.refreshUserList = refreshUserList;
+        window.logout = logout;
+        window.showNotification = showNotification;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
@@ -720,7 +720,7 @@
                             <td>${user.sistemi ? user.sistemi.join(', ') : ''}</td>
                             <td class="${statusClass}">${user.status === 'active' ? 'Aktiven' : 'Neaktiven'}</td>
                             <td>
-                                ${currentUser.vloga === 'admin' ? `
+                                ${currentUser && currentUser.vloga === 'admin' ? `
                                     <button onclick="editUser('${doc.id}')" class="action-btn edit-btn">Uredi</button>
                                     ${doc.id !== 'admin' ? `<button onclick="deleteUser('${doc.id}')" class="action-btn delete-btn">Izbriši</button>` : ''}
                                 ` : ''}
