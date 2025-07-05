@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obvestila - NOMAGO bikes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #004899;
+            --nav-bg: #fbb900;
+            --nav-text: #333333;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --menu-bg: #0a1a33;
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+        }
+
+        body { 
+            font-family: 'Roboto', Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .header { 
+            display: flex;
+            align-items: center;
+            padding: 20px; 
+            background-color: var(--primary-blue);
+            color: white;
+            position: relative;
+        }
+        .logo-left {
+            height: 50px;
+        }
+        .logo-center {
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .user-info {
+            position: absolute;
+            right: 80px;
+            color: white;
+            font-weight: 400;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+        .nav { 
+            display: flex;
+            justify-content: center;
+            background-color: var(--nav-bg);
+            color: var(--nav-text); 
+            padding: 10px; 
+            font-weight: 700;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .nav a { 
+            color: var(--nav-text);
+            text-decoration: none; 
+            margin: 0 15px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active {
+            background-color: rgba(255,255,255,0.3);
+        }
+        .container { 
+            display: flex;
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            flex-direction: column;
+        }
+        .menu { 
+            width: 100%;
+            background-color: var(--menu-bg);
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .menu a { 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 15px;
+            font-weight: 400;
+            border-radius: 4px;
+            flex-grow: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .menu a:hover, .menu a.active { 
+            background-color: #003366;
+        }
+        .content {
+            width: 100%;
+        }
+        .notifications { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .notification-form {
+            background: var(--light-blue);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .dark-mode .notification-form {
+            background: var(--menu-bg);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+        .dark-mode .form-group label {
+            color: var(--secondary-yellow);
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+            background-color: var(--white);
+            color: var(--text-color);
+        }
+        .dark-mode .form-group input, 
+        .dark-mode .form-group select, 
+        .dark-mode .form-group textarea {
+            background-color: var(--card-bg);
+            border-color: #555;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        button { 
+            background-color: var(--primary-blue);
+            color: white; 
+            border: none; 
+            padding: 10px 20px;
+            cursor: pointer; 
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        button:hover { 
+            background-color: #003366;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .highlight {
+            color: var(--secondary-yellow);
+            font-weight: 700;
+        }
+        h2, h3 {
+            color: var(--primary-blue);
+        }
+        .dark-mode h2, .dark-mode h3 {
+            color: var(--secondary-yellow);
+        }
+        .notification-item {
+            background: var(--white);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .dark-mode .notification-item {
+            background: var(--card-bg);
+            border-color: #555;
+        }
+        .notification-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .notification-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin: 0;
+        }
+        .notification-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+        .type-info {
+            background-color: #007bff;
+            color: white;
+        }
+        .type-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .type-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .type-error {
+            background-color: #dc3545;
+            color: white;
+        }
+        .notification-meta {
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .notification-content {
+            margin-bottom: 10px;
+        }
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        .notification-actions button {
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header {
+                padding: 15px;
+            }
+            .logo-left, .logo-center {
+                height: 40px;
+            }
+            .user-info {
+                right: 60px;
+                font-size: 14px;
+                max-width: 150px;
+            }
+            .menu a {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            .notification-actions {
+                position: static;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
+        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
+        <div class="user-info" id="userInfo">
+            <span id="userName"></span>
+            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
+    </div>
+
+    <div class="nav">
+        <a href="dashboard.html">BAZA</a>
+        <a href="users.html" id="usersNavLink" style="display: none;">Uporabniki</a>
+    </div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="dashboard.html">🏠 Nadzorna plošča</a>
+            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
+            <a href="notifications.html" class="active">📢 Obvestila</a>
+            <a href="settings.html">⚙️ Nastavitve</a>
+            <a href="#" onclick="logout()">🚪 Odjavi se</a>
+        </div>
+
+        <div class="content">
+            <div class="notifications">
+                <h2>Upravljanje obvestil</h2>
+                <p>Dodajte in upravljajte obvestila za vse uporabnike sistema <span class="highlight">NOMAGO bikes</span></p>
+                
+                <div class="connection-status">
+                    <span>🔄</span> Povezano s Firebase
+                </div>
+
+                <div class="notification-form">
+                    <h3>Dodaj novo obvestilo</h3>
+                    <form id="notificationForm">
+                        <div class="form-group">
+                            <label for="title">Naslov obvestila *</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Sporočilo *</label>
+                            <textarea id="message" name="message" required placeholder="Vnesite sporočilo obvestila..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="type">Tip obvestila *</label>
+                            <select id="type" name="type" required>
+                                <option value="">Izberite tip</option>
+                                <option value="info">Informacija (modra)</option>
+                                <option value="warning">Opozorilo (rumena)</option>
+                                <option value="success">Uspeh (zelena)</option>
+                                <option value="error">Napaka (rdeča)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="priority">Prioriteta</label>
+                            <select id="priority" name="priority">
+                                <option value="normal">Normalna</option>
+                                <option value="high">Visoka</option>
+                                <option value="urgent">Nujna</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="active" name="active" checked>
+                                <label for="active">Aktivno obvestilo</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-success">📤 Dodaj obvestilo</button>
+                    </form>
+                </div>
+
+                <div class="existing-notifications">
+                    <h3>Obstoječa obvestila</h3>
+                    <div id="notificationsList" class="loading">
+                        Nalaganje obvestil...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration (replace with your actual config)
+        const firebaseConfig = {
+            // Your Firebase config here
+        };
+
+        // Mock Firebase functions for development
+        const mockFirebase = {
+            notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
+            
+            addNotification: function(notification) {
+                const id = Date.now().toString();
+                const newNotification = {
+                    id: id,
+                    ...notification,
+                    createdAt: new Date().toISOString(),
+                    createdBy: JSON.parse(sessionStorage.getItem('currentUser'))?.email || 'admin'
+                };
+                this.notifications.unshift(newNotification);
+                localStorage.setItem('notifications', JSON.stringify(this.notifications));
+                return Promise.resolve(newNotification);
+            },
+            
+            getNotifications: function() {
+                return Promise.resolve(this.notifications);
+            },
+            
+            updateNotification: function(id, updates) {
+                const index = this.notifications.findIndex(n => n.id === id);
+                if (index !== -1) {
+                    this.notifications[index] = { ...this.notifications[index], ...updates };
+                    localStorage.setItem('notifications', JSON.stringify(this.notifications));
+                }
+                return Promise.resolve();
+            },
+            
+            deleteNotification: function(id) {
+                this.notifications = this.notifications.filter(n => n.id !== id);
+                localStorage.setItem('notifications', JSON.stringify(this.notifications));
+                return Promise.resolve();
+            }
+        };
+
+        // Preveri če je uporabnik prijavljen in admin
+        function checkAuth() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
+                window.location.href = 'index.html';
+                return null;
+            }
+            if (currentUser.vloga !== 'admin') {
+                alert('Nimate dovoljenja za dostop do te strani.');
+                window.location.href = 'dashboard.html';
+                return null;
+            }
+            return currentUser;
+        }
+
+        // Odjava
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Prikaži obvestilo
+        function showNotification(message) {
+            alert(message);
+        }
+
+        // Dodaj obvestilo
+        async function addNotification(notificationData) {
+            try {
+                const notification = await mockFirebase.addNotification(notificationData);
+                await loadNotifications();
+                return notification;
+            } catch (error) {
+                console.error('Napaka pri dodajanju obvestila:', error);
+                throw error;
+            }
+        }
+
+        // Naloži obvestila
+        async function loadNotifications() {
+            try {
+                const notifications = await mockFirebase.getNotifications();
+                displayNotifications(notifications);
+            } catch (error) {
+                console.error('Napaka pri nalaganju obvestil:', error);
+                document.getElementById('notificationsList').innerHTML = '<p>Napaka pri nalaganju obvestil.</p>';
+            }
+        }
+
+        // Prikaži obvestila
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notificationsList');
+            
+            if (notifications.length === 0) {
+                container.innerHTML = '<p>Ni obvestil za prikaz.</p>';
+                return;
+            }
+
+            const html = notifications.map(notification => {
+                const date = new Date(notification.createdAt).toLocaleString('sl-SI');
+                const statusText = notification.active ? 'Aktivno' : 'Neaktivno';
+                const statusClass = notification.active ? 'btn-success' : 'btn-danger';
+                
+                return `
+                    <div class="notification-item">
+                        <div class="notification-actions">
+                            <button class="${statusClass}" onclick="toggleNotification('${notification.id}', ${!notification.active})">
+                                ${notification.active ? '⏸️' : '▶️'}
+                            </button>
+                            <button class="btn-danger" onclick="deleteNotification('${notification.id}')">🗑️</button>
+                        </div>
+                        
+                        <div class="notification-header">
+                            <h4 class="notification-title">${notification.title}</h4>
+                            <span class="notification-type type-${notification.type}">${getTypeText(notification.type)}</span>
+                        </div>
+                        
+                        <div class="notification-meta">
+                            📅 ${date} | 👤 ${notification.createdBy} | 🔄 ${statusText} | ⚡ ${getPriorityText(notification.priority)}
+                        </div>
+                        
+                        <div class="notification-content">
+                            ${notification.message}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // Pomožne funkcije
+        function getTypeText(type) {
+            const types = {
+                info: 'Info',
+                warning: 'Opozorilo',
+                success: 'Uspeh',
+                error: 'Napaka'
+            };
+            return types[type] || type;
+        }
+
+        function getPriorityText(priority) {
+            const priorities = {
+                normal: 'Normalna',
+                high: 'Visoka',
+                urgent: 'Nujna'
+            };
+            return priorities[priority] || priority;
+        }
+
+        // Preklopi aktivnost obvestila
+        async function toggleNotification(id, active) {
+            try {
+                await mockFirebase.updateNotification(id, { active });
+                await loadNotifications();
+                showNotification(`Obvestilo ${active ? 'aktivirano' : 'deaktivirano'}.`);
+            } catch (error) {
+                console.error('Napaka pri preklopu obvestila:', error);
+                alert('Napaka pri preklopu obvestila.');
+            }
+        }
+
+        // Izbriši obvestilo
+        async function deleteNotification(id) {
+            if (confirm('Ste prepričani, da želite izbrisati to obvestilo?')) {
+                try {
+                    await mockFirebase.deleteNotification(id);
+                    await loadNotifications();
+                    showNotification('Obvestilo uspešno izbrisano.');
+                } catch (error) {
+                    console.error('Napaka pri brisanju obvestila:', error);
+                    alert('Napaka pri brisanju obvestila.');
+                }
+            }
+        }
+
+        // Inicializacija
+        const currentUser = checkAuth();
+        if (currentUser) {
+            document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
+            
+            // Show users navigation links only for admin
+            if (currentUser.vloga === 'admin') {
+                document.getElementById('usersNavLink').style.display = 'inline-block';
+                document.getElementById('usersMenuLink').style.display = 'inline-block';
+            }
+            
+            // Load existing notifications
+            loadNotifications();
+        }
+
+        // Form submission
+        document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const notificationData = {
+                title: formData.get('title'),
+                message: formData.get('message'),
+                type: formData.get('type'),
+                priority: formData.get('priority') || 'normal',
+                active: formData.get('active') === 'on'
+            };
+            
+            try {
+                await addNotification(notificationData);
+                this.reset();
+                document.getElementById('active').checked = true; // Reset checkbox to checked
+                showNotification('Obvestilo uspešno dodano!');
+            } catch (error) {
+                alert('Napaka pri dodajanju obvestila.');
+            }
+        });
+
+        // Temni način
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Preveri lokalno shrambo za shranjeno temo
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        } else {
+            themeToggle.textContent = '🌙';
+        }
+        
+        // Poslušalec za gumb za preklop teme
+        themeToggle.addEventListener('click', function() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        });
+
+        // Prilagodi velikost logotipov za mobilne naprave
+        function adjustLogoSize() {
+            const logos = document.querySelectorAll('.logo-left, .logo-center');
+            const size = window.innerWidth <= 768 ? '40px' : '50px';
+            logos.forEach(logo => {
+                logo.style.height = size;
+            });
+        }
+
+        window.addEventListener('resize', adjustLogoSize);
+        adjustLogoSize();
+    </script>
+</body>
+</html>
