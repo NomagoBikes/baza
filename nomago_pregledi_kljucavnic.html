@@ -3,11 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nomago Baza – Preglej me!</title>
+  <title>NOMAGO bikes - Pregledi ključavnic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #ffbb33;
-      --primary-dark: #223957;
+      --primary-blue: #004899;
+      --secondary-yellow: #fbb900;
+      --light-blue: #e9f0f7;
+      --white: #ffffff;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --bg-color: #f4f4f4;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --menu-bg: #004899;
+      --nav-bg: #fbb900;
+      --nav-text: #333333;
       --ok: #4caf50;
       --fail: #e53935;
       --warn: #fb8c00;
@@ -18,22 +29,33 @@
       --radius: 8px;
       --shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f5f7fa;
-      color: #333;
-      margin: 0;
-      padding: 0;
+
+    .dark-mode {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e0e0e0;
+      --menu-bg: #0a1a33;
+      --nav-bg: #333333;
+      --nav-text: #ffffff;
     }
     
-    header {
-      background: var(--primary);
-      padding: 12px 16px;
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .header {
+      background: var(--primary-blue);
+      padding: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow);
+      position: relative;
     }
     
     .header-left {
@@ -42,15 +64,21 @@
       gap: 1rem;
     }
     
+    .logo-left {
+      height: 50px;
+      cursor: pointer;
+    }
+    
     .back-button {
       background: rgba(255,255,255,0.2);
       color: white;
       border: none;
-      padding: 8px 12px;
+      padding: 10px 15px;
       border-radius: var(--radius);
       cursor: pointer;
       text-decoration: none;
       font-size: 0.9rem;
+      font-weight: 600;
       transition: all 0.3s ease;
     }
     
@@ -58,44 +86,96 @@
       background: rgba(255,255,255,0.3);
     }
     
+    .page-title {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
     .user-display {
       color: white;
       font-size: 0.9rem;
       background: rgba(255,255,255,0.1);
-      padding: 4px 12px;
-      border-radius: 12px;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+    
+    .theme-toggle:hover {
+      opacity: 0.8;
+    }
+    
+    .nav {
+      display: flex;
+      justify-content: center;
+      background-color: var(--nav-bg);
+      color: var(--nav-text);
+      padding: 10px;
+      font-weight: 700;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+    
+    .nav a {
+      color: var(--nav-text);
+      text-decoration: none;
+      margin: 0 15px;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    
+    .nav a:hover, .nav a.active {
+      background-color: rgba(255,255,255,0.3);
     }
     
     .container {
-      padding: 12px;
+      padding: 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
     
     .access-info {
-      background: rgba(255, 187, 51, 0.1);
-      border: 1px solid rgba(255, 187, 51, 0.3);
-      padding: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--secondary-yellow);
+      padding: 15px;
       border-radius: var(--radius);
-      margin-bottom: 16px;
-      color: #856404;
+      margin-bottom: 20px;
+      color: var(--text-color);
       font-size: 0.9rem;
+      box-shadow: var(--shadow);
     }
     
     .alerts-bar {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
     
     .alert {
-      padding: 12px;
+      padding: 15px;
       border-radius: var(--radius);
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 500;
+      box-shadow: var(--shadow);
     }
     
     .alert-overdue {
@@ -113,28 +193,36 @@
     .filter-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-      background: white;
-      padding: 12px;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: var(--card-bg);
+      padding: 20px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
     
     select, input {
-      padding: 8px 12px;
+      padding: 10px 15px;
       border: 1px solid #ddd;
       border-radius: var(--radius);
       min-width: 160px;
+      font-family: 'Roboto', sans-serif;
+      background: var(--card-bg);
+      color: var(--text-color);
+    }
+    
+    .dark-mode select, .dark-mode input {
+      border-color: #555;
     }
     
     .location-card {
-      background: white;
+      background: var(--card-bg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       overflow: hidden;
       position: relative;
+      transition: all 0.3s ease;
     }
     
     .location-card.has-overdue {
@@ -146,29 +234,35 @@
     }
     
     .location-header {
-      background: var(--primary-dark);
+      background: var(--primary-blue);
       color: white;
-      padding: 12px 16px;
+      padding: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     
-    .location-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .location-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    
+    .location-info p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
     }
     
     .location-alerts {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
     
     .alert-badge {
-      padding: 4px 8px;
-      border-radius: 12px;
+      padding: 6px 12px;
+      border-radius: 15px;
       font-size: 0.8rem;
       font-weight: 600;
     }
@@ -184,25 +278,31 @@
     }
     
     .location-body {
-      padding: 12px;
+      padding: 20px;
+    }
+    
+    .location-meta {
+      margin-bottom: 15px;
+      color: var(--text-light);
+      font-size: 0.9rem;
     }
     
     .rack-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
     }
     
     .rack-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px 10px;
+      padding: 15px;
       border: 2px solid #eee;
       border-radius: var(--radius);
       position: relative;
       transition: all 0.3s ease;
-      min-width: 140px;
+      background: var(--card-bg);
     }
     
     .rack-item.overdue {
@@ -226,18 +326,23 @@
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     
     .rack-number {
-      font-weight: bold;
-      font-size: 1.1rem;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--primary-blue);
+    }
+    
+    .dark-mode .rack-number {
+      color: var(--secondary-yellow);
     }
     
     .inspection-due {
       font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 8px;
+      padding: 3px 8px;
+      border-radius: 10px;
       font-weight: 600;
       text-align: center;
     }
@@ -258,55 +363,57 @@
     }
     
     .last-inspection {
-      font-size: 0.7rem;
-      color: #666;
-      margin-bottom: 4px;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-bottom: 8px;
       text-align: center;
     }
     
     .rack-select {
       width: 100%;
-      max-width: 120px;
-      padding: 6px 8px;
+      max-width: 140px;
+      padding: 8px 10px;
       border-radius: var(--radius);
       border: 2px solid #ddd;
       text-align: center;
       cursor: pointer;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-weight: 600;
-      font-size: 0.85rem;
-      background: white;
-      appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right 6px center;
-      background-size: 14px;
-      padding-right: 24px;
+      font-size: 0.9rem;
+      background: var(--card-bg);
+      color: var(--text-color);
       transition: all 0.3s ease;
     }
     
     .rack-select:hover {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(255, 187, 51, 0.2);
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 2px rgba(0, 72, 153, 0.2);
     }
     
     .rack-select:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(255, 187, 51, 0.3);
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(0, 72, 153, 0.3);
     }
     
     .inspection-notes {
       width: 100%;
-      padding: 4px 6px;
+      padding: 8px 10px;
       border-radius: var(--radius);
       border: 1px solid #ddd;
       font-size: 0.8rem;
       resize: vertical;
-      height: 40px;
+      height: 50px;
+      font-family: 'Roboto', sans-serif;
+      background: var(--card-bg);
+      color: var(--text-color);
     }
     
-    /* Status barve */
+    .dark-mode .inspection-notes {
+      border-color: #555;
+    }
+    
+    /* Status colors */
     .status-BP { background: var(--ok); color: white; }
     .status-X { background: var(--fail); color: white; }
     .status-NP { background: var(--warn); color: white; }
@@ -314,56 +421,95 @@
     .status-NO { background: var(--unlockfail); color: white; }
     
     .export-button {
-      background: var(--primary-dark);
+      background: var(--primary-blue);
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border-radius: var(--radius);
       cursor: pointer;
       font-weight: 600;
-      margin-left: 8px;
+      font-family: 'Roboto', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    .export-button:hover {
+      background: #003366;
+    }
+    
+    .export-button.secondary {
+      background: var(--secondary-yellow);
+      color: var(--text-dark);
+    }
+    
+    .export-button.secondary:hover {
+      background: #e6a600;
     }
     
     .summary-card {
-      background: white;
-      padding: 16px;
+      background: var(--card-bg);
+      padding: 20px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+      gap: 20px;
     }
     
     .summary-item {
       text-align: center;
-      padding: 12px;
+      padding: 15px;
       border-radius: var(--radius);
       border: 1px solid #eee;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .summary-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
     }
     
     .summary-number {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 4px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary-blue);
+    }
+    
+    .dark-mode .summary-number {
+      color: var(--secondary-yellow);
+    }
+    
+    .summary-item.overdue .summary-number {
+      color: var(--overdue);
+    }
+    
+    .summary-item.due-soon .summary-number {
+      color: var(--due-soon);
+    }
+    
+    .summary-item.maintenance .summary-number {
+      color: var(--fail);
     }
     
     .summary-label {
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-light);
+      font-weight: 500;
     }
     
     .no-access {
       text-align: center;
-      padding: 3rem 2rem;
-      background: white;
+      padding: 4rem 2rem;
+      background: var(--card-bg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       margin: 2rem 0;
     }
     
     .no-access h2 {
-      color: var(--text-dark);
+      color: var(--text-color);
       margin-bottom: 1rem;
     }
     
@@ -371,10 +517,51 @@
       color: var(--text-light);
       font-size: 1.1rem;
     }
+    
+    .logout-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background-color 0.3s;
+      margin-left: 10px;
+    }
+    
+    .logout-btn:hover {
+      background-color: #c82333;
+    }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .header-left, .header-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .logo-left {
+        height: 40px;
+      }
+      
+      .user-display {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+      
       .rack-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
       }
       
       .filter-bar {
@@ -383,19 +570,40 @@
       
       select, input {
         width: 100%;
+        min-width: auto;
       }
       
       .summary-card {
         grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      
+      .location-header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+      
+      .nav {
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      
+      .nav a {
+        margin: 0;
+        flex-grow: 1;
+        text-align: center;
+        font-size: 0.9rem;
       }
     }
   </style>
   
   <!-- Modal for inspection logs -->
   <div id="logsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
-    <div style="background: white; margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto;">
+    <div style="background: var(--card-bg); margin: 2% auto; padding: 2rem; border-radius: 12px; max-width: 90%; max-height: 90%; overflow-y: auto; color: var(--text-color);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
-        <h2 style="color: var(--text-dark); margin: 0;">📋 Logi pregledov</h2>
+        <h2 style="color: var(--primary-blue); margin: 0;">📋 Logi pregledov</h2>
         <button onclick="closeLogsModal()" style="background: var(--fail); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Zapri</button>
       </div>
       
@@ -429,15 +637,25 @@
   </div>
 </head>
 <body>
-  <header>
+  <div class="header">
     <div class="header-left">
+      <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'"></a>
       <a href="#" class="back-button" onclick="goBackToBaza()">← Nazaj v BAZO</a>
-      <h1>Preglej me!</h1>
+      <h1 class="page-title">Pregledi ključavnic</h1>
     </div>
-    <div class="user-display" id="userDisplay">
-      Uporabnik: Loading...
+    <div class="header-right">
+      <div class="user-display" id="userDisplay">
+        Uporabnik: Loading...
+        <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
-  </header>
+  </div>
+  
+  <div class="nav">
+    <a href="dashboard.html">BAZA</a>
+    <a href="#" class="active">Pregledi ključavnic</a>
+  </div>
   
   <div class="container">
     <!-- User access info -->
@@ -479,7 +697,7 @@
         📊 Izvozi poročilo
       </button>
       
-      <button class="export-button" onclick="showInspectionLogs()" style="background: var(--primary); margin-left: 8px;">
+      <button class="export-button secondary" onclick="showInspectionLogs()">
         📋 Ogled logov
       </button>
     </div>
@@ -489,7 +707,7 @@
 
   <!-- Firebase Integration Script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getFirestore, 
         collection, 
@@ -500,7 +718,7 @@
         deleteDoc,
         updateDoc,
         serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
@@ -532,209 +750,6 @@
   </script>
 
   <script>
-    // ============================================================================
-    // POPOLN SEZNAM VSEH POSTAJ - KOPIRAN IZ online_viewer_net.htm
-    // ============================================================================
-    const ALL_LOCATIONS = [
-      // KolesCE sistem - Celje in okolica
-      { system: "KolesCE", municipality: "Braslovče", name: "Braslovče trg", terminal: "5953", racks: 6 },
-      { system: "KolesCE", municipality: "Celje", name: "Krekov trg", terminal: "3250", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Prešernova ulica", terminal: "3251", racks: 14 },
-      { system: "KolesCE", municipality: "Celje", name: "Ljubljanska cesta", terminal: "3252", racks: 8 },
-      { system: "KolesCE", municipality: "Celje", name: "Na zelenici - TUŠ", terminal: "3253", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Bolnica Celje", terminal: "3254", racks: 12 },
-      { system: "KolesCE", municipality: "Celje", name: "Avtobusna postaja", terminal: "3255", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Mariborska cesta – TUŠ", terminal: "3256", racks: 8 },
-      { system: "KolesCE", municipality: "Celje", name: "Dvorana Zlatorog Celje", terminal: "3257", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Hudinja", terminal: "3258", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Nova vas", terminal: "3259", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Lava", terminal: "3260", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Ostrožno", terminal: "3261", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Dečkova cesta", terminal: "3262", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Levstikova ulica", terminal: "3263", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Tkalska ulica", terminal: "3264", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Citycenter", terminal: "3265", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Muzejski trg", terminal: "3266", racks: 8 },
-      { system: "KolesCE", municipality: "Celje", name: "Kladivar", terminal: "3290", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Mariborska cesta - Lidl", terminal: "3291", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Spodnji grad", terminal: "3292", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "P+R Ulica XIV. divizije", terminal: "3293", racks: 36 },
-      { system: "KolesCE", municipality: "Celje", name: "Zagrad", terminal: "3294", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Skalna klet", terminal: "5939", racks: 8 },
-      { system: "KolesCE", municipality: "Celje", name: "Plava Laguna", terminal: "5940", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Trubarjeva ulica", terminal: "5941", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Dečkova cesta - Ingrad", terminal: "5942", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Ribarjeva ulica", terminal: "5943", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Ulica Mesta Grevenbroich - Drapšinova ul.", terminal: "5944", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Pod lipami", terminal: "5945", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Milčinskega ulica", terminal: "5946", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Celjski sejem", terminal: "5947", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Polule", terminal: "5948", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Mirna pot - pokopališče", terminal: "5949", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Teharje", terminal: "5950", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Ljubečna", terminal: "5951", racks: 10 },
-      { system: "KolesCE", municipality: "Celje", name: "Lopata", terminal: "5954", racks: 5 },
-      { system: "KolesCE", municipality: "Celje", name: "Škofja vas", terminal: "5955", racks: 6 },
-      { system: "KolesCE", municipality: "Celje", name: "Šmartno v R. dolini", terminal: "5956", racks: 5 },
-      { system: "KolesCE", municipality: "Celje", name: "Trnovlje", terminal: "5957", racks: 4 },
-      { system: "KolesCE", municipality: "Celje", name: "Trnovlje - cesta A", terminal: "5966", racks: 10 },
-      
-      // Laško
-      { system: "KolesCE", municipality: "Laško", name: "Rečica", terminal: "3246", racks: 4 },
-      { system: "KolesCE", municipality: "Laško", name: "Trubarjevo nabrežje", terminal: "3267", racks: 6 },
-      { system: "KolesCE", municipality: "Laško", name: "Železniška postaja Laško", terminal: "3268", racks: 8 },
-      { system: "KolesCE", municipality: "Laško", name: "Thermana Laško", terminal: "3269", racks: 6 },
-      { system: "KolesCE", municipality: "Laško", name: "Dvorana Tri Lilije", terminal: "3270", racks: 6 },
-      { system: "KolesCE", municipality: "Laško", name: "TIC Rimske Toplice", terminal: "3271", racks: 6 },
-      { system: "KolesCE", municipality: "Laško", name: "Šentrupert", terminal: "5960", racks: 4 },
-      { system: "KolesCE", municipality: "Laško", name: "Jurklošter", terminal: "5961", racks: 4 },
-      
-      // Polzela
-      { system: "KolesCE", municipality: "Polzela", name: "Polzela", terminal: "3277", racks: 5 },
-      { system: "KolesCE", municipality: "Polzela", name: "Športna dvorana Polzela", terminal: "3278", racks: 5 },
-      
-      // Sevnica
-      { system: "KolesCE", municipality: "Sevnica", name: "Občina Sevnica", terminal: "5962", racks: 5 },
-      { system: "KolesCE", municipality: "Sevnica", name: "Trg Svobode", terminal: "5964", racks: 5 },
-      { system: "KolesCE", municipality: "Sevnica", name: "OŠ Boštanj", terminal: "5969", racks: 5 },
-      
-      // Slovenske Konjice
-      { system: "KolesCE", municipality: "Slovenske Konjice", name: "AP Slovenske Konjice", terminal: "3283", racks: 6 },
-      { system: "KolesCE", municipality: "Slovenske Konjice", name: "Mizarska cesta", terminal: "3284", racks: 6 },
-      { system: "KolesCE", municipality: "Slovenske Konjice", name: "Gimnazija Slovenske Konjice", terminal: "3285", racks: 6 },
-      { system: "KolesCE", municipality: "Slovenske Konjice", name: "Poslovna cona LIP", terminal: "3286", racks: 6 },
-      
-      // Šentjur
-      { system: "KolesCE", municipality: "Šentjur", name: "Železniška postaja Šentjur", terminal: "3241", racks: 16 },
-      { system: "KolesCE", municipality: "Šentjur", name: "IKC Šentjur", terminal: "3242", racks: 8 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Zgornji trg", terminal: "3243", racks: 6 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Mestni trg", terminal: "3295", racks: 10 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Zdravstveni dom Šentjur", terminal: "3296", racks: 6 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Osnovna šola Hruševec", terminal: "3297", racks: 6 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Športni park Rifnik", terminal: "3298", racks: 6 },
-      { system: "KolesCE", municipality: "Šentjur", name: "AP Miloša Zidanška", terminal: "3299", racks: 6 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Grobelno", terminal: "5967", racks: 6 },
-      { system: "KolesCE", municipality: "Šentjur", name: "Proseniško", terminal: "59559", racks: 6 },
-      
-      // Štore
-      { system: "KolesCE", municipality: "Štore", name: "Lipa - Mercator", terminal: "3287", racks: 5 },
-      
-      // Vojnik
-      { system: "KolesCE", municipality: "Vojnik", name: "Vojnik", terminal: "5952", racks: 6 },
-      
-      // Zreče
-      { system: "KolesCE", municipality: "Zreče", name: "Občina Zreče", terminal: "3279", racks: 6 },
-      { system: "KolesCE", municipality: "Zreče", name: "Hotel Dobrava", terminal: "3280", racks: 6 },
-      { system: "KolesCE", municipality: "Zreče", name: "Unior", terminal: "3281", racks: 6 },
-      { system: "KolesCE", municipality: "Zreče", name: "Večgeneracijski center", terminal: "3282", racks: 6 },
-      
-      // Žalec
-      { system: "KolesCE", municipality: "Žalec", name: "Petrovče", terminal: "3248", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Šempeter", terminal: "3249", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Čopova ulica", terminal: "3272", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "AP Žalec", terminal: "3273", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Pokopališče", terminal: "3274", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "I. osnovna šola", terminal: "3275", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Občina Žalec", terminal: "3276", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Levec", terminal: "5958", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Arnovski Gozd", terminal: "5965", racks: 6 },
-      { system: "KolesCE", municipality: "Žalec", name: "Vrbje", terminal: "5968", racks: 6 },
-
-      // GO2GO sistem - Nova Gorica in čezmejno
-      { system: "GO2GO", municipality: "Gorizia", name: "Stazione FS – piazzale Martiri della Libertà d'Italia", terminal: "5931", racks: 2 },
-      { system: "GO2GO", municipality: "Gorizia", name: "Piazza della Vittoria", terminal: "5932", racks: 2 },
-      { system: "GO2GO", municipality: "Gorizia", name: "Università degli studi di Udine – via Armando Diaz", terminal: "5933", racks: 2 },
-      { system: "GO2GO", municipality: "Gorizia", name: "Comune", terminal: "5934", racks: 7 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - most", terminal: "5900", racks: 8 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901", racks: 8 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Bratov Hvalič", terminal: "5902", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "OŠ Milojke Štrukelj", terminal: "5904", racks: 10 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905", racks: 10 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - jug", terminal: "5906", racks: 8 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - jug", terminal: "59108", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Prvomajska ul. - Supernova", terminal: "59109", racks: 10 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Železniška postaja", terminal: "59110", racks: 12 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Hotel Sabotin", terminal: "59111", racks: 7 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Erjavčeva ulica - Športni park", terminal: "59112", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Kajak center", terminal: "59113", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Ul. Milojke Štrukelj", terminal: "59114", racks: 7 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - sever", terminal: "59115", racks: 8 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk KS", terminal: "59116", racks: 5 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Loke", terminal: "59117", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Pristava", terminal: "59118", racks: 6 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna dolina - vzhod", terminal: "59119", racks: 7 },
-      { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - Šolski center", terminal: "59120", racks: 10 },
-      { system: "GO2GO", municipality: "Šempeter", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
-      { system: "GO2GO", municipality: "Šempeter", name: "Šempeter - polje", terminal: "59301", racks: 8 },
-
-      // ZaNaprej sistem - Zagorje ob Savi
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Toplice", terminal: "5963", racks: 10 },
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Mestna ploščad", terminal: "5994", racks: 10 },
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Železniška postaja Zagorje", terminal: "5995", racks: 10 },
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Helfar", terminal: "5996", racks: 10 },
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Evropark", terminal: "5997", racks: 10 },
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Kisovec", terminal: "5998", racks: 10 },
-      { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 },
-
-      // Ljubljana sistem - LUR
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Prešernov trg", terminal: "87001", racks: 10 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Trubarjeva ulica", terminal: "87002", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Konzorcij", terminal: "87003", racks: 10 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Železniška postaja Ljubljana", terminal: "87004", racks: 15 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Slovenska cesta", terminal: "87005", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Miklošičeva cesta", terminal: "87006", racks: 10 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Cankarjeva ulica", terminal: "87007", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Tivoli", terminal: "87008", racks: 12 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Park Zvezda", terminal: "87009", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Mestni muzej Ljubljana", terminal: "87010", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Plečnikova hiša", terminal: "87011", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Križanke", terminal: "87012", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Poljanska cesta", terminal: "87013", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Rimska cesta", terminal: "87014", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Argentinski park", terminal: "87015", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Kongresni trg", terminal: "87016", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Kristalna palača", terminal: "87020", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Dvorana A", terminal: "87021", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Atlantis", terminal: "87022", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "BTC City - Dvorana 18", terminal: "87023", racks: 6 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Stolpnica Delo - Equinox", terminal: "87024", racks: 4 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Big Bang - Trg mladih", terminal: "87025", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Big Bang - Francoska ulica", terminal: "87026", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Nomago - Središka ulica", terminal: "87027", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Črnuče", terminal: "87028", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Zalog", terminal: "87029", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Ekonomska fakulteta", terminal: "87030", racks: 8 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "ISIC - Trg Ajdovščina", terminal: "87031", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Pop TV - Kranjčeva ulica", terminal: "87032", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Supernova Šiška", terminal: "87033", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Rotonda", terminal: "87034", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Glince - Tržaška c.", terminal: "87035", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Four Points by Sheraton Ljubljana Mons", terminal: "87036", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Stara cerkev - Celovška cesta", terminal: "87037", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "E. Leclerc vhod", terminal: "87038", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "E. Leclerc garaža", terminal: "87039", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Novartis", terminal: "87040", racks: 10 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Gimnazija Šiška", terminal: "87041", racks: 7 },
-      { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Čad", terminal: "87042", racks: 4 },
-      { system: "Ljubljana in Medvode", municipality: "Dobrova-Polhov Gradec", name: "P+R Dobrova", terminal: "87086", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Svetje", terminal: "87087", racks: 3 },
-      { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Tržnica Medvode", terminal: "87088", racks: 4 },
-      { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Železniška postaja Medvode", terminal: "87089", racks: 5 },
-      { system: "Ljubljana in Medvode", municipality: "Medvode", name: "Preska", terminal: "87090", racks: 3 }
-    ];
-
-    // ============================================================================
-    // SISTEM MAPPING ZA KOMPATIBILNOST Z BAZA PORTALOM
-    // ============================================================================
-    const SYSTEM_MAPPING = {
-      'KolesCE': 'KolesCE',
-      'LUR': 'Ljubljana in Medvode', 
-      'GO2GO': 'GO2GO',
-      'KOR': 'KOR',
-      'ZaNaprej': 'ZaNaprej'
-    };
-
     // Get current user from BAZA portal
     const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
     
@@ -742,41 +757,27 @@
     let inspectionData = {};
     let inspectionLog = [];
     
-    // Function to get user's accessible locations
-    function getUserAccessibleLocations(user) {
-      if (!user || !user.sistemi) return ALL_LOCATIONS; // If no user, show all
-      
-      // Map user systems to ALL_LOCATIONS
-      const accessibleSystems = user.sistemi.map(system => SYSTEM_MAPPING[system] || system);
-      
-      return ALL_LOCATIONS.filter(location => 
-        accessibleSystems.includes(location.system)
-      );
-    }
-
     // Display current user and access info
     function initializeUserDisplay() {
       if (currentUser.ime) {
-        document.getElementById('userDisplay').textContent = 
-          `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
+        document.getElementById('userDisplay').innerHTML = `
+          ${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})
+          <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+        `;
         
-        // Get accessible locations from ALL_LOCATIONS
-        const accessibleLocations = getUserAccessibleLocations(currentUser);
-        const accessibleSystems = [...new Set(accessibleLocations.map(loc => loc.system))];
-        
-        if (accessibleLocations.length > 0) {
+        if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
           const accessInfo = document.getElementById('accessInfo');
           accessInfo.style.display = 'block';
           accessInfo.innerHTML = `
-            🔐 <strong>Dostop:</strong> ${accessibleSystems.join(', ')} 
-            (${accessibleLocations.length} lokacij, ${accessibleLocations.reduce((sum, loc) => sum + loc.racks, 0)} ključavnic)
+            🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+            (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
           `;
           
           // Show main interface
           document.getElementById('filterBar').style.display = 'flex';
           
-          // Populate system filter with accessible systems
-          populateSystemFilter(accessibleSystems);
+          // Populate system filter with user's accessible systems
+          populateSystemFilter();
           
         } else {
           // No access
@@ -784,43 +785,31 @@
           return false;
         }
       } else {
-        // No user data - show all systems for demo
-        document.getElementById('userDisplay').textContent = 'Demo korisnik (svi sistemi)';
-        document.getElementById('filterBar').style.display = 'flex';
-        populateSystemFilter([...new Set(ALL_LOCATIONS.map(loc => loc.system))]);
+        // No user data
+        document.getElementById('noAccessMessage').style.display = 'block';
+        document.getElementById('noAccessMessage').innerHTML = `
+          <h2>⚠️ Napaka</h2>
+          <p>Ni podatkov o uporabniku. Prosimo, se ponovno prijavite preko BAZA portala.</p>
+        `;
+        return false;
       }
       return true;
     }
 
-    function populateSystemFilter(accessibleSystems) {
+    function populateSystemFilter() {
       const systemFilter = document.getElementById('systemFilter');
       systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
       
-      accessibleSystems.forEach(system => {
-        systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
-      });
-    }
-
-    // Wait for Firebase to be initialized
-    async function waitForFirebase() {
-      let attempts = 0;
-      while (!window.firebaseDb && attempts < 50) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        attempts++;
+      if (currentUser.accessibleSystems) {
+        currentUser.accessibleSystems.forEach(system => {
+          systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
+        });
       }
-      return !!window.firebaseDb;
     }
 
     // Load inspection data from Firebase
     async function loadInspectionData() {
       try {
-        // Wait for Firebase to be available
-        const firebaseReady = await waitForFirebase();
-        if (!firebaseReady) {
-          console.error('Firebase not available after waiting');
-          return;
-        }
-
         const inspectionDataDoc = await window.firebaseFunctions.getDoc(
           window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
         );
@@ -846,12 +835,6 @@
     // Save inspection data to Firebase
     async function saveInspectionData() {
       try {
-        // Check if Firebase is available
-        if (!window.firebaseDb || !window.firebaseFunctions) {
-          console.error('Firebase not available for saving');
-          return;
-        }
-
         await window.firebaseFunctions.setDoc(
           window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
           {
@@ -997,19 +980,12 @@
       if (newStatus === 'BP') return; // Don't notify for "good" status
       
       try {
-        // Check if Firebase is available
-        if (!window.firebaseDb || !window.firebaseFunctions) {
-          console.error('Firebase not available for notifications');
-          return;
-        }
-
         const notificationsDoc = await window.firebaseFunctions.getDoc(
           window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
         );
         
         const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-        const accessibleLocations = getUserAccessibleLocations(currentUser);
-        const location = accessibleLocations.find(loc => loc.terminal === terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
         const locationName = location ? location.name : terminal;
         
         let priority = 'normal';
@@ -1061,9 +1037,9 @@
       const overdue = [];
       const dueSoon = [];
       
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
+      if (!currentUser.accessibleLocations) return;
       
-      accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           const status = getInspectionStatus(location.terminal, i);
           if (status === 'overdue') {
@@ -1080,7 +1056,7 @@
         alertsHtml += `
           <div class="alert alert-overdue">
             <span>⚠️ <strong>${overdue.length} zamujenih pregledov:</strong> ${overdue.slice(0, 3).join(', ')}${overdue.length > 3 ? ` in ${overdue.length - 3} več...` : ''}</span>
-            <button onclick="filterOverdue()" style="background: var(--overdue); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
+            <button onclick="filterOverdue()" style="background: var(--overdue); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600;">Prikaži vse</button>
           </div>
         `;
       }
@@ -1089,7 +1065,7 @@
         alertsHtml += `
           <div class="alert alert-due-soon">
             <span>📅 <strong>${dueSoon.length} pregledov kmalu:</strong> ${dueSoon.slice(0, 3).join(', ')}${dueSoon.length > 3 ? ` in ${dueSoon.length - 3} več...` : ''}</span>
-            <button onclick="filterDueSoon()" style="background: var(--due-soon); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
+            <button onclick="filterDueSoon()" style="background: var(--due-soon); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600;">Prikaži vse</button>
           </div>
         `;
       }
@@ -1105,9 +1081,9 @@
       let ok = 0;
       let needsMaintenance = 0;
       
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
+      if (!currentUser.accessibleLocations) return;
       
-      accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           total++;
           const status = getInspectionStatus(location.terminal, i);
@@ -1127,23 +1103,23 @@
       
       const summaryCard = document.getElementById('summaryCard');
       summaryCard.innerHTML = `
-        <div class="summary-item">
+        <div class="summary-item" onclick="filterLocations()">
           <div class="summary-number">${total}</div>
           <div class="summary-label">Skupaj ključavnic</div>
         </div>
-        <div class="summary-item" style="color: var(--overdue);">
+        <div class="summary-item overdue" onclick="filterOverdue()">
           <div class="summary-number">${overdue}</div>
           <div class="summary-label">Zamujen pregled</div>
         </div>
-        <div class="summary-item" style="color: var(--due-soon);">
+        <div class="summary-item due-soon" onclick="filterDueSoon()">
           <div class="summary-number">${dueSoon}</div>
           <div class="summary-label">Pregled kmalu</div>
         </div>
-        <div class="summary-item" style="color: var(--ok);">
+        <div class="summary-item" onclick="filterLocations()">
           <div class="summary-number">${ok}</div>
           <div class="summary-label">V redu</div>
         </div>
-        <div class="summary-item" style="color: var(--fail);">
+        <div class="summary-item maintenance" onclick="filterMaintenance()">
           <div class="summary-number">${needsMaintenance}</div>
           <div class="summary-label">Potrebno vzdrževanje</div>
         </div>
@@ -1161,19 +1137,40 @@
       filterLocations();
     }
 
+    function filterMaintenance() {
+      // Custom filter for maintenance needs
+      document.getElementById('statusFilter').value = '';
+      const cards = document.querySelectorAll('.location-card');
+      cards.forEach(card => {
+        const terminal = card.dataset.terminal;
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
+        let hasMaintenance = false;
+        
+        if (location) {
+          for (let i = 1; i <= location.racks; i++) {
+            const key = `${terminal}-${i}`;
+            const rackData = inspectionData[key];
+            if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
+              hasMaintenance = true;
+              break;
+            }
+          }
+        }
+        
+        card.style.display = hasMaintenance ? 'block' : 'none';
+      });
+    }
+
     // Enhanced location rendering with inspection status and access control
     function renderLocations() {
       const container = document.getElementById("locationsContainer");
       container.innerHTML = "";
       
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
-      
-      if (accessibleLocations.length === 0) {
-        container.innerHTML = '<div class="no-access"><h2>🚫 Ni dostopa</h2><p>Nimate dostopa do nobenih sistemov za preglede ključavnic.</p></div>';
+      if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
         return;
       }
       
-      accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         // Check if location has any overdue or due soon racks
         let hasOverdue = false;
         let hasDueSoon = false;
@@ -1210,16 +1207,16 @@
         card.innerHTML = `
           <div class="location-header">
             <div class="location-info">
-              <div style="font-weight: bold; font-size: 1.1rem;">${location.name}</div>
-              <div style="font-size: 0.9rem; opacity: 0.9;">Terminal: ${location.terminal}</div>
+              <h3>${location.name}</h3>
+              <p>Terminal: ${location.terminal}</p>
             </div>
             <div class="location-alerts">
               ${alertBadges}
             </div>
           </div>
           <div class="location-body">
-            <div style="margin-bottom: 12px; color: #666; font-size: 0.9rem;">
-              ${location.system} • ${location.municipality}
+            <div class="location-meta">
+              ${location.system} • ${location.municipality} • ${location.racks} ključavnic
             </div>
             <div class="rack-grid" id="racks-${location.terminal}"></div>
           </div>
@@ -1302,8 +1299,7 @@
         if (matches && statusFilter) {
           let hasMatchingStatus = false;
           const terminal = card.dataset.terminal;
-          const accessibleLocations = getUserAccessibleLocations(currentUser);
-          const location = accessibleLocations.find(loc => loc.terminal === terminal);
+          const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
           
           if (location) {
             for (let i = 1; i <= location.racks; i++) {
@@ -1353,9 +1349,9 @@
       let csvContent = "data:text/csv;charset=utf-8,";
       csvContent += "Terminal,Lokacija,Ključavnica,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
       
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
+      if (!currentUser.accessibleLocations) return;
       
-      accessibleLocations.forEach(location => {
+      currentUser.accessibleLocations.forEach(location => {
         for (let i = 1; i <= location.racks; i++) {
           const key = `${location.terminal}-${i}`;
           const rackData = inspectionData[key] || {};
@@ -1382,7 +1378,7 @@
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `pregled_porocilo_${currentUser.uporabniskoIme || 'demo'}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute("download", `pregled_porocilo_${currentUser.uporabniskoIme}_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1400,8 +1396,8 @@
     }
 
     function populateLogFilters() {
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
-      const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
@@ -1411,15 +1407,15 @@
       terminalFilter.innerHTML = '<option value="">Vsi terminali</option>';
       
       terminals.forEach(terminal => {
-        const location = accessibleLocations.find(loc => loc.terminal === terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === terminal);
         const locationName = location ? location.name : terminal;
         terminalFilter.innerHTML += `<option value="${terminal}">${terminal} - ${locationName}</option>`;
       });
     }
 
     function loadInspectionLogs() {
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
-      const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
@@ -1441,17 +1437,15 @@
       const sortedLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       let html = '';
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
-      
       sortedLogs.forEach((log, index) => {
-        const location = accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
         const locationName = location ? location.name : 'Neznana lokacija';
         const date = new Date(log.timestamp);
         const statusColor = getStatusColor(log.newStatus);
         const oldStatusColor = getStatusColor(log.oldStatus);
         
         html += `
-          <div style="border: 1px solid #eee; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; background: #f9f9f9;" data-log-index="${index}">
+          <div style="border: 1px solid #eee; border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem; background: var(--card-bg);" data-log-index="${index}">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
               <div>
                 <strong style="color: var(--text-dark);">${locationName}</strong>
@@ -1475,7 +1469,7 @@
               </span>
             </div>
             
-            ${log.notes ? `<div style="background: white; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid var(--primary);">
+            ${log.notes ? `<div style="background: var(--light-blue); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid var(--primary-blue); color: var(--text-color);">
               <strong>Opomba:</strong> ${log.notes}
             </div>` : ''}
           </div>
@@ -1502,14 +1496,14 @@
       const statusFilter = document.getElementById('logStatusFilter').value;
       const dateFilter = document.getElementById('logDateFilter').value;
       
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
-      const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
+      const accessibleTerminals = currentUser.accessibleLocations ? 
+        currentUser.accessibleLocations.map(loc => loc.terminal) : [];
       
       // Filter logs to only show user's accessible locations
       let filteredLogs = inspectionLog.filter(log => {
         if (!accessibleTerminals.includes(log.terminal)) return false;
         
-        const location = accessibleLocations.find(loc => loc.terminal === log.terminal);
+        const location = currentUser.accessibleLocations.find(loc => loc.terminal === log.terminal);
         const locationName = location ? location.name.toLowerCase() : '';
         
         // Search filter
@@ -1557,6 +1551,14 @@
       } else if (window.history.length > 1) {
         window.history.back();
       } else {
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    function logout() {
+      if (confirm('Ste prepričani, da se želite odjaviti?')) {
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('serviserApp_currentUser');
         window.location.href = 'index.html';
       }
     }
@@ -1595,11 +1597,11 @@
       
       municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
       
-      const accessibleLocations = getUserAccessibleLocations(currentUser);
+      if (!currentUser.accessibleLocations) return;
       
       if (system) {
         const municipalities = new Set();
-        accessibleLocations.forEach(loc => {
+        currentUser.accessibleLocations.forEach(loc => {
           if (loc.system === system) {
             municipalities.add(loc.municipality);
           }
@@ -1610,7 +1612,7 @@
         });
       } else {
         const allMunicipalities = new Set();
-        accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
+        currentUser.accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
         
         Array.from(allMunicipalities).sort().forEach(m => {
           municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
@@ -1622,26 +1624,37 @@
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async () => {
-      console.log('DOM loaded, initializing app...');
-      
       if (!initializeUserDisplay()) {
-        console.log('No user access, stopping initialization');
         return; // Stop if no access
       }
       
-      console.log('User display initialized, waiting for Firebase...');
+      // Initialize theme
+      const currentTheme = localStorage.getItem('theme');
+      const themeToggle = document.getElementById('themeToggle');
       
-      // Wait for Firebase to be ready
-      const firebaseReady = await waitForFirebase();
-      if (firebaseReady) {
-        console.log('Firebase ready, loading inspection data...');
-        // Load inspection data from Firebase
-        await loadInspectionData();
+      if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.textContent = '☀️';
       } else {
-        console.log('Firebase not available, continuing without data');
+        themeToggle.textContent = '🌙';
       }
       
-      console.log('Rendering locations...');
+      // Theme toggle listener
+      themeToggle.addEventListener('click', function() {
+        if (document.body.classList.contains('dark-mode')) {
+          document.body.classList.remove('dark-mode');
+          localStorage.setItem('theme', 'light');
+          themeToggle.textContent = '🌙';
+        } else {
+          document.body.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark');
+          themeToggle.textContent = '☀️';
+        }
+      });
+      
+      // Load inspection data from Firebase
+      await loadInspectionData();
+      
       renderLocations();
       updateMunicipalities();
       updateAlerts();
@@ -1660,19 +1673,31 @@
       // Restore filters if they exist
       restoreFilters();
       
-      console.log('App initialization complete');
+      // Adjust logo size for mobile
+      function adjustLogoSize() {
+        const logo = document.querySelector('.logo-left');
+        if (logo) {
+          logo.style.height = window.innerWidth <= 768 ? '40px' : '50px';
+        }
+      }
+      
+      window.addEventListener('resize', adjustLogoSize);
+      adjustLogoSize();
     });
 
     // Global functions
     window.updateRackStatus = updateRackStatus;
     window.filterOverdue = filterOverdue;
     window.filterDueSoon = filterDueSoon;
+    window.filterMaintenance = filterMaintenance;
     window.filterLocations = filterLocations;
     window.exportInspectionReport = exportInspectionReport;
     window.showInspectionLogs = showInspectionLogs;
     window.closeLogsModal = closeLogsModal;
     window.filterLogs = filterLogs;
     window.goBackToBaza = goBackToBaza;
+    window.logout = logout;
   </script>
 </body>
 </html>
+        
