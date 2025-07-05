@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Uncaught Error: Uncaught SyntaxError: await is only valid in async functions and the top level bodies of modules<!DOCTYPE html>
 <html lang="sl">
 <head>
     <meta charset="UTF-8">
@@ -491,34 +491,6 @@
             color: var(--text-color);
         }
         
-        .management-list {
-            margin-top: 20px;
-        }
-        
-        .management-item {
-            background: var(--light-blue);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .dark-mode .management-item {
-            background: var(--menu-bg);
-        }
-        
-        .item-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.8em;
-        }
-        
         .logout-btn {
             background-color: #dc3545;
             color: white;
@@ -532,6 +504,11 @@
         
         .logout-btn:hover {
             background-color: #c82333;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8em;
         }
         
         /* Modal */
@@ -689,73 +666,109 @@
 
         <!-- Management Tab -->
         <div id="management" class="tab-content">
-            <!-- Systems Management -->
+            <!-- Location Import/Export -->
             <div class="management-section">
-                <h3>🗂️ Upravljanje sistemov</h3>
+                <h3>📥📤 Import/Export lokacij</h3>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="systemName">Ime sistema:</label>
-                        <input type="text" id="systemName" placeholder="npr. NOMAGO bikes">
+                        <label for="csvFile">Uvoz CSV datoteke:</label>
+                        <input type="file" id="csvFile" accept=".csv" onchange="importCSV(event)">
+                        <small>Format: Sistem,Občina,Ime,Terminal,Racki</small>
                     </div>
                     <div class="form-group">
-                        <label for="systemDescription">Opis:</label>
-                        <input type="text" id="systemDescription" placeholder="Opis sistema">
+                        <label for="excelFile">Uvoz Excel datoteke:</label>
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="importExcel(event)">
+                        <small>Prvi list, stolpci: Sistem,Občina,Ime,Terminal,Racki</small>
                     </div>
                 </div>
-                <button onclick="addSystem()" class="btn-success">➕ Dodaj sistem</button>
-                <div class="management-list" id="systemsList"></div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                    <button onclick="exportLocationsCSV()" class="btn-success">📄 Izvozi CSV</button>
+                    <button onclick="exportLocationsExcel()" class="btn-success">📊 Izvozi Excel</button>
+                    <button onclick="downloadTemplate()" class="btn-info">📋 Prenesi predlogo</button>
+                </div>
             </div>
 
-            <!-- Municipalities Management -->
+            <!-- Quick Add Location -->
             <div class="management-section">
-                <h3>🏛️ Upravljanje občin</h3>
+                <h3>🚀 Hitro dodajanje lokacije</h3>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="municipalityName">Ime občine:</label>
-                        <input type="text" id="municipalityName" placeholder="npr. Ljubljana">
-                    </div>
-                    <div class="form-group">
-                        <label for="municipalitySystem">Sistem:</label>
-                        <select id="municipalitySystem">
-                            <option value="">Izberi sistem</option>
+                        <label for="quickSystem">Sistem:</label>
+                        <select id="quickSystem">
+                            <option value="KolesCE">KolesCE</option>
+                            <option value="GO2GO">GO2GO</option>
+                            <option value="ZaNaprej">ZaNaprej</option>
+                            <option value="LUR">LUR</option>
+                            <option value="KOR">KOR</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="quickMunicipality">Občina:</label>
+                        <input type="text" id="quickMunicipality" placeholder="npr. Ljubljana">
+                    </div>
+                    <div class="form-group">
+                        <label for="quickName">Ime lokacije:</label>
+                        <input type="text" id="quickName" placeholder="npr. Kongresni trg">
+                    </div>
+                    <div class="form-group">
+                        <label for="quickTerminal">Terminal ID:</label>
+                        <input type="text" id="quickTerminal" placeholder="npr. 87016">
+                    </div>
+                    <div class="form-group">
+                        <label for="quickRacks">Število rackov:</label>
+                        <input type="number" id="quickRacks" min="1" max="50" value="10">
+                    </div>
                 </div>
-                <button onclick="addMunicipality()" class="btn-success">➕ Dodaj občino</button>
-                <div class="management-list" id="municipalitiesList"></div>
+                <button onclick="quickAddLocation()" class="btn-success">➕ Dodaj lokacijo</button>
             </div>
 
-            <!-- Locations Management -->
+            <!-- Locations Management Table -->
             <div class="management-section">
                 <h3>📍 Upravljanje lokacij</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="locationName">Ime lokacije:</label>
-                        <input type="text" id="locationName" placeholder="npr. Kongresni trg">
-                    </div>
-                    <div class="form-group">
-                        <label for="locationTerminal">Terminal ID:</label>
-                        <input type="text" id="locationTerminal" placeholder="npr. KT001">
-                    </div>
-                    <div class="form-group">
-                        <label for="locationSystem">Sistem:</label>
-                        <select id="locationSystem">
-                            <option value="">Izberi sistem</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="locationMunicipality">Občina:</label>
-                        <select id="locationMunicipality">
-                            <option value="">Izberi občino</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="locationRacks">Število ključavnic:</label>
-                        <input type="number" id="locationRacks" min="1" max="50" value="10">
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="searchLocations" placeholder="Iskanje po imenu, terminalu..." style="flex: 1; min-width: 200px;" oninput="filterLocationsTable()">
+                    <select id="filterSystem" onchange="filterLocationsTable()">
+                        <option value="">Vsi sistemi</option>
+                        <option value="KolesCE">KolesCE</option>
+                        <option value="GO2GO">GO2GO</option>
+                        <option value="ZaNaprej">ZaNaprej</option>
+                        <option value="LUR">LUR</option>
+                        <option value="KOR">KOR</option>
+                    </select>
+                    <select id="filterMunicipality" onchange="filterLocationsTable()">
+                        <option value="">Vse občine</option>
+                    </select>
+                    <button onclick="bulkDelete()" class="btn-danger">🗑️ Masovno brisanje</button>
+                </div>
+                
+                <div style="overflow-x: auto; max-height: 600px; border: 1px solid #ddd; border-radius: 8px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary-blue); color: white; position: sticky; top: 0;">
+                            <tr>
+                                <th style="padding: 10px; border: 1px solid #ddd;">
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                </th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Sistem</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Občina</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Ime lokacije</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Terminal</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Racki</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="locationsTableBody">
+                            <!-- Table rows will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <div id="locationCount">Skupaj: 0 lokacij</div>
+                    <div>
+                        <button onclick="saveAllChanges()" class="btn-success">💾 Shrani vse spremembe</button>
+                        <button onclick="resetChanges()" class="btn-warning">🔄 Ponastavi spremembe</button>
                     </div>
                 </div>
-                <button onclick="addLocation()" class="btn-success">➕ Dodaj lokacijo</button>
-                <div class="management-list" id="locationsList"></div>
             </div>
         </div>
     </div>
@@ -820,14 +833,40 @@
     <script>
         // Global variables
         let currentUser = null;
-        let systems = [];
-        let municipalities = [];
         let locations = [];
         let inspectionData = {};
         let inspectionLog = [];
 
+        // Default locations data
+        const ALL_LOCATIONS = [
+            { system: "KolesCE", municipality: "Celje", name: "Trg republike", terminal: "87001", racks: 12 },
+            { system: "KolesCE", municipality: "Celje", name: "Glavni kolodvor", terminal: "87002", racks: 8 },
+            { system: "KolesCE", municipality: "Celje", name: "CKZ", terminal: "87003", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Fakulteta", terminal: "87004", racks: 15 },
+            { system: "KolesCE", municipality: "Celje", name: "Mercator center", terminal: "87005", racks: 20 },
+            { system: "GO2GO", municipality: "Koper", name: "Glavni trg", terminal: "88001", racks: 14 },
+            { system: "GO2GO", municipality: "Koper", name: "Pristanišče", terminal: "88002", racks: 10 },
+            { system: "GO2GO", municipality: "Izola", name: "Marina", terminal: "88003", racks: 8 },
+            { system: "ZaNaprej", municipality: "Murska Sobota", name: "Trgovski center", terminal: "89001", racks: 12 },
+            { system: "ZaNaprej", municipality: "Murska Sobota", name: "Avtobusna postaja", terminal: "89002", racks: 10 },
+            { system: "LUR", municipality: "Ljubljana", name: "Kongresni trg", terminal: "87016", racks: 16 },
+            { system: "LUR", municipality: "Ljubljana", name: "Prešernov trg", terminal: "87017", racks: 20 },
+            { system: "LUR", municipality: "Ljubljana", name: "Tivoli park", terminal: "87018", racks: 12 },
+            { system: "KOR", municipality: "Kranj", name: "Glavni trg", terminal: "90001", racks: 10 },
+            { system: "KOR", municipality: "Kranj", name: "Železniška postaja", terminal: "90002", racks: 8 }
+        ];
+
+        // Management data
+        let locationsData = [...ALL_LOCATIONS];
+        let originalLocationsData = [...ALL_LOCATIONS];
+        let selectedLocations = new Set();
+
         // Initialize app
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+});
+
+async function initApp() {
             // Check authentication
             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
@@ -851,7 +890,12 @@
             initializeTheme();
 
             // Load data from Firebase
-            await loadAllData();
+            try {
+                await loadAllData();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showNotification('Napaka pri nalaganju podatkov', 'warning');
+            }
 
             // Render initial view
             renderInspections();
@@ -887,23 +931,23 @@
         // Firebase data management
         async function loadAllData() {
             try {
-                // Load systems
-                const systemsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'systems')
-                );
-                systems = systemsDoc.exists() ? systemsDoc.data().data || [] : [];
-
-                // Load municipalities
-                const municipalitiesDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'municipalities')
-                );
-                municipalities = municipalitiesDoc.exists() ? municipalitiesDoc.data().data || [] : [];
-
                 // Load locations
                 const locationsDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
                 );
-                locations = locationsDoc.exists() ? locationsDoc.data().data || [] : [];
+                
+                if (locationsDoc.exists()) {
+                    const firebaseLocations = locationsDoc.data().data || [];
+                    locations = firebaseLocations.length > 0 ? firebaseLocations : [...ALL_LOCATIONS];
+                    locationsData = [...locations];
+                    originalLocationsData = [...locations];
+                } else {
+                    // Initialize with default data
+                    locations = [...ALL_LOCATIONS];
+                    locationsData = [...ALL_LOCATIONS];
+                    originalLocationsData = [...ALL_LOCATIONS];
+                    await saveData('locations', ALL_LOCATIONS);
+                }
 
                 // Load inspection data
                 const inspectionDoc = await window.firebaseFunctions.getDoc(
@@ -962,7 +1006,8 @@
         // Inspection management
         function getAccessibleLocations() {
             if (!currentUser.accessibleSystems || !currentUser.accessibleLocations) {
-                return [];
+                // If no specific access defined, show all locations (for admin)
+                return currentUser.vloga === 'admin' ? locations : [];
             }
 
             return locations.filter(location => {
@@ -1035,9 +1080,11 @@
                     notes: notes || ''
                 });
 
-                // Create notification for BAZA if needed
+                // Create notification for BAZA if needed (without await)
                 if (status !== 'BP') {
-                    await createNotification(type, locationId, rackNumber, status, notes);
+                    createNotification(type, locationId, rackNumber, status, notes).catch(error => {
+                        console.error('Error creating notification:', error);
+                    });
                 }
             } else {
                 // Remove inspection data if status is cleared
@@ -1047,8 +1094,14 @@
             }
 
             // Save to Firebase
-            await saveData('inspectionData', inspectionData);
-            await saveData('inspectionLog', inspectionLog);
+            try {
+                await saveData('inspectionData', inspectionData);
+                await saveData('inspectionLog', inspectionLog);
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showNotification('Napaka pri shranjevanju podatkov', 'danger');
+                return;
+            }
 
             // Refresh display
             renderInspections();
@@ -1114,7 +1167,11 @@
 
         function renderInspections() {
             const container = document.getElementById('locationsContainer');
-            const accessibleLocations = getAccessibleLocations();
+            
+            let accessibleLocations = getAccessibleLocations();
+            if (accessibleLocations.length === 0 && currentUser.vloga === 'admin') {
+                accessibleLocations = locations;
+            }
             
             if (accessibleLocations.length === 0) {
                 container.innerHTML = `
@@ -1243,21 +1300,32 @@
         }
 
         function populateFilters() {
+            let accessibleLocations = getAccessibleLocations();
+            if (accessibleLocations.length === 0 && currentUser.vloga === 'admin') {
+                accessibleLocations = locations;
+            }
+            
             const systemFilter = document.getElementById('systemFilter');
             const municipalityFilter = document.getElementById('municipalityFilter');
             
             // Populate systems
             systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
-            if (currentUser.accessibleSystems) {
-                currentUser.accessibleSystems.forEach(system => {
-                    systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
-                });
+            let availableSystems = [];
+            
+            if (currentUser.vloga === 'admin') {
+                availableSystems = [...new Set(locations.map(loc => loc.system))].sort();
+            } else if (currentUser.accessibleSystems) {
+                availableSystems = currentUser.accessibleSystems;
             }
+            
+            availableSystems.forEach(system => {
+                systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
+            });
             
             // Populate municipalities
             municipalityFilter.innerHTML = '<option value="">Vse občine</option>';
             const accessibleMunicipalities = new Set();
-            getAccessibleLocations().forEach(loc => accessibleMunicipalities.add(loc.municipality));
+            accessibleLocations.forEach(loc => accessibleMunicipalities.add(loc.municipality));
             Array.from(accessibleMunicipalities).sort().forEach(municipality => {
                 municipalityFilter.innerHTML += `<option value="${municipality}">${municipality}</option>`;
             });
@@ -1265,7 +1333,11 @@
 
         function updateAlerts() {
             const alertsSection = document.getElementById('alertsSection');
-            const accessibleLocations = getAccessibleLocations();
+            
+            let accessibleLocations = getAccessibleLocations();
+            if (accessibleLocations.length === 0 && currentUser.vloga === 'admin') {
+                accessibleLocations = locations;
+            }
             
             let overdueStations = 0;
             let overdueRacks = 0;
@@ -1310,7 +1382,10 @@
         }
 
         function updateStatistics() {
-            const accessibleLocations = getAccessibleLocations();
+            let accessibleLocations = getAccessibleLocations();
+            if (accessibleLocations.length === 0 && currentUser.vloga === 'admin') {
+                accessibleLocations = locations;
+            }
             
             let totalStations = accessibleLocations.length;
             let totalRacks = 0;
@@ -1352,12 +1427,18 @@
         }
 
         // Event handlers
-        async function updateStationStatus(terminal, status, notes) {
-            await updateInspection('station', terminal, null, status, notes);
+        function updateStationStatus(terminal, status, notes) {
+            updateInspection('station', terminal, null, status, notes).catch(error => {
+                console.error('Error updating station status:', error);
+                showNotification('Napaka pri posodabljanju statusa postaje', 'danger');
+            });
         }
 
-        async function updateRackStatus(terminal, rackNumber, status, notes) {
-            await updateInspection('rack', terminal, rackNumber, status, notes);
+        function updateRackStatus(terminal, rackNumber, status, notes) {
+            updateInspection('rack', terminal, rackNumber, status, notes).catch(error => {
+                console.error('Error updating rack status:', error);
+                showNotification('Napaka pri posodabljanju statusa ključavnice', 'danger');
+            });
         }
 
         function filterStatus(status) {
@@ -1414,291 +1495,364 @@
 
         // Management functions
         function renderManagement() {
-            renderSystemsList();
-            renderMunicipalitiesList();
-            renderLocationsList();
-            populateManagementSelects();
+            renderLocationsTable();
+            populateManagementFilters();
         }
 
-        function populateManagementSelects() {
-            // Populate system selects
-            const systemSelects = ['municipalitySystem', 'locationSystem'];
-            systemSelects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                select.innerHTML = '<option value="">Izberi sistem</option>';
-                systems.forEach(system => {
-                    select.innerHTML += `<option value="${system.name}">${system.name}</option>`;
-                });
-            });
+        function populateManagementFilters() {
+            const municipalityFilter = document.getElementById('filterMunicipality');
+            const municipalities = [...new Set(locationsData.map(loc => loc.municipality))].sort();
             
-            // Populate municipality select
-            const municipalitySelect = document.getElementById('locationMunicipality');
-            municipalitySelect.innerHTML = '<option value="">Izberi občino</option>';
+            municipalityFilter.innerHTML = '<option value="">Vse občine</option>';
             municipalities.forEach(municipality => {
-                municipalitySelect.innerHTML += `<option value="${municipality.name}">${municipality.name}</option>`;
+                municipalityFilter.innerHTML += `<option value="${municipality}">${municipality}</option>`;
             });
         }
 
-        async function addSystem() {
-            const name = document.getElementById('systemName').value.trim();
-            const description = document.getElementById('systemDescription').value.trim();
+        function renderLocationsTable() {
+            const tbody = document.getElementById('locationsTableBody');
+            const searchTerm = document.getElementById('searchLocations')?.value.toLowerCase() || '';
+            const systemFilter = document.getElementById('filterSystem')?.value || '';
+            const municipalityFilter = document.getElementById('filterMunicipality')?.value || '';
             
-            if (!name) {
-                showNotification('Ime sistema je obvezno', 'warning');
-                return;
-            }
-            
-            if (systems.some(s => s.name === name)) {
-                showNotification('Sistem s tem imenom že obstaja', 'warning');
-                return;
-            }
-            
-            systems.push({
-                id: Date.now(),
-                name: name,
-                description: description,
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser.uporabniskoIme
+            let filteredLocations = locationsData.filter(loc => {
+                const matchesSearch = !searchTerm || 
+                    loc.name.toLowerCase().includes(searchTerm) ||
+                    loc.terminal.toString().includes(searchTerm) ||
+                    loc.municipality.toLowerCase().includes(searchTerm);
+                const matchesSystem = !systemFilter || loc.system === systemFilter;
+                const matchesMunicipality = !municipalityFilter || loc.municipality === municipalityFilter;
+                
+                return matchesSearch && matchesSystem && matchesMunicipality;
             });
-            
-            try {
-                await saveData('systems', systems);
-                document.getElementById('systemName').value = '';
-                document.getElementById('systemDescription').value = '';
-                renderSystemsList();
-                populateManagementSelects();
-                showNotification('Sistem uspešno dodan', 'success');
-            } catch (error) {
-                showNotification('Napaka pri dodajanju sistema', 'danger');
+
+            tbody.innerHTML = filteredLocations.map((loc, index) => `
+                <tr style="background: ${index % 2 === 0 ? '#f9f9f9' : 'white'};">
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                        <input type="checkbox" class="location-checkbox" value="${loc.terminal}" onchange="updateSelectedLocations()">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <select onchange="updateLocationField('${loc.terminal}', 'system', this.value)" style="width: 100%; padding: 4px;">
+                            <option value="KolesCE" ${loc.system === 'KolesCE' ? 'selected' : ''}>KolesCE</option>
+                            <option value="GO2GO" ${loc.system === 'GO2GO' ? 'selected' : ''}>GO2GO</option>
+                            <option value="ZaNaprej" ${loc.system === 'ZaNaprej' ? 'selected' : ''}>ZaNaprej</option>
+                            <option value="LUR" ${loc.system === 'LUR' ? 'selected' : ''}>LUR</option>
+                            <option value="KOR" ${loc.system === 'KOR' ? 'selected' : ''}>KOR</option>
+                        </select>
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <input type="text" value="${loc.municipality}" onchange="updateLocationField('${loc.terminal}', 'municipality', this.value)" style="width: 100%; padding: 4px; border: 1px solid #ccc;">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <input type="text" value="${loc.name}" onchange="updateLocationField('${loc.terminal}', 'name', this.value)" style="width: 100%; padding: 4px; border: 1px solid #ccc;">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <input type="text" value="${loc.terminal}" onchange="updateLocationField('${loc.terminal}', 'terminal', this.value)" style="width: 100%; padding: 4px; border: 1px solid #ccc;">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <input type="number" value="${loc.racks}" min="1" max="50" onchange="updateLocationField('${loc.terminal}', 'racks', parseInt(this.value))" style="width: 100%; padding: 4px; border: 1px solid #ccc;">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                        <button onclick="duplicateLocation('${loc.terminal}')" class="btn-info btn-sm" title="Podvoji">📄</button>
+                        <button onclick="deleteLocation('${loc.terminal}')" class="btn-danger btn-sm" title="Izbriši">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('locationCount').textContent = `Skupaj: ${filteredLocations.length} lokacij (${locationsData.length} vseh)`;
+        }
+
+        function updateLocationField(terminal, field, value) {
+            const location = locationsData.find(loc => loc.terminal === terminal);
+            if (location) {
+                location[field] = value;
+                if (field === 'terminal') {
+                    // Update references if terminal ID changed
+                    renderLocationsTable();
+                }
             }
         }
 
-        async function deleteSystem(id) {
-            if (!confirm('Ste prepričani, da želite izbrisati ta sistem?')) return;
-            
-            systems = systems.filter(s => s.id !== id);
-            
-            try {
-                await saveData('systems', systems);
-                renderSystemsList();
-                populateManagementSelects();
-                showNotification('Sistem uspešno izbrisan', 'success');
-            } catch (error) {
-                showNotification('Napaka pri brisanju sistema', 'danger');
-            }
-        }
-
-        function renderSystemsList() {
-            const container = document.getElementById('systemsList');
-            
-            if (systems.length === 0) {
-                container.innerHTML = '<p>Ni dodanih sistemov.</p>';
-                return;
-            }
-            
-            let html = '';
-            systems.forEach(system => {
-                html += `
-                    <div class="management-item">
-                        <div>
-                            <strong>${system.name}</strong>
-                            ${system.description ? `<br><small>${system.description}</small>` : ''}
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="deleteSystem(${system.id})" class="btn-danger btn-sm">🗑️ Izbriši</button>
-                        </div>
-                    </div>
-                `;
+        function updateSelectedLocations() {
+            selectedLocations.clear();
+            document.querySelectorAll('.location-checkbox:checked').forEach(checkbox => {
+                selectedLocations.add(checkbox.value);
             });
-            
-            container.innerHTML = html;
         }
 
-        async function addMunicipality() {
-            const name = document.getElementById('municipalityName').value.trim();
-            const system = document.getElementById('municipalitySystem').value;
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.location-checkbox');
             
-            if (!name || !system) {
-                showNotification('Ime občine in sistem sta obvezna', 'warning');
-                return;
-            }
-            
-            if (municipalities.some(m => m.name === name && m.system === system)) {
-                showNotification('Občina v tem sistemu že obstaja', 'warning');
-                return;
-            }
-            
-            municipalities.push({
-                id: Date.now(),
-                name: name,
-                system: system,
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser.uporabniskoIme
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
             });
-            
-            try {
-                await saveData('municipalities', municipalities);
-                document.getElementById('municipalityName').value = '';
-                document.getElementById('municipalitySystem').value = '';
-                renderMunicipalitiesList();
-                populateManagementSelects();
-                showNotification('Občina uspešno dodana', 'success');
-            } catch (error) {
-                showNotification('Napaka pri dodajanju občine', 'danger');
-            }
+            updateSelectedLocations();
         }
 
-        async function deleteMunicipality(id) {
-            if (!confirm('Ste prepričani, da želite izbrisati to občino?')) return;
-            
-            municipalities = municipalities.filter(m => m.id !== id);
-            
-            try {
-                await saveData('municipalities', municipalities);
-                renderMunicipalitiesList();
-                populateManagementSelects();
-                showNotification('Občina uspešno izbrisana', 'success');
-            } catch (error) {
-                showNotification('Napaka pri brisanju občine', 'danger');
-            }
+        function filterLocationsTable() {
+            renderLocationsTable();
+            populateManagementFilters();
         }
 
-        function renderMunicipalitiesList() {
-            const container = document.getElementById('municipalitiesList');
-            
-            if (municipalities.length === 0) {
-                container.innerHTML = '<p>Ni dodanih občin.</p>';
-                return;
-            }
-            
-            let html = '';
-            municipalities.forEach(municipality => {
-                html += `
-                    <div class="management-item">
-                        <div>
-                            <strong>${municipality.name}</strong>
-                            <br><small>Sistem: ${municipality.system}</small>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="deleteMunicipality(${municipality.id})" class="btn-danger btn-sm">🗑️ Izbriši</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
+        function quickAddLocation() {
+            const system = document.getElementById('quickSystem').value;
+            const municipality = document.getElementById('quickMunicipality').value.trim();
+            const name = document.getElementById('quickName').value.trim();
+            const terminal = document.getElementById('quickTerminal').value.trim();
+            const racks = parseInt(document.getElementById('quickRacks').value);
 
-        async function addLocation() {
-            const name = document.getElementById('locationName').value.trim();
-            const terminal = document.getElementById('locationTerminal').value.trim();
-            const system = document.getElementById('locationSystem').value;
-            const municipality = document.getElementById('locationMunicipality').value;
-            const racks = parseInt(document.getElementById('locationRacks').value);
-            
-            if (!name || !terminal || !system || !municipality || !racks) {
-                showNotification('Vsa polja so obvezna', 'warning');
+            if (!municipality || !name || !terminal || !racks) {
+                showNotification('Vsa polja so obvezna!', 'warning');
                 return;
             }
-            
-            if (locations.some(l => l.terminal === terminal)) {
-                showNotification('Lokacija s tem terminalom že obstaja', 'warning');
+
+            if (locationsData.some(loc => loc.terminal === terminal)) {
+                showNotification('Terminal ID že obstaja!', 'warning');
                 return;
             }
-            
-            locations.push({
-                id: Date.now(),
-                name: name,
-                terminal: terminal,
+
+            locationsData.push({
                 system: system,
                 municipality: municipality,
-                racks: racks,
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser.uporabniskoIme
+                name: name,
+                terminal: terminal,
+                racks: racks
             });
-            
-            try {
-                await saveData('locations', locations);
-                document.getElementById('locationName').value = '';
-                document.getElementById('locationTerminal').value = '';
-                document.getElementById('locationSystem').value = '';
-                document.getElementById('locationMunicipality').value = '';
-                document.getElementById('locationRacks').value = '10';
-                renderLocationsList();
-                showNotification('Lokacija uspešno dodana', 'success');
-            } catch (error) {
-                showNotification('Napaka pri dodajanju lokacije', 'danger');
-            }
+
+            // Clear form
+            document.getElementById('quickMunicipality').value = '';
+            document.getElementById('quickName').value = '';
+            document.getElementById('quickTerminal').value = '';
+            document.getElementById('quickRacks').value = '10';
+
+            renderLocationsTable();
+            showNotification('Lokacija dodana!', 'success');
         }
 
-        async function deleteLocation(id) {
-            if (!confirm('Ste prepričani, da želite izbrisati to lokacijo? Vsi podatki o pregledih bodo izgubljeni.')) return;
-            
-            const location = locations.find(l => l.id === id);
-            if (location) {
-                // Remove inspection data for this location
-                Object.keys(inspectionData).forEach(key => {
-                    if (key.startsWith(location.terminal + '-')) {
-                        delete inspectionData[key];
-                    }
-                });
-                
-                // Remove from inspection log
-                inspectionLog = inspectionLog.filter(log => log.locationId !== location.terminal);
-            }
-            
-            locations = locations.filter(l => l.id !== id);
-            
-            try {
-                await saveData('locations', locations);
-                await saveData('inspectionData', inspectionData);
-                await saveData('inspectionLog', inspectionLog);
-                renderLocationsList();
-                showNotification('Lokacija uspešno izbrisana', 'success');
-            } catch (error) {
-                showNotification('Napaka pri brisanju lokacije', 'danger');
-            }
-        }
+        function duplicateLocation(terminal) {
+            const location = locationsData.find(loc => loc.terminal === terminal);
+            if (!location) return;
 
-        function renderLocationsList() {
-            const container = document.getElementById('locationsList');
-            
-            if (locations.length === 0) {
-                container.innerHTML = '<p>Ni dodanih lokacij.</p>';
+            const newTerminal = prompt('Vnesite nov terminal ID:', location.terminal + '_copy');
+            if (!newTerminal) return;
+
+            if (locationsData.some(loc => loc.terminal === newTerminal)) {
+                showNotification('Terminal ID že obstaja!', 'warning');
                 return;
             }
-            
-            let html = '';
-            locations.forEach(location => {
-                html += `
-                    <div class="management-item">
-                        <div>
-                            <strong>${location.name}</strong> (${location.terminal})
-                            <br><small>${location.system} • ${location.municipality} • ${location.racks} ključavnic</small>
-                        </div>
-                        <div class="item-actions">
-                            <button onclick="editLocation(${location.id})" class="btn-info btn-sm">✏️ Uredi</button>
-                            <button onclick="deleteLocation(${location.id})" class="btn-danger btn-sm">🗑️ Izbriši</button>
-                        </div>
-                    </div>
-                `;
+
+            locationsData.push({
+                ...location,
+                terminal: newTerminal,
+                name: location.name + ' (kopija)'
             });
-            
-            container.innerHTML = html;
+
+            renderLocationsTable();
+            showNotification('Lokacija podvojena!', 'success');
         }
 
-        function editLocation(id) {
-            const location = locations.find(l => l.id === id);
-            if (!location) return;
+        function deleteLocation(terminal) {
+            if (!confirm('Ste prepričani, da želite izbrisati to lokacijo?')) return;
+
+            locationsData = locationsData.filter(loc => loc.terminal !== terminal);
+            renderLocationsTable();
+            showNotification('Lokacija izbrisana!', 'success');
+        }
+
+        function bulkDelete() {
+            if (selectedLocations.size === 0) {
+                showNotification('Ni izbranih lokacij za brisanje!', 'warning');
+                return;
+            }
+
+            if (!confirm(`Ste prepričani, da želite izbrisati ${selectedLocations.size} lokacij?`)) return;
+
+            locationsData = locationsData.filter(loc => !selectedLocations.has(loc.terminal));
+            selectedLocations.clear();
+            document.getElementById('selectAll').checked = false;
+            renderLocationsTable();
+            showNotification(`Lokacije izbrisane!`, 'success');
+        }
+
+        async function saveAllChanges() {
+            if (!confirm('Ste prepričani, da želite shraniti vse spremembe v Firebase?')) return;
+
+            try {
+                // Update the locations array
+                locations.length = 0;
+                locations.push(...locationsData);
+
+                // Save to Firebase
+                await saveData('locations', locationsData);
+
+                originalLocationsData = [...locationsData];
+                showNotification('Vse spremembe uspešno shranjene!', 'success');
+                
+                // Refresh main view
+                renderInspections();
+                updateStatistics();
+            } catch (error) {
+                console.error('Error saving locations:', error);
+                showNotification('Napaka pri shranjevanju: ' + error.message, 'danger');
+            }
+        }
+
+        function resetChanges() {
+            if (!confirm('Ste prepričani, da želite ponastaviti vse spremembe?')) return;
+
+            locationsData = [...originalLocationsData];
+            renderLocationsTable();
+            showNotification('Spremembe ponastavljene!', 'info');
+        }
+
+        // Import/Export functions
+        function downloadTemplate() {
+            const template = [
+                ['Sistem', 'Občina', 'Ime', 'Terminal', 'Racki'],
+                ['KolesCE', 'Celje', 'Primer lokacije', '99999', '10'],
+                ['LUR', 'Ljubljana', 'Druga lokacija', '99998', '8']
+            ];
+
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                template.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "predloga_lokacije.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportLocationsCSV() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Sistem,Občina,Ime,Terminal,Racki\n" +
+                locationsData.map(loc => 
+                    [loc.system, loc.municipality, loc.name, loc.terminal, loc.racks]
+                    .map(field => `"${field}"`).join(',')
+                ).join('\n');
+
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `lokacije_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
-            document.getElementById('locationName').value = location.name;
-            document.getElementById('locationTerminal').value = location.terminal;
-            document.getElementById('locationSystem').value = location.system;
-            document.getElementById('locationMunicipality').value = location.municipality;
-            document.getElementById('locationRacks').value = location.racks;
+            showNotification('CSV izvožen!', 'success');
+        }
+
+        function exportLocationsExcel() {
+            // Simple Excel-like CSV with tab separators
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Sistem\tObčina\tIme\tTerminal\tRacki\n" +
+                locationsData.map(loc => 
+                    [loc.system, loc.municipality, loc.name, loc.terminal, loc.racks].join('\t')
+                ).join('\n');
+
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `lokacije_${new Date().toISOString().split('T')[0]}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
-            // Remove the old location and let user add as new (simple edit)
-            deleteLocation(id);
+            showNotification('Excel datoteka izvožena!', 'success');
+        }
+
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n').filter(line => line.trim());
+                    const header = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+                    
+                    if (header.length < 5 || !header.includes('Sistem')) {
+                        throw new Error('Napačen format CSV datoteke. Potrebni stolpci: Sistem,Občina,Ime,Terminal,Racki');
+                    }
+
+                    let imported = 0;
+                    let skipped = 0;
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim());
+                        if (values.length < 5) continue;
+
+                        const [system, municipality, name, terminal, racks] = values;
+                        
+                        if (locationsData.some(loc => loc.terminal === terminal)) {
+                            skipped++;
+                            continue;
+                        }
+
+                        locationsData.push({
+                            system: system,
+                            municipality: municipality,
+                            name: name,
+                            terminal: terminal,
+                            racks: parseInt(racks) || 10
+                        });
+                        imported++;
+                    }
+
+                    renderLocationsTable();
+                    showNotification(`CSV uvožen! ${imported} dodanih, ${skipped} preskočenih (duplicirani terminali).`, 'success');
+                } catch (error) {
+                    showNotification('Napaka pri uvozu CSV: ' + error.message, 'danger');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function importExcel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Simple Excel import (treats as CSV with different separators)
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    // Try both comma and tab separators
+                    const separator = csv.includes('\t') ? '\t' : ',';
+                    const lines = csv.split('\n').filter(line => line.trim());
+                    
+                    let imported = 0;
+                    let skipped = 0;
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(separator).map(v => v.replace(/"/g, '').trim());
+                        if (values.length < 5) continue;
+
+                        const [system, municipality, name, terminal, racks] = values;
+                        
+                        if (locationsData.some(loc => loc.terminal === terminal)) {
+                            skipped++;
+                            continue;
+                        }
+
+                        locationsData.push({
+                            system: system,
+                            municipality: municipality,
+                            name: name,
+                            terminal: terminal,
+                            racks: parseInt(racks) || 10
+                        });
+                        imported++;
+                    }
+
+                    renderLocationsTable();
+                    showNotification(`Excel uvožen! ${imported} dodanih, ${skipped} preskočenih.`, 'success');
+                } catch (error) {
+                    showNotification('Napaka pri uvozu Excel: ' + error.message, 'danger');
+                }
+            };
+            reader.readAsText(file);
         }
 
         // Export and reporting functions
@@ -1780,7 +1934,13 @@
 
         function renderLogs() {
             const container = document.getElementById('logsContent');
-            const accessibleTerminals = getAccessibleLocations().map(loc => loc.terminal);
+            
+            let accessibleLocations = getAccessibleLocations();
+            if (accessibleLocations.length === 0 && currentUser.vloga === 'admin') {
+                accessibleLocations = locations;
+            }
+            
+            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
             
             // Filter logs to accessible locations only
             const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.locationId));
@@ -1881,17 +2041,28 @@
         window.filterStatus = filterStatus;
         window.filterLocations = filterLocations;
         window.clearFilters = clearFilters;
-        window.addSystem = addSystem;
-        window.deleteSystem = deleteSystem;
-        window.addMunicipality = addMunicipality;
-        window.deleteMunicipality = deleteMunicipality;
-        window.addLocation = addLocation;
-        window.deleteLocation = deleteLocation;
-        window.editLocation = editLocation;
         window.exportReport = exportReport;
         window.showLogs = showLogs;
         window.closeLogs = closeLogs;
         window.logout = logout;
+        
+        // Management function assignments
+        window.renderManagement = renderManagement;
+        window.quickAddLocation = quickAddLocation;
+        window.updateLocationField = updateLocationField;
+        window.updateSelectedLocations = updateSelectedLocations;
+        window.toggleSelectAll = toggleSelectAll;
+        window.filterLocationsTable = filterLocationsTable;
+        window.duplicateLocation = duplicateLocation;
+        window.deleteLocation = deleteLocation;
+        window.bulkDelete = bulkDelete;
+        window.saveAllChanges = saveAllChanges;
+        window.resetChanges = resetChanges;
+        window.downloadTemplate = downloadTemplate;
+        window.exportLocationsCSV = exportLocationsCSV;
+        window.exportLocationsExcel = exportLocationsExcel;
+        window.importCSV = importCSV;
+        window.importExcel = importExcel;
     </script>
 </body>
 </html>
