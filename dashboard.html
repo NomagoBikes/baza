@@ -399,6 +399,14 @@
         </div>
 
         <div class="content">
+            <!-- Admin obvestila section - samo pomembna obvestila -->
+            <div class="notifications-section" id="notificationsSection" style="display: none;">
+                <h3>📢 Pomembna obvestila</h3>
+                <div id="notificationsList">
+                    <div class="no-notifications">Nalaganje obvestil...</div>
+                </div>
+            </div>
+
             <div class="dashboard">
                 <h2>Baza</h2>
                 <p>Dobrodošli v upravljavskem portalu <span class="highlight">NOMAGO bikes</span></p>
@@ -705,15 +713,25 @@
             alert(message);
         }
 
-        // Naloži in prikaži obvestila
+        // Naloži in prikaži samo pomembna obvestila (ne servisnih)
         async function loadNotifications() {
             try {
                 const notificationsDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
                 );
                 
-                const notifications = notificationsDoc.exists() ? 
-                    notificationsDoc.data().data.filter(n => n.active) : [];
+                let notifications = [];
+                if (notificationsDoc.exists()) {
+                    // Filter out service notifications about locks/racks - only show admin/system notifications
+                    notifications = notificationsDoc.data().data.filter(n => 
+                        n.active && 
+                        !n.title.includes('Servisno obvestilo') && 
+                        !n.title.includes('ključavnica') &&
+                        !n.title.includes('Ključavnica') &&
+                        !n.message.includes('ključavnica') &&
+                        !n.message.includes('Ključavnica')
+                    );
+                }
                 
                 const visibleNotifications = notifications.filter(n => !dismissedNotifications.includes(n.id));
                 displayNotifications(visibleNotifications);
@@ -816,8 +834,16 @@
                     document.getElementById('notificationAdminBtn').style.display = 'inline-block';
                 }
                 
-                // Load inspection statistics (removed notification loading)
+                // Load filtered notifications (no service notifications about locks)
+                loadNotifications();
+                
+                // Load inspection statistics
                 loadInspectionStats();
+                
+                // Debug: Check user access
+                console.log('Current user:', currentUser);
+                console.log('Accessible systems:', currentUser.accessibleSystems);
+                console.log('Accessible locations:', currentUser.accessibleLocations);
             }
             
             // Posodobi čas zadnje osvežitve
@@ -865,14 +891,16 @@
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
             }, 60000);
 
-            // Refresh stats every 5 minutes (removed notification refresh)
+            // Refresh notifications and stats every 5 minutes
             setInterval(() => {
+                loadNotifications();
                 loadInspectionStats();
             }, 5 * 60 * 1000);
         });
 
         // Global function assignments
         window.logout = logout;
+        window.dismissNotification = dismissNotification;
         window.exportInspectionReport = exportInspectionReport;
     </script>
 </body>
