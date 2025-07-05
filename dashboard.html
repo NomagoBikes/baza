@@ -163,6 +163,12 @@
         button:hover { 
             background-color: #003366;
         }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
         .highlight {
             color: var(--secondary-yellow);
             font-weight: 700;
@@ -397,13 +403,14 @@
 
     <div class="nav">
         <a href="dashboard.html" class="active">BAZA</a>
+        <a href="inspections.html">PREGLEDI</a>
         <a href="users.html" id="usersNavLink" style="display: none;">Uporabniki</a>
     </div>
 
     <div class="container">
         <div class="menu">
             <a href="dashboard.html" class="active">🏠 Nadzorna plošča</a>
-            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="inspections.html">🔧 Pregledi</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
@@ -429,29 +436,81 @@
                 <h3>📋 Pregledi ključavnic</h3>
                 <p>📊 Vir podatkov: Firebase | Zadnja osvežitev: <span id="lastUpdate">Nalaganje...</span></p>
                 
-                <div class="stats-grid">
+                <div class="stats-grid" id="statsGrid">
                     <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div>Zamujeni pregledi</div>
+                        <div class="stat-number" id="totalStations">0</div>
+                        <div>Postaje skupaj</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div>Pregledi kmalu</div>
+                        <div class="stat-number" id="totalRacks">0</div>
+                        <div>Ključavnice skupaj</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">0</div>
-                        <div>Skupaj ključavnic</div>
+                        <div class="stat-number" id="overdueStations">0</div>
+                        <div>Zamujeni pregledi postaj</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="overdueRacks">0</div>
+                        <div>Zamujene ključavnice</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="maintenanceNeeded">0</div>
+                        <div>Potrebno vzdrževanje</div>
                     </div>
                 </div>
                 
                 <div class="dashboard-actions">
-                    <button onclick="showNotification('Pregledi - funkcionalnost v razvoju')">🔧 Odpri preglede</button>
-                    <button onclick="showNotification('Statistika - funkcionalnost v razvoju')">📊 Statistika</button>
+                    <button onclick="window.location.href='inspections.html'" class="btn-success">🔧 Odpri preglede</button>
+                    <button onclick="exportInspectionReport()">📊 Izvozi poročilo</button>
                     <button onclick="window.location.href='notifications.html'" id="notificationAdminBtn" style="display: none;">✉️ Upravljaj obvestila</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Firebase Integration Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.firebaseDb = db;
+        window.firebaseFunctions = {
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            serverTimestamp
+        };
+
+        console.log("Firebase initialized in dashboard");
+    </script>
 
     <script>
         // Mock Firebase functions for development
@@ -466,15 +525,197 @@
         // Dismissed notifications (per user session)
         let dismissedNotifications = JSON.parse(sessionStorage.getItem('dismissedNotifications') || '[]');
 
+        // Global variables for inspection data
+        let currentUser = null;
+        let inspectionData = {};
+        let locations = [];
+
         // Preveri če je uporabnik prijavljen
         function checkAuth() {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
                 alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
                 window.location.href = 'index.html';
                 return null;
             }
             return currentUser;
+        }
+
+        // Load inspection statistics from Firebase
+        async function loadInspectionStats() {
+            try {
+                // Load locations
+                const locationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                locations = locationsDoc.exists() ? locationsDoc.data().data || [] : [];
+
+                // Load inspection data
+                const inspectionDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                inspectionData = inspectionDoc.exists() ? inspectionDoc.data().data || {} : {};
+
+                updateDashboardStats();
+            } catch (error) {
+                console.error('Error loading inspection stats:', error);
+            }
+        }
+
+        function getAccessibleLocations() {
+            if (!currentUser.accessibleSystems || !currentUser.accessibleLocations) {
+                return [];
+            }
+
+            return locations.filter(location => {
+                return currentUser.accessibleSystems.includes(location.system) &&
+                       currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
+            });
+        }
+
+        function getInspectionStatus(type, locationId, rackNumber = null) {
+            const key = rackNumber ? `${locationId}-rack-${rackNumber}` : `${locationId}-station`;
+            const data = inspectionData[key];
+            
+            if (!data || !data.lastInspection) {
+                return 'overdue';
+            }
+            
+            const lastDate = new Date(data.lastInspection);
+            const nextDate = new Date(lastDate);
+            nextDate.setMonth(nextDate.getMonth() + 3); // 3 months interval
+            
+            const now = new Date();
+            const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilDue < 0) return 'overdue';
+            if (daysUntilDue <= 14) return 'warning';
+            return 'ok';
+        }
+
+        function updateDashboardStats() {
+            const accessibleLocations = getAccessibleLocations();
+            
+            let totalStations = accessibleLocations.length;
+            let totalRacks = 0;
+            let overdueStations = 0;
+            let overdueRacks = 0;
+            let maintenanceNeeded = 0;
+            
+            accessibleLocations.forEach(location => {
+                totalRacks += location.racks;
+                
+                // Check station status
+                const stationStatus = getInspectionStatus('station', location.terminal);
+                if (stationStatus === 'overdue') overdueStations++;
+                
+                const stationKey = `${location.terminal}-station`;
+                const stationData = inspectionData[stationKey];
+                if (stationData && stationData.currentStatus && stationData.currentStatus !== 'BP') {
+                    maintenanceNeeded++;
+                }
+                
+                // Check racks
+                for (let i = 1; i <= location.racks; i++) {
+                    const rackStatus = getInspectionStatus('rack', location.terminal, i);
+                    if (rackStatus === 'overdue') overdueRacks++;
+                    
+                    const rackKey = `${location.terminal}-rack-${i}`;
+                    const rackData = inspectionData[rackKey];
+                    if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
+                        maintenanceNeeded++;
+                    }
+                }
+            });
+            
+            // Update UI
+            document.getElementById('totalStations').textContent = totalStations;
+            document.getElementById('totalRacks').textContent = totalRacks;
+            document.getElementById('overdueStations').textContent = overdueStations;
+            document.getElementById('overdueRacks').textContent = overdueRacks;
+            document.getElementById('maintenanceNeeded').textContent = maintenanceNeeded;
+        }
+
+        // Export inspection report
+        function exportInspectionReport() {
+            const accessibleLocations = getAccessibleLocations();
+            
+            if (accessibleLocations.length === 0) {
+                alert('Nimate dostopa do nobenih lokacij za izvoz poročila.');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Lokacija,Terminal,Sistem,Občina,Tip,Element,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
+            
+            accessibleLocations.forEach(location => {
+                // Station data
+                const stationKey = `${location.terminal}-station`;
+                const stationData = inspectionData[stationKey] || {};
+                const stationStatus = getInspectionStatus('station', location.terminal);
+                const stationNextDue = getNextInspectionDate(stationData.lastInspection);
+                
+                const stationRow = [
+                    location.name,
+                    location.terminal,
+                    location.system,
+                    location.municipality,
+                    'Postaja',
+                    'Postaja',
+                    stationStatus === 'overdue' ? 'ZAMUJEN' : stationStatus === 'warning' ? 'KMALU' : 'V REDU',
+                    stationData.lastInspection ? new Date(stationData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
+                    stationNextDue.toLocaleDateString('sl-SI'),
+                    stationData.currentStatus || 'Ni podatka',
+                    (stationData.notes || '').replace(/,/g, ';'),
+                    stationData.inspector || 'Ni podatka'
+                ].map(field => `"${field}"`).join(',');
+                
+                csvContent += stationRow + "\n";
+                
+                // Rack data
+                for (let i = 1; i <= location.racks; i++) {
+                    const rackKey = `${location.terminal}-rack-${i}`;
+                    const rackData = inspectionData[rackKey] || {};
+                    const rackStatus = getInspectionStatus('rack', location.terminal, i);
+                    const rackNextDue = getNextInspectionDate(rackData.lastInspection);
+                    
+                    const rackRow = [
+                        location.name,
+                        location.terminal,
+                        location.system,
+                        location.municipality,
+                        'Ključavnica',
+                        `Ključavnica ${i}`,
+                        rackStatus === 'overdue' ? 'ZAMUJEN' : rackStatus === 'warning' ? 'KMALU' : 'V REDU',
+                        rackData.lastInspection ? new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
+                        rackNextDue.toLocaleDateString('sl-SI'),
+                        rackData.currentStatus || 'Ni podatka',
+                        (rackData.notes || '').replace(/,/g, ';'),
+                        rackData.inspector || 'Ni podatka'
+                    ].map(field => `"${field}"`).join(',');
+                    
+                    csvContent += rackRow + "\n";
+                }
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `nomago_dashboard_pregledi_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function getNextInspectionDate(lastInspection) {
+            if (!lastInspection) {
+                return new Date(); // If never inspected, it's overdue
+            }
+            
+            const lastDate = new Date(lastInspection);
+            const nextDate = new Date(lastDate);
+            nextDate.setMonth(nextDate.getMonth() + 3);
+            return nextDate;
         }
 
         // Odjava
@@ -595,6 +836,9 @@
                 
                 // Load notifications for all users
                 loadNotifications();
+                
+                // Load inspection statistics
+                loadInspectionStats();
             }
             
             // Posodobi čas zadnje osvežitve
@@ -642,9 +886,17 @@
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
             }, 60000);
 
-            // Refresh notifications every 5 minutes
-            setInterval(loadNotifications, 5 * 60 * 1000);
+            // Refresh notifications and stats every 5 minutes
+            setInterval(() => {
+                loadNotifications();
+                loadInspectionStats();
+            }, 5 * 60 * 1000);
         });
+
+        // Global function assignments
+        window.logout = logout;
+        window.dismissNotification = dismissNotification;
+        window.exportInspectionReport = exportInspectionReport;
     </script>
 </body>
 </html>
