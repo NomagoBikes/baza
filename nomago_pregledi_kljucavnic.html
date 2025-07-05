@@ -1068,10 +1068,9 @@
                     notes: notes
                 });
                 
-                // Create notification for BAZA if status changed
-                if (oldStatus !== newStatus) {
-                    await createBazaNotification(terminal, rackNumber, oldStatus, newStatus, notes);
-                }
+                // Note: Removed notification creation to prevent spam in dashboard
+                // Notifications are now only managed through the notifications.html admin panel
+                
             } else {
                 // If new status is empty, completely remove this rack's data
                 // This means it goes back to "never inspected" state
@@ -1091,62 +1090,8 @@
             console.log(`Rack ${terminal}-${rackNumber} updated: ${oldStatus} → ${newStatus || 'reset to never inspected'}`);
         }
 
-        // Create notification for BAZA portal
-        async function createBazaNotification(terminal, rackNumber, oldStatus, newStatus, notes) {
-            if (newStatus === 'BP') return; // Don't notify for "good" status
-            
-            try {
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                
-                const notifications = notificationsDoc.exists() ? notificationsDoc.data().data : [];
-                const accessibleLocations = getAccessibleLocations();
-                const location = accessibleLocations.find(loc => loc.terminal === terminal);
-                const locationName = location ? location.name : terminal;
-                
-                let priority = 'normal';
-                let type = 'warning';
-                
-                if (newStatus === 'X') {
-                    priority = 'urgent';
-                    type = 'error';
-                } else if (newStatus === 'NZ' || newStatus === 'NO') {
-                    priority = 'high';
-                }
-                
-                const statusNames = {
-                    'BP': 'V redu',
-                    'X': 'Okvarjena',
-                    'NP': 'Ne deluje pravilno',
-                    'NZ': 'Ne zaklene',
-                    'NO': 'Ne odklene'
-                };
-                
-                const notification = {
-                    id: Date.now(),
-                    title: `Servisno obvestilo - ${locationName}`,
-                    message: `Ključavnica ${rackNumber} je označena kot "${statusNames[newStatus] || newStatus}". ${notes ? 'Opomba: ' + notes : ''}`,
-                    type: type,
-                    priority: priority,
-                    active: true,
-                    createdAt: new Date().toISOString(),
-                    createdBy: currentUser.uporabniskoIme || 'serviser'
-                };
-                
-                notifications.unshift(notification);
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications'),
-                    {
-                        data: notifications,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-            } catch (error) {
-                console.error('Error creating BAZA notification:', error);
-            }
-        }
+        // Note: createBazaNotification function removed to prevent notification spam
+        // All notifications are now managed through the admin notifications panel only
 
         // Update alerts display
         function updateAlerts() {

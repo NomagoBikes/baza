@@ -399,14 +399,6 @@
         </div>
 
         <div class="content">
-            <!-- Obvestila section -->
-            <div class="notifications-section" id="notificationsSection" style="display: none;">
-                <h3>📢 Obvestila</h3>
-                <div id="notificationsList">
-                    <div class="no-notifications">Nalaganje obvestil...</div>
-                </div>
-            </div>
-
             <div class="dashboard">
                 <h2>Baza</h2>
                 <p>Dobrodošli v upravljavskem portalu <span class="highlight">NOMAGO bikes</span></p>
@@ -824,10 +816,7 @@
                     document.getElementById('notificationAdminBtn').style.display = 'inline-block';
                 }
                 
-                // Load notifications for all users
-                loadNotifications();
-                
-                // Load inspection statistics
+                // Load inspection statistics (removed notification loading)
                 loadInspectionStats();
             }
             
@@ -876,16 +865,14 @@
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
             }, 60000);
 
-            // Refresh notifications and stats every 5 minutes
+            // Refresh stats every 5 minutes (removed notification refresh)
             setInterval(() => {
-                loadNotifications();
                 loadInspectionStats();
             }, 5 * 60 * 1000);
         });
 
         // Global function assignments
         window.logout = logout;
-        window.dismissNotification = dismissNotification;
         window.exportInspectionReport = exportInspectionReport;
     </script>
 </body>
