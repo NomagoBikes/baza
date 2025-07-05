@@ -55,6 +55,12 @@
             left: 50%;
             transform: translateX(-50%);
         }
+        .user-info {
+            position: absolute;
+            right: 60px;
+            color: white;
+            font-weight: 400;
+        }
         .theme-toggle {
             position: absolute;
             right: 20px;
@@ -87,13 +93,18 @@
             max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px; 
+            flex-direction: column;
         }
         .menu { 
-            width: 250px;
+            width: 100%;
             background-color: var(--menu-bg);
             padding: 10px; 
             border-radius: 8px; 
-            margin-right: 20px;
+            margin-bottom: 20px;
+            display: none; /* Skrit za mobilne naprave */
+        }
+        .menu.active {
+            display: block; /* Prikazan ko je meni odprt */
         }
         .menu a { 
             color: white; 
@@ -106,7 +117,7 @@
             background-color: #003366;
         }
         .content {
-            flex: 1;
+            width: 100%;
         }
         .dashboard { 
             background: var(--card-bg); 
@@ -136,12 +147,41 @@
         h2, h3 {
             color: var(--primary-blue);
         }
+        .menu-toggle {
+            display: none;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            .container {
+                padding: 10px;
+            }
+            .header {
+                padding: 15px;
+            }
+            .logo-left, .logo-center {
+                height: 40px;
+            }
+            .user-info {
+                font-size: 14px;
+                right: 50px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left">
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center">
+        <div class="user-info" id="userInfo"></div>
         <button class="theme-toggle" id="themeToggle">🌓</button>
     </div>
 
@@ -150,7 +190,8 @@
     </div>
 
     <div class="container">
-        <div class="menu">
+        <button class="menu-toggle" id="menuToggle">🍔 Meni</button>
+        <div class="menu" id="mainMenu">
             <a href="dashboard.html">🏠 Nadzorna plošča</a>
             <a href="#">🔧 Pregledi ključavnic <span>0</span></a>
             <a href="users.html">👥 Uporabniki</a>
@@ -181,9 +222,12 @@
 
     <script>
         // Preveri če je uporabnik prijavljen
-        const currentUser = sessionStorage.getItem('currentUser');
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         if (!currentUser) {
             window.location.href = 'index.html';
+        } else {
+            // Prikaži podatke uporabnika
+            document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
         }
         
         // Posodobi čas zadnje osvežitve
@@ -215,6 +259,26 @@
                 themeToggle.textContent = '☀️';
             }
         });
+
+        // Mobilni meni
+        const menuToggle = document.getElementById('menuToggle');
+        const mainMenu = document.getElementById('mainMenu');
+        
+        menuToggle.addEventListener('click', function() {
+            mainMenu.classList.toggle('active');
+        });
+
+        // Prilagodi velikost logotipov za mobilne naprave
+        function adjustLogoSize() {
+            const logos = document.querySelectorAll('.logo-left, .logo-center');
+            const size = window.innerWidth <= 768 ? '40px' : '50px';
+            logos.forEach(logo => {
+                logo.style.height = size;
+            });
+        }
+
+        window.addEventListener('resize', adjustLogoSize);
+        adjustLogoSize();
     </script>
 </body>
 </html>
