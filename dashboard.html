@@ -522,9 +522,69 @@
             return currentUser;
         }
 
+        // Debug: Check user access and Firebase data
+        async function debugFirebaseAccess() {
+            console.log('=== DEBUG: Firebase Access Check ===');
+            console.log('Current user:', currentUser);
+            console.log('Accessible systems:', currentUser?.accessibleSystems);
+            console.log('Accessible locations:', currentUser?.accessibleLocations);
+            
+            try {
+                // Check locations document
+                const locationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                console.log('Locations document exists:', locationsDoc.exists());
+                if (locationsDoc.exists()) {
+                    const locationsData = locationsDoc.data().data || [];
+                    console.log('Total locations in Firebase:', locationsData.length);
+                    console.log('Sample locations:', locationsData.slice(0, 3));
+                } else {
+                    console.log('⚠️ No locations document found in Firebase!');
+                }
+                
+                // Check inspection data document
+                const inspectionDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                console.log('Inspection data document exists:', inspectionDoc.exists());
+                if (inspectionDoc.exists()) {
+                    const inspectionData = inspectionDoc.data().data || {};
+                    console.log('Total inspection records:', Object.keys(inspectionData).length);
+                    console.log('Sample inspection keys:', Object.keys(inspectionData).slice(0, 5));
+                }
+                
+                // Check notifications document
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                console.log('Notifications document exists:', notificationsDoc.exists());
+                if (notificationsDoc.exists()) {
+                    const notifications = notificationsDoc.data().data || [];
+                    console.log('Total notifications:', notifications.length);
+                    console.log('Active notifications:', notifications.filter(n => n.active).length);
+                    console.log('Service notifications about locks:', 
+                        notifications.filter(n => 
+                            n.title.includes('ključavnica') || 
+                            n.title.includes('pregled') ||
+                            n.message.includes('ključavnica') ||
+                            n.message.includes('pregled')
+                        ).length
+                    );
+                }
+                
+            } catch (error) {
+                console.error('❌ Firebase access error:', error);
+            }
+            console.log('=== END DEBUG ===');
+        }
+
         // Load inspection statistics from Firebase
         async function loadInspectionStats() {
             try {
+                // Debug Firebase access
+                await debugFirebaseAccess();
+                
                 // Load locations
                 const locationsDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
@@ -537,9 +597,19 @@
                 );
                 inspectionData = inspectionDoc.exists() ? inspectionDoc.data().data || {} : {};
 
+                console.log('Loaded locations:', locations.length);
+                console.log('Loaded inspection data entries:', Object.keys(inspectionData).length);
+                
                 updateDashboardStats();
             } catch (error) {
                 console.error('Error loading inspection stats:', error);
+                
+                // Show user-friendly error message
+                document.getElementById('totalStations').textContent = 'ERR';
+                document.getElementById('totalRacks').textContent = 'ERR';
+                document.getElementById('overdueStations').textContent = 'ERR';
+                document.getElementById('overdueRacks').textContent = 'ERR';
+                document.getElementById('maintenanceNeeded').textContent = 'ERR';
             }
         }
 
@@ -722,14 +792,29 @@
                 
                 let notifications = [];
                 if (notificationsDoc.exists()) {
-                    // Filter out service notifications about locks/racks - only show admin/system notifications
+                    // Filter out ALL service notifications about locks/racks/pregledov - only show admin/system notifications
                     notifications = notificationsDoc.data().data.filter(n => 
                         n.active && 
                         !n.title.includes('Servisno obvestilo') && 
                         !n.title.includes('ključavnica') &&
                         !n.title.includes('Ključavnica') &&
+                        !n.title.includes('pregled') &&
+                        !n.title.includes('Pregled') &&
+                        !n.title.includes('pregledov') &&
+                        !n.title.includes('Pregledov') &&
+                        !n.title.includes('System pregledov') &&
                         !n.message.includes('ključavnica') &&
-                        !n.message.includes('Ključavnica')
+                        !n.message.includes('Ključavnica') &&
+                        !n.message.includes('pregled') &&
+                        !n.message.includes('Pregled') &&
+                        !n.message.includes('pregledov') &&
+                        !n.message.includes('Pregledov') &&
+                        !n.message.includes('zamujen') &&
+                        !n.message.includes('Zamujen') &&
+                        !n.message.includes('Taksi preglsite') &&
+                        !n.message.includes('ima zamujen') &&
+                        n.type !== 'maintenance' &&
+                        n.priority !== 'inspection'
                     );
                 }
                 
@@ -902,6 +987,7 @@
         window.logout = logout;
         window.dismissNotification = dismissNotification;
         window.exportInspectionReport = exportInspectionReport;
+        window.debugFirebaseAccess = debugFirebaseAccess; // Add debug function to global scope
     </script>
 </body>
 </html>
