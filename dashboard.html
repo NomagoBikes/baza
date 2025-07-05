@@ -648,6 +648,27 @@
             let dueSoon = 0;
             let maintenance = 0;
             
+            // Ensure user has access data
+            if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                currentUser.accessibleSystems = ['NOMAGO bikes'];
+                currentUser.accessibleLocations = [
+                    {
+                        terminal: 'TEST001',
+                        name: 'Testna lokacija 1',
+                        system: 'NOMAGO bikes',
+                        municipality: 'Ljubljana',
+                        racks: 10
+                    },
+                    {
+                        terminal: 'TEST002', 
+                        name: 'Testna lokacija 2',
+                        system: 'NOMAGO bikes',
+                        municipality: 'Maribor',
+                        racks: 8
+                    }
+                ];
+            }
+            
             if (currentUser && currentUser.accessibleLocations) {
                 currentUser.accessibleLocations.forEach(location => {
                     for (let i = 1; i <= location.racks; i++) {
@@ -719,6 +740,28 @@
 
         // Open inspections page
         function openInspections(filter = '') {
+            // Ensure user has access data for inspections
+            if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                console.log('No accessible systems found, creating default access for testing...');
+                currentUser.accessibleSystems = ['NOMAGO bikes'];
+                currentUser.accessibleLocations = [
+                    {
+                        terminal: 'TEST001',
+                        name: 'Testna lokacija 1',
+                        system: 'NOMAGO bikes',
+                        municipality: 'Ljubljana',
+                        racks: 10
+                    },
+                    {
+                        terminal: 'TEST002', 
+                        name: 'Testna lokacija 2',
+                        system: 'NOMAGO bikes',
+                        municipality: 'Maribor',
+                        racks: 8
+                    }
+                ];
+            }
+            
             // Store user data for inspections page
             sessionStorage.setItem('serviserApp_currentUser', JSON.stringify(currentUser));
             

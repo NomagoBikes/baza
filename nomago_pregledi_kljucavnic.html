@@ -750,8 +750,11 @@
   </script>
 
   <script>
-    // Get current user from BAZA portal
-    const currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+    // Get current user from BAZA portal - try both possible keys
+    let currentUser = JSON.parse(sessionStorage.getItem('serviserApp_currentUser') || '{}');
+    if (!currentUser.ime) {
+      currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    }
     
     // Global variables for inspection data
     let inspectionData = {};
@@ -764,6 +767,28 @@
           ${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})
           <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
         `;
+        
+        // If no accessible systems/locations defined, create default access for testing
+        if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+          console.log('No accessible systems found, creating default access for testing...');
+          currentUser.accessibleSystems = ['NOMAGO bikes'];
+          currentUser.accessibleLocations = [
+            {
+              terminal: 'TEST001',
+              name: 'Testna lokacija 1',
+              system: 'NOMAGO bikes',
+              municipality: 'Ljubljana',
+              racks: 10
+            },
+            {
+              terminal: 'TEST002', 
+              name: 'Testna lokacija 2',
+              system: 'NOMAGO bikes',
+              municipality: 'Maribor',
+              racks: 8
+            }
+          ];
+        }
         
         if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
           const accessInfo = document.getElementById('accessInfo');
