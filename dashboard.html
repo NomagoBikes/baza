@@ -391,7 +391,7 @@
     <div class="container">
         <div class="menu">
             <a href="dashboard.html" class="active">🏠 Baza</a>
-            <a href="inspections.html">🔧 Pregledi</a>
+            <a href="nomago_pregledi_kljucavnic.html">🔧 Pregledi</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
@@ -441,7 +441,7 @@
                 </div>
                 
                 <div class="dashboard-actions">
-                    <button onclick="window.location.href='inspections.html'" class="btn-success">🔧 Odpri preglede</button>
+                    <button onclick="window.location.href='nomago_pregledi_kljucavnic.html'" class="btn-success">🔧 Odpri preglede</button>
                     <button onclick="exportInspectionReport()">📊 Izvozi poročilo</button>
                     <button onclick="window.location.href='notifications.html'" id="notificationAdminBtn" style="display: none;">✉️ Upravljaj obvestila</button>
                 </div>
@@ -555,7 +555,7 @@
         }
 
         function getInspectionStatus(type, locationId, rackNumber = null) {
-            const key = rackNumber ? `${locationId}-rack-${rackNumber}` : `${locationId}-station`;
+            const key = rackNumber ? `${locationId}-${rackNumber}` : `${locationId}-station`;
             const data = inspectionData[key];
             
             if (!data || !data.lastInspection) {
@@ -601,7 +601,7 @@
                     const rackStatus = getInspectionStatus('rack', location.terminal, i);
                     if (rackStatus === 'overdue') overdueRacks++;
                     
-                    const rackKey = `${location.terminal}-rack-${i}`;
+                    const rackKey = `${location.terminal}-${i}`;
                     const rackData = inspectionData[rackKey];
                     if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
                         maintenanceNeeded++;
@@ -655,7 +655,7 @@
                 
                 // Rack data
                 for (let i = 1; i <= location.racks; i++) {
-                    const rackKey = `${location.terminal}-rack-${i}`;
+                    const rackKey = `${location.terminal}-${i}`;
                     const rackData = inspectionData[rackKey] || {};
                     const rackStatus = getInspectionStatus('rack', location.terminal, i);
                     const rackNextDue = getNextInspectionDate(rackData.lastInspection);
@@ -716,11 +716,21 @@
         // Naloži in prikaži obvestila
         async function loadNotifications() {
             try {
-                const notifications = await mockFirebase.getActiveNotifications();
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                const notifications = notificationsDoc.exists() ? 
+                    notificationsDoc.data().data.filter(n => n.active) : [];
+                
                 const visibleNotifications = notifications.filter(n => !dismissedNotifications.includes(n.id));
                 displayNotifications(visibleNotifications);
             } catch (error) {
                 console.error('Napaka pri nalaganju obvestil:', error);
+                // Fallback to mock data if Firebase fails
+                const notifications = await mockFirebase.getActiveNotifications();
+                const visibleNotifications = notifications.filter(n => !dismissedNotifications.includes(n.id));
+                displayNotifications(visibleNotifications);
             }
         }
 
@@ -876,6 +886,7 @@
         // Global function assignments
         window.logout = logout;
         window.dismissNotification = dismissNotification;
+        window.exportInspectionReport = exportInspectionReport;
     </script>
 </body>
 </html>

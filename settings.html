@@ -1,3 +1,208 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOMAGO bikes - Sistemske nastavitve</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #004899;
+            --nav-bg: #fbb900;
+            --nav-text: #333333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+            --border-color: #e0e0e0;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --menu-bg: #0a1a33;
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+            --border-color: #333333;
+        }
+
+        body { 
+            font-family: 'Roboto', Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .header { 
+            display: flex;
+            align-items: center;
+            padding: 20px; 
+            background-color: var(--primary-blue);
+            color: white;
+            position: relative;
+        }
+
+        .logo-left {
+            height: 50px;
+        }
+
+        .logo-center {
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .user-info {
+            position: absolute;
+            right: 80px;
+            color: white;
+            font-weight: 400;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .nav { 
+            height: 20px;
+            background-color: var(--nav-bg);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+
+        .container { 
+            display: flex;
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            flex-direction: column;
+        }
+
+        .menu { 
+            width: 100%;
+            background-color: var(--menu-bg);
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .menu a { 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 15px;
+            font-weight: 400;
+            border-radius: 4px;
+            flex-grow: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover, .menu a.active { 
+            background-color: #003366;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        .settings-section { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            color: var(--primary-blue);
+            margin: 0;
+            font-size: 1.3em;
+        }
+
+        .dark-mode .section-title {
+            color: var(--secondary-yellow);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-connected {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .setting-card {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .setting-card {
+            background: var(--menu-bg);
+            border-left-color: var(--secondary-yellow);
+        }
+
+        .setting-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
         .setting-card h4 {
             margin: 0 0 10px 0;
             color: var(--primary-blue);
@@ -37,12 +242,6 @@
         button:hover { 
             background-color: #003366;
             transform: translateY(-1px);
-        }
-
-        button:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-            transform: none;
         }
 
         .btn-secondary {
@@ -104,7 +303,7 @@
             color: var(--text-color);
         }
 
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -116,7 +315,7 @@
             box-sizing: border-box;
         }
 
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 2px rgba(0, 72, 153, 0.2);
@@ -204,19 +403,6 @@
             color: var(--text-light);
         }
 
-        .log-viewer {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            max-height: 200px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            margin-top: 10px;
-        }
-
         .feature-toggle {
             display: flex;
             justify-content: space-between;
@@ -242,21 +428,6 @@
             font-size: 0.9em;
             color: var(--text-light);
             margin-top: 3px;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .modal {
@@ -294,6 +465,19 @@
 
         .close:hover {
             color: var(--text-color);
+        }
+
+        .log-viewer {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
         }
 
         h2, h3 {
@@ -391,7 +575,7 @@
                         <h4>🔄 Povezava s Firebase</h4>
                         <p>Testira in preveri povezavo z Firebase bazo podatkov.</p>
                         <div class="button-group">
-                            <button onclick="testFirebaseConnection()" id="testConnectionBtn">Preveri povezavo</button>
+                            <button onclick="testFirebaseConnection()">Preveri povezavo</button>
                             <button onclick="resetFirebaseConnection()" class="btn-warning">Ponovno poveži</button>
                         </div>
                     </div>
@@ -400,7 +584,7 @@
                         <h4>🔧 Začetni podatki</h4>
                         <p>Ustvari osnovne podatke in admin račun če še ne obstajajo.</p>
                         <div class="button-group">
-                            <button onclick="initializeDatabase()" class="btn-success">Inicializiraj podatkovno bazo</button>
+                            <button onclick="initializeDatabase()" class="btn-success">Inicializiraj bazo</button>
                             <button onclick="createAdminUser()" class="btn-secondary">Ustvari admin račun</button>
                         </div>
                     </div>
@@ -410,7 +594,7 @@
                         <p>Naredi varnostno kopijo podatkov ali obnovi iz varnostne kopije.</p>
                         <div class="button-group">
                             <button onclick="backupDatabase()" class="btn-success">Naredi backup</button>
-                            <button onclick="restoreDatabase()" class="btn-warning">Obnovi iz backup</button>
+                            <button onclick="restoreDatabase()" class="btn-warning">Obnovi backup</button>
                         </div>
                     </div>
                     
@@ -418,7 +602,7 @@
                         <h4>🧹 Čiščenje podatkov</h4>
                         <p>Počisti stare podatke in optimiziraj podatkovno bazo.</p>
                         <div class="button-group">
-                            <button onclick="cleanupOldData()" class="btn-warning">Počisti stare podatke</button>
+                            <button onclick="cleanupOldData()" class="btn-warning">Počisti podatke</button>
                             <button onclick="optimizeDatabase()" class="btn-secondary">Optimiziraj DB</button>
                         </div>
                     </div>
@@ -901,220 +1085,4 @@
         });
     </script>
 </body>
-</html><!DOCTYPE html>
-<html lang="sl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOMAGO bikes - Sistemske nastavitve</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-blue: #004899;
-            --secondary-yellow: #fbb900;
-            --light-blue: #e9f0f7;
-            --white: #ffffff;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --bg-color: #f4f4f4;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --menu-bg: #004899;
-            --nav-bg: #fbb900;
-            --nav-text: #333333;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --error-color: #dc3545;
-            --border-color: #e0e0e0;
-        }
-
-        .dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --menu-bg: #0a1a33;
-            --nav-bg: #333333;
-            --nav-text: #ffffff;
-            --border-color: #333333;
-        }
-
-        body { 
-            font-family: 'Roboto', Arial, sans-serif; 
-            background-color: var(--bg-color); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text-color);
-            transition: all 0.3s ease;
-        }
-
-        .header { 
-            display: flex;
-            align-items: center;
-            padding: 20px; 
-            background-color: var(--primary-blue);
-            color: white;
-            position: relative;
-        }
-
-        .logo-left {
-            height: 50px;
-        }
-
-        .logo-center {
-            height: 50px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .user-info {
-            position: absolute;
-            right: 80px;
-            color: white;
-            font-weight: 400;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .theme-toggle {
-            position: absolute;
-            right: 20px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1;
-            transition: opacity 0.3s;
-        }
-
-        .theme-toggle:hover {
-            opacity: 0.8;
-        }
-
-        .nav { 
-            height: 20px;
-            background-color: var(--nav-bg);
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-        }
-
-        .container { 
-            display: flex;
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            flex-direction: column;
-        }
-
-        .menu { 
-            width: 100%;
-            background-color: var(--menu-bg);
-            padding: 10px; 
-            border-radius: 8px; 
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 10px 15px;
-            font-weight: 400;
-            border-radius: 4px;
-            flex-grow: 1;
-            text-align: center;
-            transition: background-color 0.3s;
-        }
-
-        .menu a:hover, .menu a.active { 
-            background-color: #003366;
-        }
-
-        .content {
-            width: 100%;
-        }
-
-        .settings-section { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-        }
-
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .section-title {
-            color: var(--primary-blue);
-            margin: 0;
-            font-size: 1.3em;
-        }
-
-        .dark-mode .section-title {
-            color: var(--secondary-yellow);
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .status-connected {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-        }
-
-        .status-disconnected {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
-        .status-warning {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
-        }
-
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .setting-card {
-            background: var(--light-blue);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-blue);
-            transition: all 0.3s ease;
-        }
-
-        .dark-mode .setting-card {
-            background: var(--menu-bg);
-            border-left-color: var(--secondary-yellow);
-        }
-
-        .setting-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .setting-card h4 {
-            margin: 0
+</html>
