@@ -4,23 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NOMAGO bikes - Nadzorna plošča</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body { 
-            font-family: Arial, sans-serif; 
+            font-family: 'Roboto', Arial, sans-serif; 
             background-color: #f4f4f4; 
             margin: 0; 
             padding: 0; 
+            color: #333;
         }
         .header { 
-            text-align: center; 
+            display: flex;
+            align-items: center;
             padding: 20px; 
-            background-color: #004899; 
+            background-color: #004899; /* Primarna modra barva */
             color: white; 
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            margin-left: 10px; /* "0" odmik od roba */
+        }
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-weight: 700; /* Roboto Bold */
         }
         .nav { 
             background-color: #333; 
             color: white; 
             padding: 10px; 
+            font-weight: 400; /* Roboto Regular */
         }
         .nav a { 
             color: white; 
@@ -28,47 +43,67 @@
             margin: 0 15px; 
         }
         .container { 
+            display: flex;
             max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px; 
         }
-        .dashboard { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-        }
         .menu { 
-            background-color: #004899; 
+            width: 250px;
+            background-color: #004899; /* Primarna modra barva */
             padding: 10px; 
             border-radius: 8px; 
-            margin-bottom: 20px;
+            margin-right: 20px;
         }
         .menu a { 
             color: white; 
             text-decoration: none; 
             display: block; 
             padding: 10px; 
+            font-weight: 400; /* Roboto Regular */
         }
         .menu a:hover { 
-            background-color: #003366; 
+            background-color: #003366; /* Temnejši odtenek primarne barve */
+        }
+        .content {
+            flex: 1;
+        }
+        .dashboard { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         button { 
-            background-color: #004899; 
+            background-color: #004899; /* Primarna modra barva */
             color: white; 
             border: none; 
-            padding: 10px; 
+            padding: 10px 20px;
             cursor: pointer; 
             margin: 5px 0;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700; /* Roboto Bold */
         }
         button:hover { 
-            background-color: #003366; 
+            background-color: #003366; /* Temnejši odtenek primarne barve */
+        }
+        .highlight {
+            color: #fbb900; /* Sekundarna rumena barva */
+            font-weight: 700;
+        }
+        h2, h3 {
+            color: #004899; /* Primarna modra barva */
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>NOMAGO bikes</h1>
+        <img src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" alt="Kolesar logo" class="logo">
+        <div class="header-title">
+            <h1>NOMAGO bikes</h1>
+        </div>
     </div>
 
     <div class="nav">
@@ -85,21 +120,23 @@
             <a href="index.html">🚪 Odjavi se</a>
         </div>
 
-        <div class="dashboard">
-            <h2>Nadzorna plošča</h2>
-            <p>Dobrodošli v upravljavskem portalu Nomago Bikes</p>
-            <p>🔄 Povezano s Firebase</p>
-            
-            <h3>📋 Pregledi ključavnic</h3>
-            <p>📊 Vir podatkov: Firebase | Zadnja osvežitev: <span id="lastUpdate">Nalaganje...</span></p>
-            
-            <div>
-                <p><strong>0</strong> Zamujeni pregledi</p>
-                <p><strong>0</strong> Pregledi kmalu</p>
-                <p><strong>0</strong> Skupaj ključavnic</p>
+        <div class="content">
+            <div class="dashboard">
+                <h2>Nadzorna plošča</h2>
+                <p>Dobrodošli v upravljavskem portalu <span class="highlight">NOMAGO bikes</span></p>
+                <p>🔄 Povezano s Firebase</p>
+                
+                <h3>📋 Pregledi ključavnic</h3>
+                <p>📊 Vir podatkov: Firebase | Zadnja osvežitev: <span id="lastUpdate">Nalaganje...</span></p>
+                
+                <div>
+                    <p><strong>0</strong> Zamujeni pregledi</p>
+                    <p><strong>0</strong> Pregledi kmalu</p>
+                    <p><strong>0</strong> Skupaj ključavnic</p>
+                </div>
+                
+                <button>🔧 Odpri preglede</button>
             </div>
-            
-            <button>🔧 Odpri preglede</button>
         </div>
     </div>
 
