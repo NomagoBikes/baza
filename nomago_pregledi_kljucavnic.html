@@ -768,28 +768,6 @@
           <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
         `;
         
-        // If no accessible systems/locations defined, create default access for testing
-        if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
-          console.log('No accessible systems found, creating default access for testing...');
-          currentUser.accessibleSystems = ['NOMAGO bikes'];
-          currentUser.accessibleLocations = [
-            {
-              terminal: 'TEST001',
-              name: 'Testna lokacija 1',
-              system: 'NOMAGO bikes',
-              municipality: 'Ljubljana',
-              racks: 10
-            },
-            {
-              terminal: 'TEST002', 
-              name: 'Testna lokacija 2',
-              system: 'NOMAGO bikes',
-              municipality: 'Maribor',
-              racks: 8
-            }
-          ];
-        }
-        
         if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
           const accessInfo = document.getElementById('accessInfo');
           accessInfo.style.display = 'block';
