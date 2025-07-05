@@ -18,26 +18,18 @@
             align-items: center;
             padding: 20px; 
             background-color: #004899;
-            color: white; 
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            color: white;
+            position: relative;
         }
         .logo {
             height: 50px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .logo:hover {
-            opacity: 0.8;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }
         .header-title {
-            flex: 1;
-            text-align: center;
             font-weight: 700;
-            font-size: 24px;
+            font-size: 18px;
             color: white;
         }
         .nav { 
@@ -46,6 +38,7 @@
             padding: 10px; 
             font-weight: 700;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+            text-align: center;
         }
         .nav a { 
             color: #333;
@@ -115,17 +108,8 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo-container">
-            <a href="dashboard.html">
-                <img src="Bikes_kolesar_basic_RGB.png" alt="NOMAGO bikes cyclist logo" class="logo">
-            </a>
-            <a href="dashboard.html">
-                <img src="Bikes_kolesar_basic_RGB.png" alt="NOMAGO bikes text logo" class="logo">
-            </a>
-        </div>
-        <div class="header-title">
-            NADZORNA PLOŠČA
-        </div>
+        <div class="header-title">NADZORNA PLOŠČA</div>
+        <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo">
     </div>
 
     <div class="nav">
