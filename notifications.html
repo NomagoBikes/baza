@@ -80,24 +80,9 @@
             opacity: 0.8;
         }
         .nav { 
-            display: flex;
-            justify-content: center;
+            height: 20px;
             background-color: var(--nav-bg);
-            color: var(--nav-text); 
-            padding: 10px; 
-            font-weight: 700;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-        }
-        .nav a { 
-            color: var(--nav-text);
-            text-decoration: none; 
-            margin: 0 15px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .nav a:hover, .nav a.active {
-            background-color: rgba(255,255,255,0.3);
         }
         .container { 
             display: flex;
@@ -356,15 +341,12 @@
         <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
 
-    <div class="nav">
-        <a href="dashboard.html">BAZA</a>
-        <a href="users.html" id="usersNavLink" style="display: none;">Uporabniki</a>
-    </div>
+    <div class="nav"></div>
 
     <div class="container">
         <div class="menu">
-            <a href="dashboard.html">🏠 Nadzorna plošča</a>
-            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="dashboard.html">🏠 Baza</a>
+            <a href="inspections.html">🔧 Pregledi</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" class="active">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
@@ -435,11 +417,6 @@
     </div>
 
     <script>
-        // Firebase Configuration (replace with your actual config)
-        const firebaseConfig = {
-            // Your Firebase config here
-        };
-
         // Mock Firebase functions for development
         const mockFirebase = {
             notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
@@ -624,7 +601,6 @@
             
             // Show users navigation links only for admin
             if (currentUser.vloga === 'admin') {
-                document.getElementById('usersNavLink').style.display = 'inline-block';
                 document.getElementById('usersMenuLink').style.display = 'inline-block';
             }
             

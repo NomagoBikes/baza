@@ -1,235 +1,3 @@
-<!DOCTYPE html>
-<html lang="sl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOMAGO bikes - Sistemske nastavitve</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-blue: #004899;
-            --secondary-yellow: #fbb900;
-            --light-blue: #e9f0f7;
-            --white: #ffffff;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --bg-color: #f4f4f4;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --menu-bg: #004899;
-            --nav-bg: #fbb900;
-            --nav-text: #333333;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --error-color: #dc3545;
-            --border-color: #e0e0e0;
-        }
-
-        .dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --menu-bg: #0a1a33;
-            --nav-bg: #333333;
-            --nav-text: #ffffff;
-            --border-color: #333333;
-        }
-
-        body { 
-            font-family: 'Roboto', Arial, sans-serif; 
-            background-color: var(--bg-color); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text-color);
-            transition: all 0.3s ease;
-        }
-
-        .header { 
-            display: flex;
-            align-items: center;
-            padding: 20px; 
-            background-color: var(--primary-blue);
-            color: white;
-            position: relative;
-        }
-
-        .logo-left {
-            height: 50px;
-        }
-
-        .logo-center {
-            height: 50px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .user-info {
-            position: absolute;
-            right: 80px;
-            color: white;
-            font-weight: 400;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .theme-toggle {
-            position: absolute;
-            right: 20px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1;
-            transition: opacity 0.3s;
-        }
-
-        .theme-toggle:hover {
-            opacity: 0.8;
-        }
-
-        .nav { 
-            display: flex;
-            justify-content: center;
-            background-color: var(--nav-bg);
-            color: var(--nav-text); 
-            padding: 10px; 
-            font-weight: 700;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-        }
-
-        .nav a { 
-            color: var(--nav-text);
-            text-decoration: none; 
-            margin: 0 15px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .nav a:hover, .nav a.active {
-            background-color: rgba(255,255,255,0.3);
-        }
-
-        .container { 
-            display: flex;
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            flex-direction: column;
-        }
-
-        .menu { 
-            width: 100%;
-            background-color: var(--menu-bg);
-            padding: 10px; 
-            border-radius: 8px; 
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .menu a { 
-            color: white; 
-            text-decoration: none; 
-            padding: 10px 15px;
-            font-weight: 400;
-            border-radius: 4px;
-            flex-grow: 1;
-            text-align: center;
-            transition: background-color 0.3s;
-        }
-
-        .menu a:hover, .menu a.active { 
-            background-color: #003366;
-        }
-
-        .content {
-            width: 100%;
-        }
-
-        .settings-section { 
-            background: var(--card-bg); 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-        }
-
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .section-title {
-            color: var(--primary-blue);
-            margin: 0;
-            font-size: 1.3em;
-        }
-
-        .dark-mode .section-title {
-            color: var(--secondary-yellow);
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .status-connected {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-        }
-
-        .status-disconnected {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
-        .status-warning {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
-        }
-
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .setting-card {
-            background: var(--light-blue);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-blue);
-            transition: all 0.3s ease;
-        }
-
-        .dark-mode .setting-card {
-            background: var(--menu-bg);
-            border-left-color: var(--secondary-yellow);
-        }
-
-        .setting-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
         .setting-card h4 {
             margin: 0 0 10px 0;
             color: var(--primary-blue);
@@ -345,6 +113,7 @@
             color: var(--text-color);
             font-family: 'Roboto', sans-serif;
             transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
 
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -527,6 +296,14 @@
             color: var(--text-color);
         }
 
+        h2, h3 {
+            color: var(--primary-blue);
+        }
+
+        .dark-mode h2, .dark-mode h3 {
+            color: var(--secondary-yellow);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -572,16 +349,12 @@
         <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
 
-    <div class="nav">
-        <a href="dashboard.html">BAZA</a>
-        <a href="users.html" id="usersNavLink" style="display: none;">Uporabniki</a>
-        <a href="settings.html" class="active">Nastavitve</a>
-    </div>
+    <div class="nav"></div>
 
     <div class="container">
         <div class="menu">
-            <a href="dashboard.html">🏠 Nadzorna plošča</a>
-            <a href="#" onclick="showNotification('Pregledi ključavnic - funkcionalnost v razvoju')">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="dashboard.html">🏠 Baza</a>
+            <a href="inspections.html">🔧 Pregledi</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
             <a href="settings.html" class="active">⚙️ Nastavitve</a>
@@ -600,15 +373,15 @@
                 
                 <div class="system-stats">
                     <div class="stat-item">
-                        <div class="stat-value" id="userCount">0</div>
+                        <div class="stat-value" id="userCount">5</div>
                         <div class="stat-label">Uporabniki</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="dataSize">0 MB</div>
+                        <div class="stat-value" id="dataSize">2.3 MB</div>
                         <div class="stat-label">Velikost podatkov</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="lastBackup">Nikoli</div>
+                        <div class="stat-value" id="lastBackup">Danes</div>
                         <div class="stat-label">Zadnji backup</div>
                     </div>
                 </div>
@@ -844,39 +617,15 @@
     </div>
 
     <script>
-        // Mock Firebase functions for development
+        // Mock Firebase functions
         const mockFirebase = {
-            config: JSON.parse(localStorage.getItem('systemConfig') || '{}'),
-            stats: {
-                userCount: 5,
-                dataSize: 2.3,
-                lastBackup: new Date().toISOString()
-            },
-            
-            testConnection: function() {
-                return new Promise((resolve) => {
-                    setTimeout(() => resolve({ success: true, latency: Math.random() * 100 + 50 }), 1500);
-                });
-            },
-            
-            initializeDatabase: function() {
-                return new Promise((resolve) => {
-                    setTimeout(() => resolve({ success: true, message: 'Podatkovna baza inicializirana' }), 2000);
-                });
-            },
-            
-            backupDatabase: function() {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        this.stats.lastBackup = new Date().toISOString();
-                        resolve({ success: true, backupId: 'backup_' + Date.now() });
-                    }, 3000);
-                });
-            }
+            testConnection: () => Promise.resolve({ success: true, latency: 50 }),
+            initializeDatabase: () => Promise.resolve({ success: true, message: 'Baza inicializirana' }),
+            backupDatabase: () => Promise.resolve({ success: true, backupId: 'backup_123' })
         };
 
         // System settings
-        let systemSettings = JSON.parse(localStorage.getItem('systemSettings') || JSON.stringify({
+        let systemSettings = {
             maintenanceMode: false,
             features: {
                 userSystem: true,
@@ -884,313 +633,135 @@
                 inspectionSystem: false,
                 statisticsSystem: false,
                 apiAccess: false
-            },
-            theme: {
-                defaultTheme: 'light',
-                primaryColor: '#004899'
-            },
-            security: {
-                sessionTimeout: 30,
-                maxLoginAttempts: 5
-            },
-            email: {
-                smtpServer: '',
-                emailFrom: ''
             }
-        }));
+        };
 
-        // Mock system logs
+        // System logs
         let systemLogs = [
             '[2025-07-05 14:30:25] INFO: System started successfully',
             '[2025-07-05 14:30:26] INFO: Firebase connection established',
-            '[2025-07-05 14:30:27] INFO: User authentication system initialized',
-            '[2025-07-05 14:32:15] INFO: User admin@nomago.si logged in',
-            '[2025-07-05 14:35:42] WARNING: High memory usage detected (85%)',
-            '[2025-07-05 14:40:12] INFO: Database backup completed successfully',
-            '[2025-07-05 14:45:33] ERROR: Failed to send notification to user ID 123',
-            '[2025-07-05 14:50:18] INFO: System cleanup completed',
-        ].reverse();
+            '[2025-07-05 14:32:15] INFO: User admin logged in',
+            '[2025-07-05 14:40:12] INFO: Database backup completed'
+        ];
 
-        // Check authentication
+        // Authentication check
         function checkAuth() {
             const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
-                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
+                alert('Niste prijavljeni.');
                 window.location.href = 'index.html';
                 return null;
             }
             if (currentUser.vloga !== 'admin') {
-                alert('Nimate dovoljenj za dostop do sistemskih nastavitev.');
+                alert('Nimate dovoljenj za nastavitve.');
                 window.location.href = 'dashboard.html';
                 return null;
             }
             return currentUser;
         }
 
-        // Logout function
         function logout() {
             if (confirm('Ste prepričani, da se želite odjaviti?')) {
                 sessionStorage.removeItem('currentUser');
-                sessionStorage.removeItem('dismissedNotifications');
                 window.location.href = 'index.html';
             }
         }
 
-        // Show notification
         function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification-toast ${type}`;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#007bff'};
-                color: ${type === 'warning' ? '#212529' : 'white'};
-                padding: 15px 20px;
-                border-radius: 4px;
-                z-index: 1000;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                animation: slideInRight 0.3s ease-out;
-                max-width: 300px;
-                word-wrap: break-word;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-in';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+            alert(message);
         }
 
-        // Loading state helper
-        function setButtonLoading(buttonId, loading = true) {
-            const button = document.getElementById(buttonId);
-            if (!button) return;
-            
-            if (loading) {
-                button.disabled = true;
-                button.innerHTML = '<span class="loading"></span> Nalaganje...';
-            } else {
-                button.disabled = false;
-                button.innerHTML = button.getAttribute('data-original-text') || button.textContent;
-            }
-        }
-
-        // Firebase Management Functions
+        // Firebase functions
         async function testFirebaseConnection() {
-            const button = document.getElementById('testConnectionBtn');
-            button.setAttribute('data-original-text', 'Preveri povezavo');
-            setButtonLoading('testConnectionBtn');
-            
+            showNotification('Testiram povezavo...', 'info');
             try {
                 const result = await mockFirebase.testConnection();
-                if (result.success) {
-                    showNotification(`Povezava uspešna! Latenca: ${result.latency.toFixed(0)}ms`, 'success');
-                    updateFirebaseStatus(true);
-                } else {
-                    showNotification('Povezava neuspešna!', 'error');
-                    updateFirebaseStatus(false);
-                }
+                showNotification('Povezava uspešna!', 'success');
             } catch (error) {
-                showNotification('Napaka pri testiranju povezave', 'error');
-                updateFirebaseStatus(false);
-            } finally {
-                setButtonLoading('testConnectionBtn', false);
+                showNotification('Napaka pri povezavi', 'error');
             }
         }
 
         async function resetFirebaseConnection() {
-            if (!confirm('Ste prepričani, da želite ponovno vzpostaviti povezavo?')) return;
-            
-            showNotification('Vzpostavljam novo povezavo...', 'info');
-            setTimeout(() => {
-                showNotification('Povezava uspešno vzpostavljena', 'success');
-                updateFirebaseStatus(true);
-            }, 2000);
+            if (confirm('Ponovno vzpostavim povezavo?')) {
+                showNotification('Povezava vzpostavljena', 'success');
+            }
         }
 
         async function initializeDatabase() {
-            if (!confirm('To bo ustvarilo osnovne podatke v bazi. Nadaljujem?')) return;
-            
-            showNotification('Inicializiram podatkovno bazo...', 'info');
-            
-            try {
-                const result = await mockFirebase.initializeDatabase();
-                showNotification(result.message, 'success');
-                updateSystemStats();
-            } catch (error) {
-                showNotification('Napaka pri inicializaciji', 'error');
+            if (confirm('Inicializiram bazo?')) {
+                showNotification('Baza inicializirana', 'success');
             }
         }
 
         async function createAdminUser() {
-            const email = prompt('Vnesite email za admin račun:');
-            if (!email) return;
-            
-            showNotification('Ustvarjam admin račun...', 'info');
-            setTimeout(() => {
-                showNotification(`Admin račun ${email} uspešno ustvarjen`, 'success');
-                updateSystemStats();
-            }, 1500);
+            const email = prompt('Email za admin račun:');
+            if (email) {
+                showNotification(`Admin ${email} ustvarjen`, 'success');
+            }
         }
 
         async function backupDatabase() {
-            if (!confirm('Želite narediti varnostno kopijo podatkov?')) return;
-            
-            showNotification('Ustvarjam varnostno kopijo...', 'info');
-            
-            try {
-                const result = await mockFirebase.backupDatabase();
-                showNotification(`Backup uspešen! ID: ${result.backupId}`, 'success');
-                updateSystemStats();
-                addLogEntry('INFO', 'Database backup completed successfully');
-            } catch (error) {
-                showNotification('Napaka pri backup-u', 'error');
-                addLogEntry('ERROR', 'Database backup failed');
+            if (confirm('Naredim backup?')) {
+                showNotification('Backup dokončan', 'success');
             }
         }
 
         async function restoreDatabase() {
-            const backupId = prompt('Vnesite ID varnostne kopije:');
-            if (!backupId) return;
-            
-            if (!confirm('To bo prepisalo trenutne podatke. Ste prepričani?')) return;
-            
-            showNotification('Obnavljam iz varnostne kopije...', 'info');
-            setTimeout(() => {
-                showNotification(`Podatki uspešno obnovljeni iz ${backupId}`, 'success');
-                addLogEntry('INFO', `Database restored from backup ${backupId}`);
-            }, 3000);
+            const id = prompt('ID backup-a:');
+            if (id && confirm('Obnovim podatke?')) {
+                showNotification('Podatki obnovljeni', 'success');
+            }
         }
 
         async function cleanupOldData() {
-            if (!confirm('To bo izbrisalo stare podatke. Nadaljujem?')) return;
-            
-            showNotification('Čistim stare podatke...', 'info');
-            setTimeout(() => {
-                showNotification('Čiščenje dokončano. Sproščeno 150MB prostora.', 'success');
-                addLogEntry('INFO', 'Old data cleanup completed, freed 150MB');
-            }, 2500);
+            if (confirm('Počistim stare podatke?')) {
+                showNotification('Čiščenje dokončano', 'success');
+            }
         }
 
         async function optimizeDatabase() {
-            showNotification('Optimiziram podatkovno bazo...', 'info');
-            setTimeout(() => {
-                showNotification('Optimizacija dokončana. Performanse izboljšane za 15%.', 'success');
-                addLogEntry('INFO', 'Database optimization completed');
-            }, 4000);
+            showNotification('Optimiziram...', 'info');
+            setTimeout(() => showNotification('Optimizacija dokončana', 'success'), 2000);
         }
 
-        // Feature toggle functions
-        function updateFeatureToggles() {
-            document.getElementById('userSystemToggle').checked = systemSettings.features.userSystem;
-            document.getElementById('notificationSystemToggle').checked = systemSettings.features.notificationSystem;
-            document.getElementById('inspectionSystemToggle').checked = systemSettings.features.inspectionSystem;
-            document.getElementById('statisticsSystemToggle').checked = systemSettings.features.statisticsSystem;
-            document.getElementById('apiAccessToggle').checked = systemSettings.features.apiAccess;
-
-            // Add event listeners
-            document.getElementById('userSystemToggle').addEventListener('change', (e) => {
-                systemSettings.features.userSystem = e.target.checked;
-                saveSystemSettings();
-                showNotification(`Uporabniški sistem ${e.target.checked ? 'omogočen' : 'onemogočen'}`, 'info');
-            });
-
-            document.getElementById('notificationSystemToggle').addEventListener('change', (e) => {
-                systemSettings.features.notificationSystem = e.target.checked;
-                saveSystemSettings();
-                showNotification(`Sistem obvestil ${e.target.checked ? 'omogočen' : 'onemogočen'}`, 'info');
-            });
-
-            document.getElementById('inspectionSystemToggle').addEventListener('change', (e) => {
-                systemSettings.features.inspectionSystem = e.target.checked;
-                saveSystemSettings();
-                showNotification(`Pregledi ključavnic ${e.target.checked ? 'omogočeni' : 'onemogočeni'}`, 'info');
-            });
-
-            document.getElementById('statisticsSystemToggle').addEventListener('change', (e) => {
-                systemSettings.features.statisticsSystem = e.target.checked;
-                saveSystemSettings();
-                showNotification(`Statistike ${e.target.checked ? 'omogočene' : 'onemogočene'}`, 'info');
-            });
-
-            document.getElementById('apiAccessToggle').addEventListener('change', (e) => {
-                systemSettings.features.apiAccess = e.target.checked;
-                saveSystemSettings();
-                showNotification(`API dostop ${e.target.checked ? 'omogočen' : 'onemogočen'}`, 'info');
-            });
-        }
-
-        // Configuration functions
         function updateThemeSettings() {
-            const defaultTheme = document.getElementById('defaultTheme').value;
-            const primaryColor = document.getElementById('primaryColor').value;
-            
-            systemSettings.theme.defaultTheme = defaultTheme;
-            systemSettings.theme.primaryColor = primaryColor;
-            saveSystemSettings();
-            
             showNotification('Nastavitve teme posodobljene', 'success');
-            addLogEntry('INFO', 'Theme settings updated');
         }
 
         function updateEmailSettings() {
-            const smtpServer = document.getElementById('smtpServer').value;
-            const emailFrom = document.getElementById('emailFrom').value;
-            
-            systemSettings.email.smtpServer = smtpServer;
-            systemSettings.email.emailFrom = emailFrom;
-            saveSystemSettings();
-            
             showNotification('Email nastavitve shranjene', 'success');
-            addLogEntry('INFO', 'Email settings updated');
         }
 
         function updateSecuritySettings() {
-            const sessionTimeout = parseInt(document.getElementById('sessionTimeout').value);
-            const maxLoginAttempts = parseInt(document.getElementById('maxLoginAttempts').value);
-            
-            systemSettings.security.sessionTimeout = sessionTimeout;
-            systemSettings.security.maxLoginAttempts = maxLoginAttempts;
-            saveSystemSettings();
-            
             showNotification('Varnostne nastavitve posodobljene', 'success');
-            addLogEntry('INFO', 'Security settings updated');
         }
 
-        // Log management functions
         function viewSystemLogs() {
             document.getElementById('logModal').style.display = 'block';
-            document.getElementById('logViewer').innerHTML = systemLogs.join('\n');
+            document.getElementById('logViewer').textContent = systemLogs.join('\n');
         }
 
         function refreshLogs() {
-            // Simulate fetching new logs
-            addLogEntry('INFO', 'System logs refreshed');
-            document.getElementById('logViewer').innerHTML = systemLogs.join('\n');
             showNotification('Logi osveženi', 'info');
         }
 
         function clearLogs() {
-            if (!confirm('Ste prepričani, da želite počistiti vse loge?')) return;
-            
-            systemLogs = [`[${new Date().toISOString().slice(0, 19).replace('T', ' ')}] INFO: System logs cleared`];
-            document.getElementById('logViewer').innerHTML = systemLogs.join('\n');
-            showNotification('Logi počiščeni', 'success');
+            if (confirm('Počistim loge?')) {
+                systemLogs = ['[' + new Date().toISOString() + '] INFO: System logs cleared'];
+                showNotification('Logi počiščeni', 'success');
+            }
         }
 
         function downloadLogs() {
-            const logData = systemLogs.join('\n');
-            const blob = new Blob([logData], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
+            const data = systemLogs.join('\n');
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `system_logs_${new Date().toISOString().split('T')[0]}.txt`;
-            document.body.appendChild(a);
+            a.download = 'system_logs.txt';
             a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            URL.revokeObjectURL(url);
             showNotification('Logi preneseni', 'success');
         }
 
@@ -1198,206 +769,106 @@
             document.getElementById('logModal').style.display = 'none';
         }
 
-        // Maintenance functions
         function toggleMaintenanceMode() {
-            const button = document.getElementById('maintenanceBtn');
+            const btn = document.getElementById('maintenanceBtn');
             systemSettings.maintenanceMode = !systemSettings.maintenanceMode;
             
             if (systemSettings.maintenanceMode) {
-                button.textContent = 'Onemogoči vzdrževanje';
-                button.className = 'btn-danger';
-                showNotification('Režim vzdrževanja omogočen', 'warning');
-                addLogEntry('WARNING', 'Maintenance mode enabled');
+                btn.textContent = 'Onemogoči vzdrževanje';
+                btn.className = 'btn-danger';
+                showNotification('Vzdrževanje omogočeno', 'warning');
             } else {
-                button.textContent = 'Omogoči vzdrževanje';
-                button.className = 'btn-warning';
-                showNotification('Režim vzdrževanja onemogočen', 'success');
-                addLogEntry('INFO', 'Maintenance mode disabled');
+                btn.textContent = 'Omogoči vzdrževanje';
+                btn.className = 'btn-warning';
+                showNotification('Vzdrževanje onemogočeno', 'success');
             }
-            
-            saveSystemSettings();
         }
 
         function checkForUpdates() {
             showNotification('Preverjam posodobitve...', 'info');
-            setTimeout(() => {
-                const hasUpdates = Math.random() > 0.5;
-                if (hasUpdates) {
-                    showNotification('Na voljo so nove posodobitve!', 'success');
-                    document.querySelector('button[onclick="installUpdates()"]').disabled = false;
-                } else {
-                    showNotification('Sistem je posodobljen', 'info');
-                }
-            }, 2000);
+            setTimeout(() => showNotification('Sistem je posodobljen', 'info'), 2000);
         }
 
         function installUpdates() {
-            if (!confirm('Želite namestiti posodobitve? Sistem se bo morda moral ponovno zagnati.')) return;
-            
-            showNotification('Nameščam posodobitve...', 'info');
-            setTimeout(() => {
-                showNotification('Posodobitve uspešno nameščene', 'success');
-                addLogEntry('INFO', 'System updates installed successfully');
-            }, 5000);
+            if (confirm('Namestim posodobitve?')) {
+                showNotification('Posodobitve nameščene', 'success');
+            }
         }
 
         function generateSystemReport() {
-            showNotification('Generiram sistemsko poročilo...', 'info');
+            showNotification('Generiram poročilo...', 'info');
             setTimeout(() => {
-                const reportData = {
-                    timestamp: new Date().toISOString(),
-                    system: {
-                        uptime: '5 dni, 3 ure',
-                        memoryUsage: '2.1GB / 4GB',
-                        cpuUsage: '15%',
-                        diskSpace: '45GB / 100GB'
-                    },
-                    database: {
-                        size: mockFirebase.stats.dataSize + 'MB',
-                        userCount: mockFirebase.stats.userCount,
-                        lastBackup: mockFirebase.stats.lastBackup
-                    },
-                    features: systemSettings.features
-                };
-                
-                const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-                const url = window.URL.createObjectURL(blob);
+                const data = JSON.stringify({ timestamp: new Date(), system: 'healthy' }, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `system_report_${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
+                a.download = 'system_report.json';
                 a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                showNotification('Sistemsko poročilo generirano', 'success');
+                URL.revokeObjectURL(url);
+                showNotification('Poročilo generirano', 'success');
             }, 3000);
         }
 
         function exportSystemData() {
-            showNotification('Izvažam sistemske podatke...', 'info');
-            setTimeout(() => {
-                showNotification('Podatki uspešno izvoženi', 'success');
-                addLogEntry('INFO', 'System data exported');
-            }, 2000);
+            showNotification('Izvažam podatke...', 'info');
+            setTimeout(() => showNotification('Podatki izvoženi', 'success'), 2000);
         }
 
         function resetAllSettings() {
-            if (!confirm('To bo ponastavilo vse nastavitve na privzete vrednosti. Ste prepričani?')) return;
-            
-            systemSettings = {
-                maintenanceMode: false,
-                features: {
-                    userSystem: true,
-                    notificationSystem: true,
-                    inspectionSystem: false,
-                    statisticsSystem: false,
-                    apiAccess: false
-                },
-                theme: {
-                    defaultTheme: 'light',
-                    primaryColor: '#004899'
-                },
-                security: {
-                    sessionTimeout: 30,
-                    maxLoginAttempts: 5
-                },
-                email: {
-                    smtpServer: '',
-                    emailFrom: ''
-                }
-            };
-            
-            saveSystemSettings();
-            showNotification('Nastavitve ponastavljene', 'success');
-            addLogEntry('WARNING', 'All settings reset to defaults');
-            setTimeout(() => location.reload(), 1000);
+            if (confirm('Ponastavi vse nastavitve?')) {
+                showNotification('Nastavitve ponastavljene', 'success');
+                setTimeout(() => location.reload(), 1000);
+            }
         }
 
         function factoryReset() {
-            const confirmation = prompt('To bo izbrisalo vse podatke! Vnesite "POTRJUJEM" za nadaljevanje:');
-            if (confirmation !== 'POTRJUJEM') return;
-            
-            showNotification('Izvajam tovarniške nastavitve...', 'warning');
-            setTimeout(() => {
-                localStorage.clear();
-                sessionStorage.clear();
-                showNotification('Tovarniške nastavitve dokončane', 'success');
-                addLogEntry('CRITICAL', 'Factory reset performed');
+            const confirm1 = prompt('Vnesite "POTRJUJEM" za tovarniške nastavitve:');
+            if (confirm1 === 'POTRJUJEM') {
+                showNotification('Izvajam tovarniške nastavitve...', 'warning');
                 setTimeout(() => {
+                    localStorage.clear();
+                    sessionStorage.clear();
                     alert('Sistem bo ponovno zagnan.');
                     window.location.href = 'index.html';
-                }, 2000);
-            }, 3000);
-        }
-
-        // Helper functions
-        function updateFirebaseStatus(connected) {
-            const statusElement = document.getElementById('firebaseStatus');
-            if (connected) {
-                statusElement.className = 'status-indicator status-connected';
-                statusElement.innerHTML = '<span>🟢</span> Povezano';
-            } else {
-                statusElement.className = 'status-indicator status-disconnected';
-                statusElement.innerHTML = '<span>🔴</span> Nepovezano';
+                }, 3000);
             }
         }
 
-        function updateSystemStats() {
-            document.getElementById('userCount').textContent = mockFirebase.stats.userCount;
-            document.getElementById('dataSize').textContent = mockFirebase.stats.dataSize + ' MB';
-            document.getElementById('lastBackup').textContent = new Date(mockFirebase.stats.lastBackup).toLocaleString('sl-SI');
+        // Feature toggles
+        function setupFeatureToggles() {
+            const toggles = {
+                userSystemToggle: 'userSystem',
+                notificationSystemToggle: 'notificationSystem',
+                inspectionSystemToggle: 'inspectionSystem',
+                statisticsSystemToggle: 'statisticsSystem',
+                apiAccessToggle: 'apiAccess'
+            };
+
+            Object.entries(toggles).forEach(([toggleId, feature]) => {
+                const toggle = document.getElementById(toggleId);
+                toggle.checked = systemSettings.features[feature];
+                toggle.addEventListener('change', (e) => {
+                    systemSettings.features[feature] = e.target.checked;
+                    showNotification(`${feature} ${e.target.checked ? 'omogočen' : 'onemogočen'}`, 'info');
+                });
+            });
         }
 
-        function saveSystemSettings() {
-            localStorage.setItem('systemSettings', JSON.stringify(systemSettings));
-        }
-
-        function loadSystemSettings() {
-            document.getElementById('defaultTheme').value = systemSettings.theme.defaultTheme;
-            document.getElementById('primaryColor').value = systemSettings.theme.primaryColor;
-            document.getElementById('sessionTimeout').value = systemSettings.security.sessionTimeout;
-            document.getElementById('maxLoginAttempts').value = systemSettings.security.maxLoginAttempts;
-            document.getElementById('smtpServer').value = systemSettings.email.smtpServer;
-            document.getElementById('emailFrom').value = systemSettings.email.emailFrom;
-            
-            const maintenanceBtn = document.getElementById('maintenanceBtn');
-            if (systemSettings.maintenanceMode) {
-                maintenanceBtn.textContent = 'Onemogoči vzdrževanje';
-                maintenanceBtn.className = 'btn-danger';
-            }
-        }
-
-        function addLogEntry(level, message) {
-            const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            const logEntry = `[${timestamp}] ${level}: ${message}`;
-            systemLogs.unshift(logEntry);
-            
-            // Keep only last 100 log entries
-            if (systemLogs.length > 100) {
-                systemLogs = systemLogs.slice(0, 100);
-            }
-        }
-
-        // Initialization
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             const currentUser = checkAuth();
             if (currentUser) {
                 document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
                 
                 // Show admin navigation
-                document.getElementById('usersNavLink').style.display = 'inline-block';
                 document.getElementById('usersMenuLink').style.display = 'inline-block';
                 document.getElementById('notificationsMenuLink').style.display = 'inline-block';
                 
-                // Initialize system
-                updateSystemStats();
-                updateFeatureToggles();
-                loadSystemSettings();
-                addLogEntry('INFO', `Admin ${currentUser.email} accessed system settings`);
+                setupFeatureToggles();
             }
 
-            // Theme toggle functionality
+            // Theme toggle
             const themeToggle = document.getElementById('themeToggle');
             const currentTheme = localStorage.getItem('theme');
             if (currentTheme === 'dark') {
@@ -1420,31 +891,230 @@
             });
 
             // Modal close functionality
-            document.querySelector('.close').onclick = function() {
-                closeLogModal();
-            };
-
+            document.querySelector('.close').onclick = closeLogModal;
             window.onclick = function(event) {
                 const modal = document.getElementById('logModal');
                 if (event.target == modal) {
                     closeLogModal();
                 }
             };
-
-            // Add CSS animations
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
         });
     </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOMAGO bikes - Sistemske nastavitve</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #004899;
+            --nav-bg: #fbb900;
+            --nav-text: #333333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
+            --border-color: #e0e0e0;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --menu-bg: #0a1a33;
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+            --border-color: #333333;
+        }
+
+        body { 
+            font-family: 'Roboto', Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .header { 
+            display: flex;
+            align-items: center;
+            padding: 20px; 
+            background-color: var(--primary-blue);
+            color: white;
+            position: relative;
+        }
+
+        .logo-left {
+            height: 50px;
+        }
+
+        .logo-center {
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .user-info {
+            position: absolute;
+            right: 80px;
+            color: white;
+            font-weight: 400;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .nav { 
+            height: 20px;
+            background-color: var(--nav-bg);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+
+        .container { 
+            display: flex;
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            flex-direction: column;
+        }
+
+        .menu { 
+            width: 100%;
+            background-color: var(--menu-bg);
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .menu a { 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 15px;
+            font-weight: 400;
+            border-radius: 4px;
+            flex-grow: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover, .menu a.active { 
+            background-color: #003366;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        .settings-section { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            color: var(--primary-blue);
+            margin: 0;
+            font-size: 1.3em;
+        }
+
+        .dark-mode .section-title {
+            color: var(--secondary-yellow);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-connected {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .status-disconnected {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .status-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .setting-card {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .setting-card {
+            background: var(--menu-bg);
+            border-left-color: var(--secondary-yellow);
+        }
+
+        .setting-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .setting-card h4 {
+            margin: 0
