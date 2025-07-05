@@ -6,20 +6,44 @@
     <title>NOMAGO bikes - Nadzorna plošča</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #004899;
+            --nav-bg: #fbb900;
+            --nav-text: #333333;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --menu-bg: #0a1a33;
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+        }
+
         body { 
             font-family: 'Roboto', Arial, sans-serif; 
-            background-color: #f4f4f4; 
+            background-color: var(--bg-color); 
             margin: 0; 
             padding: 0; 
-            color: #333;
+            color: var(--text-color);
+            transition: all 0.3s ease;
         }
         .header { 
             display: flex;
             align-items: center;
             padding: 20px; 
-            background-color: #004899;
+            background-color: var(--primary-blue);
             color: white;
-            justify-content: space-between;
             position: relative;
         }
         .logo-left {
@@ -31,16 +55,25 @@
             left: 50%;
             transform: translateX(-50%);
         }
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
         .nav { 
-            background-color: #fbb900;
-            color: #333; 
+            background-color: var(--nav-bg);
+            color: var(--nav-text); 
             padding: 10px; 
             font-weight: 700;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
             text-align: center;
         }
         .nav a { 
-            color: #333;
+            color: var(--nav-text);
             text-decoration: none; 
             margin: 0 15px;
             padding: 5px 10px;
@@ -57,7 +90,7 @@
         }
         .menu { 
             width: 250px;
-            background-color: #004899;
+            background-color: var(--menu-bg);
             padding: 10px; 
             border-radius: 8px; 
             margin-right: 20px;
@@ -76,14 +109,14 @@
             flex: 1;
         }
         .dashboard { 
-            background: white; 
+            background: var(--card-bg); 
             padding: 20px; 
             border-radius: 8px; 
             margin-bottom: 20px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         button { 
-            background-color: #004899;
+            background-color: var(--primary-blue);
             color: white; 
             border: none; 
             padding: 10px 20px;
@@ -97,11 +130,11 @@
             background-color: #003366;
         }
         .highlight {
-            color: #fbb900;
+            color: var(--secondary-yellow);
             font-weight: 700;
         }
         h2, h3 {
-            color: #004899;
+            color: var(--primary-blue);
         }
     </style>
 </head>
@@ -109,6 +142,7 @@
     <div class="header">
         <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left">
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center">
+        <button class="theme-toggle" id="themeToggle">🌓</button>
     </div>
 
     <div class="nav">
@@ -154,6 +188,33 @@
         
         // Posodobi čas zadnje osvežitve
         document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+
+        // Temni način
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Preveri lokalno shrambo za shranjeno temo
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        } else if (currentTheme === 'light') {
+            document.body.classList.remove('dark-mode');
+            themeToggle.textContent = '🌙';
+        }
+        
+        // Poslušalec za gumb za preklop teme
+        themeToggle.addEventListener('click', function() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        });
     </script>
 </body>
 </html>
