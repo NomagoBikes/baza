@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOMAGO bikes - Nadzorna plošča</title>
+    <title>BAZA | Nadzorna plošča</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -57,7 +57,7 @@
         }
         .user-info {
             position: absolute;
-            right: 80px; /* Več prostora za luno */
+            right: 80px;
             color: white;
             font-weight: 400;
             max-width: 200px;
@@ -91,7 +91,7 @@
             padding: 5px 10px;
             border-radius: 4px;
         }
-        .nav a:hover {
+        .nav a:hover, .nav a.active {
             background-color: rgba(255,255,255,0.3);
         }
         .container { 
@@ -120,7 +120,7 @@
             flex-grow: 1;
             text-align: center;
         }
-        .menu a:hover { 
+        .menu a:hover, .menu a.active { 
             background-color: #003366;
         }
         .content {
@@ -190,22 +190,23 @@
 </head>
 <body>
     <div class="header">
-        <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left">
-        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center">
+        <img src="Bikes_kolesar_belorumen_RGB.png" alt="BAZA logo" class="logo-left">
+        <img src="Bikes_belorumen_RGB.png" alt="BAZA portal logo" class="logo-center">
         <div class="user-info" id="userInfo"></div>
         <button class="theme-toggle" id="themeToggle">🌓</button>
     </div>
 
     <div class="nav">
-        <a href="#">BAZA</a>
-        <a href="dashboard.html">Nadzorna plošča</a>
+        <a href="dashboard.html" class="active">Nadzorna plošča</a>
+        <a href="locks.html">Ključavnice</a>
         <a href="users.html">Uporabniki</a>
+        <a href="reports.html">Poročila</a>
     </div>
 
     <div class="container">
         <div class="menu">
-            <a href="dashboard.html">🏠 Nadzorna plošča</a>
-            <a href="#">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="dashboard.html" class="active">🏠 Nadzorna plošča</a>
+            <a href="locks.html">🔧 Pregledi ključavnic <span>0</span></a>
             <a href="users.html">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
@@ -215,7 +216,7 @@
         <div class="content">
             <div class="dashboard">
                 <h2>Nadzorna plošča</h2>
-                <p>Dobrodošli v upravljavskem portalu <span class="highlight">NOMAGO bikes</span></p>
+                <p>Dobrodošli v upravljavskem portalu <span class="highlight">BAZA</span></p>
                 <p>🔄 Povezano s Firebase</p>
                 
                 <h3>📋 Pregledi ključavnic</h3>
@@ -237,56 +238,35 @@
     </div>
 
     <script>
-        // Preveri če je uporabnik prijavljen
+        // Preveri če je uporabnik prijavljen in admin
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        if (!currentUser) {
+        if (!currentUser || currentUser.vloga !== 'admin') {
             window.location.href = 'index.html';
         } else {
-            // Prikaži podatke uporabnika
             document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
         }
         
-        // Posodobi čas zadnje osvežitve
         document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
 
         // Temni način
         const themeToggle = document.getElementById('themeToggle');
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        
-        // Preveri lokalno shrambo za shranjeno temo
-        const currentTheme = localStorage.getItem('theme');
-        if (currentTheme === 'dark') {
+        if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
             themeToggle.textContent = '☀️';
-        } else if (currentTheme === 'light') {
-            document.body.classList.remove('dark-mode');
-            themeToggle.textContent = '🌙';
         }
-        
-        // Poslušalec za gumb za preklop teme
+
         themeToggle.addEventListener('click', function() {
-            if (document.body.classList.contains('dark-mode')) {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '🌙';
-            } else {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '☀️';
-            }
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         });
 
-        // Prilagodi velikost logotipov za mobilne naprave
-        function adjustLogoSize() {
-            const logos = document.querySelectorAll('.logo-left, .logo-center');
-            const size = window.innerWidth <= 768 ? '40px' : '50px';
-            logos.forEach(logo => {
-                logo.style.height = size;
-            });
-        }
-
-        window.addEventListener('resize', adjustLogoSize);
-        adjustLogoSize();
+        // Označi aktivno stran
+        document.querySelectorAll('.nav a').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
     </script>
 </body>
 </html>
