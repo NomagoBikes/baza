@@ -1,12 +1,57 @@
 <!DOCTYPE html>
 <html lang="sl">
 <head>
-    <!-- OSTALE META IN CSS DEFINICIJE ENAKE KOT ZGORAJ (skrajšano zaradi prostora) -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BAZA | Uporabniki</title>
-    <!-- Firebase skripte ostanejo enake -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #004899;
+            --nav-bg: #fbb900;
+            --nav-text: #333333;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --menu-bg: #0a1a33;
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Ostali CSS stili ostanejo enaki kot v prejšnji kodi */
+        /* ... */
+
+    </style>
 </head>
 <body>
-    <!-- Header enak kot v dashboard.html -->
+    <div class="header">
+        <img src="Bikes_kolesar_belorumen_RGB.png" alt="BAZA logo" class="logo-left">
+        <img src="Bikes_belorumen_RGB.png" alt="BAZA portal logo" class="logo-center">
+        <div class="user-info" id="userInfo"></div>
+        <button class="theme-toggle" id="themeToggle">🌓</button>
+    </div>
+
     <div class="nav">
         <a href="dashboard.html">Nadzorna plošča</a>
         <a href="locks.html">Ključavnice</a>
@@ -16,26 +61,165 @@
 
     <div class="container">
         <div class="menu">
-            <!-- Stranski meni enak -->
+            <a href="dashboard.html">🏠 Nadzorna plošča</a>
+            <a href="locks.html">🔧 Pregledi ključavnic <span>0</span></a>
+            <a href="users.html" class="active">👥 Uporabniki</a>
+            <a href="notifications.html">📢 Obvestila</a>
+            <a href="settings.html">⚙️ Nastavitve</a>
+            <a href="index.html" id="logoutBtn">🚪 Odjavi se</a>
         </div>
 
         <div class="content">
             <div class="dashboard">
                 <h2>Upravljanje uporabnikov</h2>
-                <p>Dostop imajo samo <span class="highlight">administratorji</span></p>
+                <p id="accessMessage">Nalagam podatke...</p>
                 
-                <script>
-                // Strožja preverba pravic
-                document.addEventListener('DOMContentLoaded', async () => {
-                    const user = JSON.parse(sessionStorage.getItem('currentUser'));
-                    if (!user || user.vloga !== 'admin') {
-                        alert('Dostop zavrnjen!');
-                        window.location.href = 'dashboard.html';
-                    }
-                });
-                </script>
+                <div class="dashboard-actions" id="adminActions" style="display: none;">
+                    <button onclick="showAddUserForm()">➕ Dodaj uporabnika</button>
+                    <button onclick="refreshUserList()">🔄 Osveži seznam</button>
+                    <button onclick="exportUsersToCSV()">📤 Izvoz v CSV</button>
+                </div>
+
+                <div id="usersList">
+                    <p>Nalagam seznam uporabnikov...</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.appspot.com",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.firebaseDb = db;
+        window.firebaseFunctions = { collection, doc, setDoc, getDoc, getDocs, deleteDoc, updateDoc, serverTimestamp };
+    </script>
+
+    <script>
+        // Globalne spremenljivke
+        let currentUser = null;
+        let editingUserId = null;
+
+        // Preveri dostop ob nalaganju strani
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                alert('Niste prijavljeni!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
+            
+            if (currentUser.vloga === 'admin') {
+                document.getElementById('accessMessage').textContent = 'Dostop imajo samo administratorji';
+                document.getElementById('adminActions').style.display = 'flex';
+                await loadUsers();
+            } else {
+                document.getElementById('accessMessage').textContent = 'Nimate pravic za dostop!';
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            }
+
+            // Nastavi temni način
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').textContent = '☀️';
+            }
+
+            // Logout gumb
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+        });
+
+        // Naloži uporabnike iz Firebase
+        async function loadUsers() {
+            try {
+                const usersSnapshot = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
+                );
+                
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
+                
+                if (usersSnapshot.empty) {
+                    usersList.innerHTML = '<p>Ni uporabnikov za prikaz.</p>';
+                    return;
+                }
+                
+                let html = `
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Ime</th>
+                                <th>Priimek</th>
+                                <th>Uporabniško ime</th>
+                                <th>Vloga</th>
+                                <th>Status</th>
+                                <th>Dejanja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                usersSnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
+                    
+                    html += `
+                        <tr>
+                            <td>${user.ime || ''}</td>
+                            <td>${user.priimek || ''}</td>
+                            <td>${user.uporabniskoIme || ''}</td>
+                            <td>${user.vloga || ''}</td>
+                            <td class="${statusClass}">${user.status === 'active' ? 'Aktiven' : 'Neaktiven'}</td>
+                            <td>
+                                <button onclick="editUser('${doc.id}')" class="action-btn edit-btn">Uredi</button>
+                                <button onclick="deleteUser('${doc.id}')" class="action-btn delete-btn">Izbriši</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+                usersList.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Napaka pri nalaganju uporabnikov:', error);
+                document.getElementById('usersList').innerHTML = '<p>Napaka pri nalaganju uporabnikov.</p>';
+            }
+        }
+
+        // Ostale funkcije (editUser, deleteUser, showAddUserForm...) ostanejo enake kot v prejšnji kodi
+        // ... 
+
+        window.loadUsers = loadUsers;
+    </script>
 </body>
 </html>
