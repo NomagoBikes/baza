@@ -193,6 +193,8 @@
         .delete-btn {
             background-color: #dc3545;
         }
+        
+        /* Form styles */
         .form-group {
             margin-bottom: 15px;
         }
@@ -201,7 +203,9 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        .form-group input, .form-group select {
+        .form-group input, 
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -210,6 +214,117 @@
             color: var(--text-color);
         }
         
+        /* System access checkboxes */
+        .systems-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .system-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: var(--light-blue);
+            border-radius: 4px;
+        }
+        .system-checkbox input {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        /* Location selector */
+        .location-selector {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            background-color: var(--card-bg);
+        }
+        .location-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .location-filters select {
+            flex: 1;
+            min-width: 200px;
+        }
+        .location-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .location-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .location-item:last-child {
+            border-bottom: none;
+        }
+        .location-item input {
+            margin-right: 10px;
+            width: auto;
+        }
+        
+        /* Status indicators */
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+        }
+        .close {
+            color: var(--text-light);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: var(--text-dark);
+        }
+        
+        /* Responsive styles */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -229,12 +344,15 @@
                 padding: 8px 5px;
                 font-size: 14px;
             }
-            .dashboard-actions button {
-                width: 100%;
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
             }
-            .users-table {
-                display: block;
-                overflow-x: auto;
+            .location-filters {
+                flex-direction: column;
+            }
+            .location-filters select {
+                width: 100%;
             }
         }
     </style>
@@ -248,7 +366,7 @@
     </div>
 
     <div class="nav">
-        <a href="#">BAZA</a>
+        <a href="index.html">BAZA</a>
         <a href="dashboard.html">Nadzorna plošča</a>
         <a href="users.html">Uporabniki</a>
     </div>
@@ -265,57 +383,130 @@
 
         <div class="content">
             <div class="dashboard">
-                <h2>Uporabniki</h2>
-                <p>Upravljanje uporabniških računov sistema <span class="highlight">NOMAGO bikes</span></p>
-                <p>🔄 Povezano s Firebase</p>
+                <h2>Upravljanje uporabnikov</h2>
+                <p>Dodajajte in upravljajte uporabniške račune sistema <span class="highlight">NOMAGO bikes</span></p>
                 
-                <h3>Dodaj novega uporabnika</h3>
-                <form id="addUserForm">
-                    <div class="form-group">
-                        <label for="username">Uporabniško ime</label>
-                        <input type="text" id="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Geslo</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="ime">Ime</label>
-                        <input type="text" id="ime" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="priimek">Priimek</label>
-                        <input type="text" id="priimek" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="role">Vloga</label>
-                        <select id="role" required>
-                            <option value="admin">Administrator</option>
-                            <option value="user">Običajni uporabnik</option>
-                            <option value="technician">Tehnik</option>
-                        </select>
-                    </div>
-                    <button type="submit">Dodaj uporabnika</button>
-                </form>
-                
-                <h3 style="margin-top: 30px;">Seznam uporabnikov</h3>
+                <div class="dashboard-actions">
+                    <button onclick="showAddUserForm()">➕ Dodaj uporabnika</button>
+                    <button onclick="refreshUserList()">🔄 Osveži seznam</button>
+                    <button onclick="exportUsersToCSV()">📤 Izvoz v CSV</button>
+                </div>
+
                 <div id="usersList">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Uporabniško ime</th>
-                                <th>Ime</th>
-                                <th>Priimek</th>
-                                <th>Vloga</th>
-                                <th>Akcije</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Users will be loaded here -->
-                        </tbody>
-                    </table>
+                    <!-- Users will be loaded here -->
+                    <div style="text-align: center; padding: 20px;">
+                        <p>Nalagam seznam uporabnikov...</p>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Dodaj novega uporabnika</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                
+                <div class="form-group">
+                    <label for="firstName">Ime *</label>
+                    <input type="text" id="firstName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Priimek *</label>
+                    <input type="text" id="lastName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Uporabniško ime *</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Geslo *</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-pošta</label>
+                    <input type="email" id="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Telefon</label>
+                    <input type="tel" id="phone">
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Vloga *</label>
+                    <select id="role" required>
+                        <option value="">Izberite vlogo</option>
+                        <option value="admin">Administrator</option>
+                        <option value="serviser">Serviser</option>
+                        <option value="student">Študent</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status *</label>
+                    <div style="display: flex; gap: 15px;">
+                        <label><input type="radio" name="status" value="active" checked> Aktiven</label>
+                        <label><input type="radio" name="status" value="inactive"> Neaktiven</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sistemi za dostop *</label>
+                    <div class="systems-container">
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KolesCE"> KolesCE</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="LUR"> LUR</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="GO2GO"> GO2GO</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KOR"> KOR</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="ZaNaprej"> ZaNaprej</label>
+                    </div>
+                </div>
+                
+                <div class="location-selector">
+                    <h4>Dostop do lokacij</h4>
+                    <p>Izberite specifične lokacije, do katerih ima uporabnik dostop (neobvezno)</p>
+                    
+                    <div class="location-filters">
+                        <div class="form-group">
+                            <label for="systemFilter">Sistem</label>
+                            <select id="systemFilter" onchange="filterLocations()">
+                                <option value="">Vsi sistemi</option>
+                                <option value="KolesCE">KolesCE</option>
+                                <option value="LUR">LUR</option>
+                                <option value="GO2GO">GO2GO</option>
+                                <option value="KOR">KOR</option>
+                                <option value="ZaNaprej">ZaNaprej</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="municipalityFilter">Občina</label>
+                            <select id="municipalityFilter" onchange="filterLocations()">
+                                <option value="">Vse občine</option>
+                                <!-- Will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="location-list" id="locationList">
+                        <!-- Locations will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="dashboard-actions">
+                    <button type="submit" id="saveUserBtn">Shrani uporabnika</button>
+                    <button type="button" onclick="closeModal()" style="background: #6c757d;">Prekliči</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -360,176 +551,420 @@
         };
     </script>
 
-    <!-- JavaScript za upravljanje uporabnikov -->
     <script>
-        // Preveri če je uporabnik prijavljen
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        if (!currentUser) {
-            window.location.href = 'index.html';
-        } else {
-            // Prikaži podatke uporabnika
-            document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
-        }
+        // Global variables
+        let currentUser = null;
+        let editingUserId = null;
+        let allLocations = [];
+        let allMunicipalities = [];
         
-        // Temni način
-        const themeToggle = document.getElementById('themeToggle');
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        // System mapping for Firebase compatibility
+        const SYSTEM_MAPPING = {
+            'KolesCE': 'KOLESCE',
+            'LUR': 'Ljubljana in Medvode', 
+            'GO2GO': 'GO2GO',
+            'KOR': 'KOR',
+            'ZaNaprej': 'ZANAPREJ'
+        };
         
-        // Preveri lokalno shrambo za shranjeno temo
-        const currentTheme = localStorage.getItem('theme');
-        if (currentTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.textContent = '☀️';
-        } else if (currentTheme === 'light') {
-            document.body.classList.remove('dark-mode');
-            themeToggle.textContent = '🌙';
-        }
-        
-        // Poslušalec za gumb za preklop teme
-        themeToggle.addEventListener('click', function() {
-            if (document.body.classList.contains('dark-mode')) {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '🌙';
+        // Sample bike locations data (in real app, this would come from Firebase)
+        const SAMPLE_LOCATIONS = [
+            // Ljubljana in Medvode sistem
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Prešernov trg", terminal: "87001" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Trubarjeva ulica", terminal: "87002" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Konzorcij", terminal: "87003" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Železniška postaja Ljubljana", terminal: "87004" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Slovenska cesta", terminal: "87005" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Miklošičeva cesta", terminal: "87006" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Cankarjeva ulica", terminal: "87007" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Tivoli", terminal: "87008" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Park Zvezda", terminal: "87009" },
+            { system: "Ljubljana in Medvode", municipality: "Ljubljana", name: "Mestni muzej Ljubljana", terminal: "87010" },
+            
+            // GO2GO sistem
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901" },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903" },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905" },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Šempeter - pošta", terminal: "5907" },
+            
+            // KOLESCE sistem
+            { system: "KOLESCE", municipality: "Celje", name: "Krekov trg", terminal: "3250" },
+            { system: "KOLESCE", municipality: "Celje", name: "Avtobusna postaja", terminal: "3255" },
+            { system: "KOLESCE", municipality: "Celje", name: "Mariborska cesta – TUŠ", terminal: "3256" },
+            
+            // ZANAPREJ sistem
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Toplice", terminal: "5963" },
+            { system: "ZANAPREJ", municipality: "Zagorje ob Savi", name: "Mestna ploščad", terminal: "5994" }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user is logged in
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
             } else {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '☀️';
+                window.location.href = 'index.html';
             }
+            
+            // Load initial data
+            await loadUsers();
+            initializeLocationData();
+            
+            // Set up event listeners
+            document.getElementById('userForm').addEventListener('submit', handleUserFormSubmit);
+            
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         });
 
-        // Naloži uporabnike iz Firebase
+        // Theme management
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeToggle');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load users from Firebase
         async function loadUsers() {
             try {
                 const usersSnapshot = await window.firebaseFunctions.getDocs(
                     window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
                 );
                 
-                const usersTableBody = document.getElementById('usersTableBody');
-                usersTableBody.innerHTML = '';
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
                 
-                usersSnapshot.forEach((doc) => {
-                    const user = doc.data();
-                    const row = document.createElement('tr');
-                    
-                    row.innerHTML = `
-                        <td>${user.username}</td>
-                        <td>${user.ime}</td>
-                        <td>${user.priimek}</td>
-                        <td>${user.role}</td>
-                        <td>
-                            <button class="action-btn edit-btn" onclick="editUser('${user.username}')">Uredi</button>
-                            <button class="action-btn delete-btn" onclick="deleteUser('${user.username}')">Izbriši</button>
-                        </td>
-                    `;
-                    
-                    usersTableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error('Napaka pri nalaganju uporabnikov:', error);
-                alert('Napaka pri nalaganju uporabnikov: ' + error.message);
-            }
-        }
-
-        // Dodaj novega uporabnika
-        async function addUser(event) {
-            event.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const ime = document.getElementById('ime').value;
-            const priimek = document.getElementById('priimek').value;
-            const role = document.getElementById('role').value;
-            
-            try {
-                // Preveri če uporabnik že obstaja
-                const userRef = window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
-                const userDoc = await window.firebaseFunctions.getDoc(userRef);
-                
-                if (userDoc.exists()) {
-                    alert('Uporabnik s tem imenom že obstaja!');
+                if (usersSnapshot.empty) {
+                    usersList.innerHTML = '<p>Ni uporabnikov za prikaz.</p>';
                     return;
                 }
                 
-                // Dodaj novega uporabnika
-                await window.firebaseFunctions.setDoc(userRef, {
-                    username,
-                    password, // V praksi bi geslo hashirali!
-                    ime,
-                    priimek,
-                    role,
-                    createdAt: window.firebaseFunctions.serverTimestamp()
+                let html = `
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Ime</th>
+                                <th>Priimek</th>
+                                <th>Uporabniško ime</th>
+                                <th>Vloga</th>
+                                <th>Sistemi</th>
+                                <th>Status</th>
+                                <th>Zadnja prijava</th>
+                                <th>Dejanja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                usersSnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('sl-SI') : 'Nikoli';
+                    const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
+                    
+                    html += `
+                        <tr>
+                            <td>${user.ime || ''}</td>
+                            <td>${user.priimek || ''}</td>
+                            <td>${user.uporabniskoIme || ''}</td>
+                            <td>${user.vloga || ''}</td>
+                            <td>${user.sistemi ? user.sistemi.join(', ') : ''}</td>
+                            <td class="${statusClass}">${user.status === 'active' ? 'Aktiven' : 'Neaktiven'}</td>
+                            <td>${lastLogin}</td>
+                            <td>
+                                <button onclick="editUser('${doc.id}')" class="action-btn edit-btn">Uredi</button>
+                                <button onclick="deleteUser('${doc.id}')" class="action-btn delete-btn">Izbriši</button>
+                            </td>
+                        </tr>
+                    `;
                 });
                 
-                alert('Uporabnik uspešno dodan!');
-                document.getElementById('addUserForm').reset();
-                loadUsers();
+                html += `</tbody></table>`;
+                usersList.innerHTML = html;
+                
             } catch (error) {
-                console.error('Napaka pri dodajanju uporabnika:', error);
-                alert('Napaka pri dodajanju uporabnika: ' + error.message);
+                console.error('Error loading users:', error);
+                document.getElementById('usersList').innerHTML = '<p>Napaka pri nalaganju uporabnikov.</p>';
             }
         }
 
-        // Uredi uporabnika
-        async function editUser(username) {
+        // Initialize location data
+        function initializeLocationData() {
+            allLocations = SAMPLE_LOCATIONS;
+            
+            // Get unique municipalities
+            allMunicipalities = [...new Set(allLocations.map(loc => loc.municipality))];
+            
+            // Populate municipality filter
+            const municipalityFilter = document.getElementById('municipalityFilter');
+            allMunicipalities.forEach(municipality => {
+                const option = document.createElement('option');
+                option.value = municipality;
+                option.textContent = municipality;
+                municipalityFilter.appendChild(option);
+            });
+            
+            // Initially show all locations
+            filterLocations();
+        }
+
+        // Filter locations based on selected system and municipality
+        function filterLocations() {
+            const systemFilter = document.getElementById('systemFilter').value;
+            const municipalityFilter = document.getElementById('municipalityFilter').value;
+            
+            const filteredLocations = allLocations.filter(location => {
+                const systemMatch = !systemFilter || 
+                    (systemFilter === 'KolesCE' && location.system === 'KOLESCE') ||
+                    (systemFilter === 'LUR' && location.system === 'Ljubljana in Medvode') ||
+                    (systemFilter === 'GO2GO' && location.system === 'GO2GO') ||
+                    (systemFilter === 'KOR' && location.system === 'KOR') ||
+                    (systemFilter === 'ZaNaprej' && location.system === 'ZANAPREJ');
+                
+                const municipalityMatch = !municipalityFilter || location.municipality === municipalityFilter;
+                
+                return systemMatch && municipalityMatch;
+            });
+            
+            renderLocationList(filteredLocations);
+        }
+
+        // Render location list
+        function renderLocationList(locations) {
+            const locationList = document.getElementById('locationList');
+            locationList.innerHTML = '';
+            
+            if (locations.length === 0) {
+                locationList.innerHTML = '<p>Ni lokacij za prikaz z izbranimi filtri.</p>';
+                return;
+            }
+            
+            locations.forEach(location => {
+                const locationItem = document.createElement('div');
+                locationItem.className = 'location-item';
+                locationItem.innerHTML = `
+                    <input type="checkbox" id="loc-${location.terminal}" name="locations" value="${location.terminal}">
+                    <label for="loc-${location.terminal}">
+                        ${location.name} (${location.municipality}) - ${location.terminal}
+                    </label>
+                `;
+                locationList.appendChild(locationItem);
+            });
+        }
+
+        // Show add user form
+        function showAddUserForm() {
+            if (currentUser && currentUser.vloga !== 'admin') {
+                alert('Samo administratorji lahko dodajajo nove uporabnike.');
+                return;
+            }
+            
+            editingUserId = null;
+            document.getElementById('modalTitle').textContent = 'Dodaj novega uporabnika';
+            document.getElementById('userForm').reset();
+            
+            // Uncheck all checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Set default status to active
+            document.querySelector('input[name="status"][value="active"]').checked = true;
+            
+            // Show modal
+            document.getElementById('userModal').style.display = 'block';
+        }
+
+        // Edit user
+        async function editUser(userId) {
+            if (currentUser && currentUser.vloga !== 'admin') {
+                alert('Samo administratorji lahko urejajo uporabnike.');
+                return;
+            }
+            
             try {
-                const userRef = window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
-                const userDoc = await window.firebaseFunctions.getDoc(userRef);
+                const userDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', userId)
+                );
                 
                 if (!userDoc.exists()) {
-                    alert('Uporabnik ne obstaja!');
+                    alert('Uporabnik ne obstaja.');
                     return;
                 }
                 
                 const user = userDoc.data();
-                const newIme = prompt('Vnesite novo ime:', user.ime);
-                const newPriimek = prompt('Vnesite nov priimek:', user.priimek);
-                const newRole = prompt('Vnesite novo vlogo (admin/user/technician):', user.role);
+                editingUserId = userId;
                 
-                if (newIme && newPriimek && newRole) {
-                    await window.firebaseFunctions.updateDoc(userRef, {
-                        ime: newIme,
-                        priimek: newPriimek,
-                        role: newRole
-                    });
-                    
-                    alert('Uporabnik uspešno posodobljen!');
-                    loadUsers();
-                }
+                // Fill form with user data
+                document.getElementById('modalTitle').textContent = 'Uredi uporabnika';
+                document.getElementById('userId').value = userId;
+                document.getElementById('firstName').value = user.ime || '';
+                document.getElementById('lastName').value = user.priimek || '';
+                document.getElementById('username').value = user.uporabniskoIme || '';
+                document.getElementById('password').value = '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('role').value = user.vloga || '';
+                
+                // Set status
+                document.querySelector(`input[name="status"][value="${user.status || 'active'}"]`).checked = true;
+                
+                // Check systems
+                document.querySelectorAll('input[name="systems"]').forEach(checkbox => {
+                    checkbox.checked = user.sistemi && user.sistemi.includes(checkbox.value);
+                });
+                
+                // Check locations (would need to be implemented based on actual user data)
+                
+                // Show modal
+                document.getElementById('userModal').style.display = 'block';
+                
             } catch (error) {
-                console.error('Napaka pri urejanju uporabnika:', error);
-                alert('Napaka pri urejanju uporabnika: ' + error.message);
+                console.error('Error loading user for edit:', error);
+                alert('Napaka pri nalaganju uporabnika: ' + error.message);
             }
         }
 
-        // Izbriši uporabnika
-        async function deleteUser(username) {
-            if (!confirm(`Ali ste prepričani, da želite izbrisati uporabnika ${username}?`)) {
+        // Handle form submission
+        async function handleUserFormSubmit(event) {
+            event.preventDefault();
+            
+            const saveButton = document.getElementById('saveUserBtn');
+            const originalText = saveButton.textContent;
+            saveButton.textContent = 'Shranjujem...';
+            saveButton.disabled = true;
+            
+            try {
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const role = document.getElementById('role').value;
+                const status = document.querySelector('input[name="status"]:checked').value;
+                
+                // Get selected systems
+                const systemCheckboxes = document.querySelectorAll('input[name="systems"]:checked');
+                const systems = Array.from(systemCheckboxes).map(cb => cb.value);
+                
+                // Get selected locations
+                const locationCheckboxes = document.querySelectorAll('input[name="locations"]:checked');
+                const locations = Array.from(locationCheckboxes).map(cb => cb.value);
+                
+                if (!firstName || !lastName || !username || !role || systems.length === 0) {
+                    alert('Prosimo, izpolnite vsa obvezna polja.');
+                    return;
+                }
+                
+                // Prepare user data
+                const userData = {
+                    ime: firstName,
+                    priimek: lastName,
+                    uporabniskoIme: username,
+                    vloga: role,
+                    status: status,
+                    sistemi: systems,
+                    lokacije: locations,
+                    email: email || null,
+                    phone: phone || null,
+                    updatedAt: window.firebaseFunctions.serverTimestamp()
+                };
+                
+                // Only update password if it's not empty (for editing)
+                if (password) {
+                    userData.geslo = password;
+                }
+                
+                // For new users, set createdAt
+                if (!editingUserId) {
+                    userData.createdAt = window.firebaseFunctions.serverTimestamp();
+                }
+                
+                // Save to Firebase
+                const userRef = editingUserId ? 
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', editingUserId) :
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
+                
+                await window.firebaseFunctions.setDoc(userRef, userData, { merge: true });
+                
+                alert(`Uporabnik ${username} je bil uspešno ${editingUserId ? 'posodobljen' : 'dodan'}!`);
+                closeModal();
+                loadUsers();
+                
+            } catch (error) {
+                console.error('Error saving user:', error);
+                alert('Napaka pri shranjevanju uporabnika: ' + error.message);
+            } finally {
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userId) {
+            if (currentUser && currentUser.vloga !== 'admin') {
+                alert('Samo administratorji lahko brišejo uporabnike.');
+                return;
+            }
+            
+            if (userId === 'admin') {
+                alert('Admin uporabnika ni mogoče izbrisati!');
+                return;
+            }
+            
+            if (!confirm('Ali ste prepričani, da želite izbrisati tega uporabnika?')) {
                 return;
             }
             
             try {
                 await window.firebaseFunctions.deleteDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', userId)
                 );
                 
-                alert('Uporabnik uspešno izbrisan!');
+                alert('Uporabnik je bil uspešno izbrisan!');
                 loadUsers();
             } catch (error) {
-                console.error('Napaka pri brisanju uporabnika:', error);
+                console.error('Error deleting user:', error);
                 alert('Napaka pri brisanju uporabnika: ' + error.message);
             }
         }
 
-        // Inicializacija
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('addUserForm').addEventListener('submit', addUser);
-            loadUsers();
-        });
+        // Close modal
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+            editingUserId = null;
+        }
 
-        // Globalne funkcije
+        // Refresh user list
+        function refreshUserList() {
+            loadUsers();
+        }
+
+        // Export users to CSV
+        function exportUsersToCSV() {
+            // This would be implemented to generate and download a CSV file
+            alert('Funkcija izvoza v CSV bo implementirana v naslednji verziji.');
+        }
+
+        // Global functions
+        window.showAddUserForm = showAddUserForm;
         window.editUser = editUser;
         window.deleteUser = deleteUser;
+        window.closeModal = closeModal;
+        window.refreshUserList = refreshUserList;
+        window.exportUsersToCSV = exportUsersToCSV;
+        window.filterLocations = filterLocations;
     </script>
 </body>
 </html>
