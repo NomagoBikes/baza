@@ -3,68 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nastavitve uporabnikov - NOMAGO bikes</title>
+    <title>NOMAGO bikes - Uporabniki</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* Dodaj vse CSS pravile iz index.html ali uporabi iste kot v dashboard.html */
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-        .header { text-align: center; padding: 20px; background-color: #007bff; color: white; }
-        .nav { background-color: #333; color: white; padding: 10px; }
-        .nav a { color: white; text-decoration: none; margin: 0 15px; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .menu { background-color: #007bff; padding: 10px; border-radius: 8px; }
-        .menu a { color: white; text-decoration: none; display: block; padding: 10px; }
-        .menu a:hover { background-color: #0056b3; }
-        .users { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .users input, .users select { width: 100%; padding: 10px; margin: 10px 0; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
+        :root {
+            --primary-blue: #004899;
+            --secondary-yellow: #fbb900;
+            --light-blue: #e9f0f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --bg-color: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --menu-bg: #004899;
+            --nav-bg: #fbb900;
+            --nav-text: #333333;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --menu-bg: #0a1a33;
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+        }
+
+        body { 
+            font-family: 'Roboto', Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .header { 
+            display: flex;
+            align-items: center;
+            padding: 20px; 
+            background-color: var(--primary-blue);
+            color: white;
+            position: relative;
+        }
+        .logo-left {
+            height: 50px;
+        }
+        .logo-center {
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .user-info {
+            position: absolute;
+            right: 80px;
+            color: white;
+            font-weight: 400;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
+        }
+        .nav { 
+            display: flex;
+            justify-content: center;
+            background-color: var(--nav-bg);
+            color: var(--nav-text); 
+            padding: 10px; 
+            font-weight: 700;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        .nav a { 
+            color: var(--nav-text);
+            text-decoration: none; 
+            margin: 0 15px;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+        .container { 
+            display: flex;
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            flex-direction: column;
+        }
+        .menu { 
+            width: 100%;
+            background-color: var(--menu-bg);
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .menu a { 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 15px;
+            font-weight: 400;
+            border-radius: 4px;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .menu a:hover { 
+            background-color: #003366;
+        }
+        .content {
+            width: 100%;
+        }
+        .dashboard { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .dashboard-actions button {
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        button { 
+            background-color: var(--primary-blue);
+            color: white; 
+            border: none; 
+            padding: 10px 20px;
+            cursor: pointer; 
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+        }
+        button:hover { 
+            background-color: #003366;
+        }
+        .highlight {
+            color: var(--secondary-yellow);
+            font-weight: 700;
+        }
+        h2, h3 {
+            color: var(--primary-blue);
+        }
+        
+        /* Users specific styles */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .users-table th, .users-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .users-table th {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        .users-table tr:hover {
+            background-color: rgba(0,72,153,0.1);
+        }
+        .action-btn {
+            padding: 5px 10px;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+        .edit-btn {
+            background-color: #28a745;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header {
+                padding: 15px;
+            }
+            .logo-left, .logo-center {
+                height: 40px;
+            }
+            .user-info {
+                right: 60px;
+                font-size: 14px;
+                max-width: 150px;
+            }
+            .menu a {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            .dashboard-actions button {
+                width: 100%;
+            }
+            .users-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>NOMAGO bikes</h1>
+        <img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left">
+        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center">
+        <div class="user-info" id="userInfo"></div>
+        <button class="theme-toggle" id="themeToggle">🌓</button>
     </div>
 
     <div class="nav">
-        <a href="index.html">BAZA</a>
+        <a href="#">BAZA</a>
+        <a href="dashboard.html">Nadzorna plošča</a>
+        <a href="users.html">Uporabniki</a>
     </div>
 
     <div class="container">
         <div class="menu">
-            <a href="index.html">🏠 Nadzorna plošča</a>
+            <a href="dashboard.html">🏠 Nadzorna plošča</a>
             <a href="#">🔧 Pregledi ključavnic <span>0</span></a>
-            <a href="users.html">👥 Nastavitve uporabnikov</a>
+            <a href="users.html">👥 Uporabniki</a>
             <a href="notifications.html">📢 Obvestila</a>
-            <a href="settings.html">⚙️ Splošne nastavitve</a>
-            <a href="#">🚪 Odjavi se</a>
+            <a href="settings.html">⚙️ Nastavitve</a>
+            <a href="index.html">🚪 Odjavi se</a>
         </div>
 
-        <!-- Vsebina za upravljanje uporabnikov ostane enaka -->
-        <div class="users">
-            <h2>Dodaj uporabnika</h2>
-            <p>Ustvarite nov uporabniški račun</p>
-            <form id="addUserForm">
-                <!-- Form fields remain the same -->
-            </form>
-        </div>
-
-        <div class="users">
-            <h2>Nastavitve uporabnikov</h2>
-            <p>Upravljajte obstoječe uporabniške račune</p>
-            <div id="usersList">
-                <!-- Users will be loaded here -->
+        <div class="content">
+            <div class="dashboard">
+                <h2>Uporabniki</h2>
+                <p>Upravljanje uporabniških računov sistema <span class="highlight">NOMAGO bikes</span></p>
+                <p>🔄 Povezano s Firebase</p>
+                
+                <h3>Dodaj novega uporabnika</h3>
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="username">Uporabniško ime</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Geslo</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ime">Ime</label>
+                        <input type="text" id="ime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="priimek">Priimek</label>
+                        <input type="text" id="priimek" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Vloga</label>
+                        <select id="role" required>
+                            <option value="admin">Administrator</option>
+                            <option value="user">Običajni uporabnik</option>
+                            <option value="technician">Tehnik</option>
+                        </select>
+                    </div>
+                    <button type="submit">Dodaj uporabnika</button>
+                </form>
+                
+                <h3 style="margin-top: 30px;">Seznam uporabnikov</h3>
+                <div id="usersList">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Uporabniško ime</th>
+                                <th>Ime</th>
+                                <th>Priimek</th>
+                                <th>Vloga</th>
+                                <th>Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-
-        <div class="users">
-            <h2>Uredi uporabnika</h2>
-            <form id="editUserForm">
-                <!-- Edit form fields remain the same -->
-            </form>
         </div>
     </div>
 
-    <!-- Firebase Integration Script (enak kot v dashboard.html) -->
+    <!-- Firebase Integration Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { 
@@ -107,42 +362,168 @@
 
     <!-- JavaScript za upravljanje uporabnikov -->
     <script>
-        // Funkcije za upravljanje uporabnikov
+        // Preveri če je uporabnik prijavljen
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        } else {
+            // Prikaži podatke uporabnika
+            document.getElementById('userInfo').textContent = `${currentUser.ime} ${currentUser.priimek}`;
+        }
+        
+        // Temni način
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Preveri lokalno shrambo za shranjeno temo
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        } else if (currentTheme === 'light') {
+            document.body.classList.remove('dark-mode');
+            themeToggle.textContent = '🌙';
+        }
+        
+        // Poslušalec za gumb za preklop teme
+        themeToggle.addEventListener('click', function() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        });
+
+        // Naloži uporabnike iz Firebase
         async function loadUsers() {
             try {
                 const usersSnapshot = await window.firebaseFunctions.getDocs(
                     window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
                 );
                 
-                const usersList = document.getElementById('usersList');
-                usersList.innerHTML = '';
+                const usersTableBody = document.getElementById('usersTableBody');
+                usersTableBody.innerHTML = '';
                 
                 usersSnapshot.forEach((doc) => {
                     const user = doc.data();
-                    // Prikaži uporabnike v tabeli
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${user.username}</td>
+                        <td>${user.ime}</td>
+                        <td>${user.priimek}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editUser('${user.username}')">Uredi</button>
+                            <button class="action-btn delete-btn" onclick="deleteUser('${user.username}')">Izbriši</button>
+                        </td>
+                    `;
+                    
+                    usersTableBody.appendChild(row);
                 });
             } catch (error) {
-                console.error('Error loading users:', error);
+                console.error('Napaka pri nalaganju uporabnikov:', error);
+                alert('Napaka pri nalaganju uporabnikov: ' + error.message);
             }
         }
 
+        // Dodaj novega uporabnika
         async function addUser(event) {
             event.preventDefault();
-            // Implementacija dodajanja uporabnika
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const ime = document.getElementById('ime').value;
+            const priimek = document.getElementById('priimek').value;
+            const role = document.getElementById('role').value;
+            
+            try {
+                // Preveri če uporabnik že obstaja
+                const userRef = window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
+                const userDoc = await window.firebaseFunctions.getDoc(userRef);
+                
+                if (userDoc.exists()) {
+                    alert('Uporabnik s tem imenom že obstaja!');
+                    return;
+                }
+                
+                // Dodaj novega uporabnika
+                await window.firebaseFunctions.setDoc(userRef, {
+                    username,
+                    password, // V praksi bi geslo hashirali!
+                    ime,
+                    priimek,
+                    role,
+                    createdAt: window.firebaseFunctions.serverTimestamp()
+                });
+                
+                alert('Uporabnik uspešno dodan!');
+                document.getElementById('addUserForm').reset();
+                loadUsers();
+            } catch (error) {
+                console.error('Napaka pri dodajanju uporabnika:', error);
+                alert('Napaka pri dodajanju uporabnika: ' + error.message);
+            }
         }
 
+        // Uredi uporabnika
         async function editUser(username) {
-            // Implementacija urejanja uporabnika
+            try {
+                const userRef = window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
+                const userDoc = await window.firebaseFunctions.getDoc(userRef);
+                
+                if (!userDoc.exists()) {
+                    alert('Uporabnik ne obstaja!');
+                    return;
+                }
+                
+                const user = userDoc.data();
+                const newIme = prompt('Vnesite novo ime:', user.ime);
+                const newPriimek = prompt('Vnesite nov priimek:', user.priimek);
+                const newRole = prompt('Vnesite novo vlogo (admin/user/technician):', user.role);
+                
+                if (newIme && newPriimek && newRole) {
+                    await window.firebaseFunctions.updateDoc(userRef, {
+                        ime: newIme,
+                        priimek: newPriimek,
+                        role: newRole
+                    });
+                    
+                    alert('Uporabnik uspešno posodobljen!');
+                    loadUsers();
+                }
+            } catch (error) {
+                console.error('Napaka pri urejanju uporabnika:', error);
+                alert('Napaka pri urejanju uporabnika: ' + error.message);
+            }
         }
 
+        // Izbriši uporabnika
         async function deleteUser(username) {
-            // Implementacija brisanja uporabnika
+            if (!confirm(`Ali ste prepričani, da želite izbrisati uporabnika ${username}?`)) {
+                return;
+            }
+            
+            try {
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username)
+                );
+                
+                alert('Uporabnik uspešno izbrisan!');
+                loadUsers();
+            } catch (error) {
+                console.error('Napaka pri brisanju uporabnika:', error);
+                alert('Napaka pri brisanju uporabnika: ' + error.message);
+            }
         }
 
         // Inicializacija
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('addUserForm').addEventListener('submit', addUser);
-            document.getElementById('editUserForm').addEventListener('submit', editUser);
             loadUsers();
         });
 
