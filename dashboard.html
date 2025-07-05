@@ -57,9 +57,13 @@
         }
         .user-info {
             position: absolute;
-            right: 60px;
+            right: 80px; /* Več prostora za luno */
             color: white;
             font-weight: 400;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .theme-toggle {
             position: absolute;
@@ -69,14 +73,16 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
+            z-index: 1;
         }
         .nav { 
+            display: flex;
+            justify-content: center;
             background-color: var(--nav-bg);
             color: var(--nav-text); 
             padding: 10px; 
             font-weight: 700;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-            text-align: center;
         }
         .nav a { 
             color: var(--nav-text);
@@ -101,17 +107,18 @@
             padding: 10px; 
             border-radius: 8px; 
             margin-bottom: 20px;
-            display: none; /* Skrit za mobilne naprave */
-        }
-        .menu.active {
-            display: block; /* Prikazan ko je meni odprt */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
         }
         .menu a { 
             color: white; 
             text-decoration: none; 
-            display: block; 
-            padding: 10px; 
+            padding: 10px 15px;
             font-weight: 400;
+            border-radius: 4px;
+            flex-grow: 1;
+            text-align: center;
         }
         .menu a:hover { 
             background-color: #003366;
@@ -126,13 +133,22 @@
             margin-bottom: 20px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .dashboard-actions button {
+            flex-grow: 1;
+            min-width: 120px;
+        }
         button { 
             background-color: var(--primary-blue);
             color: white; 
             border: none; 
             padding: 10px 20px;
             cursor: pointer; 
-            margin: 5px 0;
             border-radius: 4px;
             font-family: 'Roboto', sans-serif;
             font-weight: 700;
@@ -147,20 +163,7 @@
         h2, h3 {
             color: var(--primary-blue);
         }
-        .menu-toggle {
-            display: none;
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            width: 100%;
-        }
         @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
             .container {
                 padding: 10px;
             }
@@ -171,8 +174,16 @@
                 height: 40px;
             }
             .user-info {
+                right: 60px;
                 font-size: 14px;
-                right: 50px;
+                max-width: 150px;
+            }
+            .menu a {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            .dashboard-actions button {
+                width: 100%;
             }
         }
     </style>
@@ -187,11 +198,12 @@
 
     <div class="nav">
         <a href="#">BAZA</a>
+        <a href="dashboard.html">Nadzorna plošča</a>
+        <a href="users.html">Uporabniki</a>
     </div>
 
     <div class="container">
-        <button class="menu-toggle" id="menuToggle">🍔 Meni</button>
-        <div class="menu" id="mainMenu">
+        <div class="menu">
             <a href="dashboard.html">🏠 Nadzorna plošča</a>
             <a href="#">🔧 Pregledi ključavnic <span>0</span></a>
             <a href="users.html">👥 Uporabniki</a>
@@ -215,7 +227,11 @@
                     <p><strong>0</strong> Skupaj ključavnic</p>
                 </div>
                 
-                <button>🔧 Odpri preglede</button>
+                <div class="dashboard-actions">
+                    <button>🔧 Odpri preglede</button>
+                    <button>📊 Statistika</button>
+                    <button>✉️ Pošlji obvestilo</button>
+                </div>
             </div>
         </div>
     </div>
@@ -258,14 +274,6 @@
                 localStorage.setItem('theme', 'dark');
                 themeToggle.textContent = '☀️';
             }
-        });
-
-        // Mobilni meni
-        const menuToggle = document.getElementById('menuToggle');
-        const mainMenu = document.getElementById('mainMenu');
-        
-        menuToggle.addEventListener('click', function() {
-            mainMenu.classList.toggle('active');
         });
 
         // Prilagodi velikost logotipov za mobilne naprave
