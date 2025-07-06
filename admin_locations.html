@@ -484,6 +484,30 @@
             color: #f57c00;
         }
 
+        /* Badge styles */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.active {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge.inactive {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge.maintenance {
+            background: var(--warning);
+            color: var(--text-dark);
+        }
+
         /* Loading states */
         .loading {
             text-align: center;
@@ -864,4 +888,658 @@
                 }
                 
                 return user;
+            } else {
+                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
+                window.location.href = 'index.html';
+                return null;
             }
+        }
+
+        async function waitForFirebase() {
+            while (!window.firebaseReady) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        function initializeTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const currentTheme = localStorage.getItem('theme');
+            
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                themeToggle.textContent = '🌙';
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+        }
+
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadLocations(),
+                    loadSystems(),
+                    loadMunicipalities()
+                ]);
+                updateStatistics();
+                console.log('Vsi podatki naloženi uspešno');
+            } catch (error) {
+                console.error('Napaka pri nalaganju podatkov:', error);
+                showAlert('Napaka pri nalaganju podatkov: ' + error.message, 'danger');
+            }
+        }
+
+        async function loadLocations() {
+            try {
+                const locationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                
+                if (locationsDoc.exists()) {
+                    locations = locationsDoc.data().data || [];
+                } else {
+                    locations = [];
+                }
+                
+                filteredLocations = [...locations];
+                renderLocationsTable();
+                populateFilters();
+                
+                console.log('Lokacije naložene:', locations.length);
+            } catch (error) {
+                console.error('Napaka pri nalaganju lokacij:', error);
+                document.getElementById('locationsTable').innerHTML = 
+                    '<div class="alert alert-danger">Napaka pri nalaganju lokacij: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadSystems() {
+            try {
+                const systemsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'systems')
+                );
+                
+                if (systemsDoc.exists()) {
+                    systems = systemsDoc.data().data || [];
+                } else {
+                    // Privzeti sistemi če ne obstajajo
+                    systems = [
+                        { id: 'KolesCE', name: 'KolesCE', description: 'Sistem KolesCE' },
+                        { id: 'Ljubljana', name: 'Ljubljana', description: 'LUR - Ljubljana' },
+                        { id: 'GO2GO', name: 'GO2GO', description: 'GO2GO sistem' },
+                        { id: 'ZaNaprej', name: 'ZaNaprej', description: 'ZaNaprej sistem' }
+                    ];
+                    // Shrani privzete sisteme
+                    await saveSystemsToFirebase();
+                }
+                
+                renderSystemsTable();
+                populateSystemOptions();
+                
+                console.log('Sistemi naloženi:', systems.length);
+            } catch (error) {
+                console.error('Napaka pri nalaganju sistemov:', error);
+                document.getElementById('systemsTable').innerHTML = 
+                    '<div class="alert alert-danger">Napaka pri nalaganju sistemov: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadMunicipalities() {
+            try {
+                const municipalitiesDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'municipalities')
+                );
+                
+                if (municipalitiesDoc.exists()) {
+                    municipalities = municipalitiesDoc.data().data || [];
+                } else {
+                    // Privzete občine
+                    municipalities = [
+                        { id: 'ljubljana', name: 'Ljubljana', region: 'Osrednjeslovenska' },
+                        { id: 'celje', name: 'Celje', region: 'Savinjska' },
+                        { id: 'kranj', name: 'Kranj', region: 'Gorenjska' },
+                        { id: 'koper', name: 'Koper', region: 'Obalno-kraška' }
+                    ];
+                    // Shrani privzete občine
+                    await saveMunicipalitiesData();
+                }
+                
+                renderMunicipalitiesTable();
+                populateMunicipalityOptions();
+                
+                console.log('Občine naložene:', municipalities.length);
+            } catch (error) {
+                console.error('Napaka pri nalaganju občin:', error);
+                document.getElementById('municipalitiesTable').innerHTML = 
+                    '<div class="alert alert-danger">Napaka pri nalaganju občin: ' + error.message + '</div>';
+            }
+        }
+
+        function renderLocationsTable() {
+            const container = document.getElementById('locationsTable');
+            
+            if (filteredLocations.length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">Ni lokacij za prikaz.</div>';
+                return;
+            }
+            
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ime</th>
+                            <th>Terminal</th>
+                            <th>Sistem</th>
+                            <th>Občina</th>
+                            <th>Ključavnice</th>
+                            <th>Status</th>
+                            <th>Dejanja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            filteredLocations.forEach(location => {
+                html += `
+                    <tr>
+                        <td>${location.name || ''}</td>
+                        <td>${location.terminal || ''}</td>
+                        <td>${location.system || ''}</td>
+                        <td>${location.municipality || ''}</td>
+                        <td>${location.racks || 0}</td>
+                        <td><span class="badge ${location.status || 'active'}">${getStatusText(location.status)}</span></td>
+                        <td>
+                            <button onclick="editLocation('${location.terminal}')" class="action-btn btn-warning">Uredi</button>
+                            <button onclick="deleteLocation('${location.terminal}')" class="action-btn btn-danger">Izbriši</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function renderSystemsTable() {
+            const container = document.getElementById('systemsTable');
+            
+            if (systems.length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">Ni sistemov za prikaz.</div>';
+                return;
+            }
+            
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ime sistema</th>
+                            <th>Opis</th>
+                            <th>Dejanja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            systems.forEach(system => {
+                html += `
+                    <tr>
+                        <td>${system.name || ''}</td>
+                        <td>${system.description || ''}</td>
+                        <td>
+                            <button onclick="editSystem('${system.id}')" class="action-btn btn-warning">Uredi</button>
+                            <button onclick="deleteSystem('${system.id}')" class="action-btn btn-danger">Izbriši</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function renderMunicipalitiesTable() {
+            const container = document.getElementById('municipalitiesTable');
+            
+            if (municipalities.length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">Ni občin za prikaz.</div>';
+                return;
+            }
+            
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ime občine</th>
+                            <th>Regija</th>
+                            <th>Dejanja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            municipalities.forEach(municipality => {
+                html += `
+                    <tr>
+                        <td>${municipality.name || ''}</td>
+                        <td>${municipality.region || ''}</td>
+                        <td>
+                            <button onclick="editMunicipality('${municipality.id}')" class="action-btn btn-warning">Uredi</button>
+                            <button onclick="deleteMunicipality('${municipality.id}')" class="action-btn btn-danger">Izbriši</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function populateFilters() {
+            // Sistem filter
+            const systemFilter = document.getElementById('systemFilter');
+            systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
+            const uniqueSystems = [...new Set(locations.map(loc => loc.system))];
+            uniqueSystems.forEach(system => {
+                systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
+            });
+            
+            // Občina filter
+            const municipalityFilter = document.getElementById('municipalityFilter');
+            municipalityFilter.innerHTML = '<option value="">Vse občine</option>';
+            const uniqueMunicipalities = [...new Set(locations.map(loc => loc.municipality))];
+            uniqueMunicipalities.forEach(municipality => {
+                municipalityFilter.innerHTML += `<option value="${municipality}">${municipality}</option>`;
+            });
+        }
+
+        function populateSystemOptions() {
+            const select = document.getElementById('locationSystem');
+            select.innerHTML = '<option value="">Izberite sistem</option>';
+            systems.forEach(system => {
+                select.innerHTML += `<option value="${system.name}">${system.name}</option>`;
+            });
+        }
+
+        function populateMunicipalityOptions() {
+            const select = document.getElementById('locationMunicipality');
+            select.innerHTML = '<option value="">Izberite občino</option>';
+            municipalities.forEach(municipality => {
+                select.innerHTML += `<option value="${municipality.name}">${municipality.name}</option>`;
+            });
+        }
+
+        function updateStatistics() {
+            document.getElementById('totalLocations').textContent = locations.length;
+            document.getElementById('totalSystems').textContent = systems.length;
+            document.getElementById('totalMunicipalities').textContent = municipalities.length;
+            
+            const totalRacks = locations.reduce((sum, loc) => sum + (loc.racks || 0), 0);
+            document.getElementById('totalRacks').textContent = totalRacks;
+        }
+
+        function filterLocations() {
+            const systemFilter = document.getElementById('systemFilter').value;
+            const municipalityFilter = document.getElementById('municipalityFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            
+            filteredLocations = locations.filter(location => {
+                const matchesSystem = !systemFilter || location.system === systemFilter;
+                const matchesMunicipality = !municipalityFilter || location.municipality === municipalityFilter;
+                const matchesSearch = !searchFilter || 
+                    location.name.toLowerCase().includes(searchFilter) ||
+                    location.terminal.toLowerCase().includes(searchFilter);
+                
+                return matchesSystem && matchesMunicipality && matchesSearch;
+            });
+            
+            renderLocationsTable();
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'active': 'Aktivna',
+                'inactive': 'Neaktivna',
+                'maintenance': 'Vzdrževanje'
+            };
+            return statusMap[status] || 'Aktivna';
+        }
+
+        // Modal functions
+        function showAddLocationModal() {
+            document.getElementById('locationModalTitle').textContent = 'Dodaj lokacijo';
+            document.getElementById('locationForm').reset();
+            document.getElementById('editLocationId').value = '';
+            document.getElementById('locationModal').style.display = 'block';
+        }
+
+        function showAddSystemModal() {
+            document.getElementById('systemModalTitle').textContent = 'Dodaj sistem';
+            document.getElementById('systemForm').reset();
+            document.getElementById('editSystemId').value = '';
+            document.getElementById('systemModal').style.display = 'block';
+        }
+
+        function showAddMunicipalityModal() {
+            document.getElementById('municipalityModalTitle').textContent = 'Dodaj občino';
+            document.getElementById('municipalityForm').reset();
+            document.getElementById('editMunicipalityId').value = '';
+            document.getElementById('municipalityModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Save functions
+        async function saveSystemsToFirebase() {
+            await window.firebaseFunctions.setDoc(
+                window.firebaseFunctions.doc(window.firebaseDb, 'system', 'systems'),
+                {
+                    data: systems,
+                    lastUpdated: window.firebaseFunctions.serverTimestamp()
+                }
+            );
+        }
+
+        async function saveMunicipalitiesData() {
+            await window.firebaseFunctions.setDoc(
+                window.firebaseFunctions.doc(window.firebaseDb, 'system', 'municipalities'),
+                {
+                    data: municipalities,
+                    lastUpdated: window.firebaseFunctions.serverTimestamp()
+                }
+            );
+        }
+
+        async function saveLocationsData() {
+            await window.firebaseFunctions.setDoc(
+                window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations'),
+                {
+                    data: locations,
+                    lastUpdated: window.firebaseFunctions.serverTimestamp()
+                }
+            );
+        }
+
+        function setupFormHandlers() {
+            // Location form
+            document.getElementById('locationForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('locationName').value;
+                const terminal = document.getElementById('locationTerminal').value;
+                const system = document.getElementById('locationSystem').value;
+                const municipality = document.getElementById('locationMunicipality').value;
+                const racks = parseInt(document.getElementById('locationRacks').value);
+                const status = document.getElementById('locationStatus').value;
+                const notes = document.getElementById('locationNotes').value;
+                
+                const locationData = {
+                    name, terminal, system, municipality, racks, status, notes
+                };
+                
+                try {
+                    const editId = document.getElementById('editLocationId').value;
+                    if (editId) {
+                        // Edit existing
+                        const index = locations.findIndex(loc => loc.terminal === editId);
+                        if (index !== -1) {
+                            locations[index] = { ...locations[index], ...locationData };
+                        }
+                    } else {
+                        // Add new
+                        locations.push(locationData);
+                    }
+                    
+                    await saveLocationsData();
+                    await loadLocations();
+                    closeModal('locationModal');
+                    showAlert('Lokacija uspešno shranjena!', 'success');
+                } catch (error) {
+                    showAlert('Napaka pri shranjevanju: ' + error.message, 'danger');
+                }
+            });
+
+            // System form
+            document.getElementById('systemForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('systemName').value;
+                const description = document.getElementById('systemDescription').value;
+                
+                const systemData = {
+                    id: name.replace(/\s+/g, '_'),
+                    name,
+                    description
+                };
+                
+                try {
+                    const editId = document.getElementById('editSystemId').value;
+                    if (editId) {
+                        // Edit existing
+                        const index = systems.findIndex(sys => sys.id === editId);
+                        if (index !== -1) {
+                            systems[index] = { ...systems[index], ...systemData };
+                        }
+                    } else {
+                        // Add new
+                        systems.push(systemData);
+                    }
+                    
+                    await saveSystemsToFirebase();
+                    await loadSystems();
+                    closeModal('systemModal');
+                    showAlert('Sistem uspešno shranjen!', 'success');
+                } catch (error) {
+                    showAlert('Napaka pri shranjevanju: ' + error.message, 'danger');
+                }
+            });
+
+            // Municipality form
+            document.getElementById('municipalityForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('municipalityName').value;
+                const region = document.getElementById('municipalityRegion').value;
+                
+                const municipalityData = {
+                    id: name.toLowerCase().replace(/\s+/g, '_'),
+                    name,
+                    region
+                };
+                
+                try {
+                    const editId = document.getElementById('editMunicipalityId').value;
+                    if (editId) {
+                        // Edit existing
+                        const index = municipalities.findIndex(mun => mun.id === editId);
+                        if (index !== -1) {
+                            municipalities[index] = { ...municipalities[index], ...municipalityData };
+                        }
+                    } else {
+                        // Add new
+                        municipalities.push(municipalityData);
+                    }
+                    
+                    await saveMunicipalitiesData();
+                    await loadMunicipalities();
+                    closeModal('municipalityModal');
+                    showAlert('Občina uspešno shranjena!', 'success');
+                } catch (error) {
+                    showAlert('Napaka pri shranjevanju: ' + error.message, 'danger');
+                }
+            });
+        }
+
+        function showAlert(message, type = 'info') {
+            // Simple alert for now
+            alert(message);
+        }
+
+        function exportLocations() {
+            if (locations.length === 0) {
+                alert('Ni podatkov za izvoz.');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Ime,Terminal,Sistem,Občina,Ključavnice,Status,Opombe\n";
+            
+            locations.forEach(location => {
+                const row = [
+                    location.name || '',
+                    location.terminal || '',
+                    location.system || '',
+                    location.municipality || '',
+                    location.racks || 0,
+                    getStatusText(location.status),
+                    (location.notes || '').replace(/,/g, ';')
+                ].map(field => `"${field}"`).join(',');
+                
+                csvContent += row + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `nomago_lokacije_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Edit functions
+        function editLocation(terminal) {
+            const location = locations.find(loc => loc.terminal === terminal);
+            if (!location) return;
+            
+            document.getElementById('locationModalTitle').textContent = 'Uredi lokacijo';
+            document.getElementById('editLocationId').value = terminal;
+            document.getElementById('locationName').value = location.name || '';
+            document.getElementById('locationTerminal').value = location.terminal || '';
+            document.getElementById('locationSystem').value = location.system || '';
+            document.getElementById('locationMunicipality').value = location.municipality || '';
+            document.getElementById('locationRacks').value = location.racks || '';
+            document.getElementById('locationStatus').value = location.status || 'active';
+            document.getElementById('locationNotes').value = location.notes || '';
+            
+            document.getElementById('locationModal').style.display = 'block';
+        }
+
+        function editSystem(systemId) {
+            const system = systems.find(sys => sys.id === systemId);
+            if (!system) return;
+            
+            document.getElementById('systemModalTitle').textContent = 'Uredi sistem';
+            document.getElementById('editSystemId').value = systemId;
+            document.getElementById('systemName').value = system.name || '';
+            document.getElementById('systemDescription').value = system.description || '';
+            
+            document.getElementById('systemModal').style.display = 'block';
+        }
+
+        function editMunicipality(municipalityId) {
+            const municipality = municipalities.find(mun => mun.id === municipalityId);
+            if (!municipality) return;
+            
+            document.getElementById('municipalityModalTitle').textContent = 'Uredi občino';
+            document.getElementById('editMunicipalityId').value = municipalityId;
+            document.getElementById('municipalityName').value = municipality.name || '';
+            document.getElementById('municipalityRegion').value = municipality.region || '';
+            
+            document.getElementById('municipalityModal').style.display = 'block';
+        }
+
+        // Delete functions
+        async function deleteLocation(terminal) {
+            if (!confirm('Ali ste prepričani, da želite izbrisati to lokacijo?')) return;
+            
+            try {
+                locations = locations.filter(loc => loc.terminal !== terminal);
+                await saveLocationsData();
+                await loadLocations();
+                showAlert('Lokacija uspešno izbrisana!', 'success');
+            } catch (error) {
+                showAlert('Napaka pri brisanju: ' + error.message, 'danger');
+            }
+        }
+
+        async function deleteSystem(systemId) {
+            if (!confirm('Ali ste prepričani, da želite izbrisati ta sistem?')) return;
+            
+            try {
+                systems = systems.filter(sys => sys.id !== systemId);
+                await saveSystemsToFirebase();
+                await loadSystems();
+                showAlert('Sistem uspešno izbrisan!', 'success');
+            } catch (error) {
+                showAlert('Napaka pri brisanju: ' + error.message, 'danger');
+            }
+        }
+
+        async function deleteMunicipality(municipalityId) {
+            if (!confirm('Ali ste prepričani, da želite izbrisati to občino?')) return;
+            
+            try {
+                municipalities = municipalities.filter(mun => mun.id !== municipalityId);
+                await saveMunicipalitiesData();
+                await loadMunicipalities();
+                showAlert('Občina uspešno izbrisana!', 'success');
+            } catch (error) {
+                showAlert('Napaka pri brisanju: ' + error.message, 'danger');
+            }
+        }
+
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Make functions global
+        window.showTab = showTab;
+        window.filterLocations = filterLocations;
+        window.showAddLocationModal = showAddLocationModal;
+        window.showAddSystemModal = showAddSystemModal;
+        window.showAddMunicipalityModal = showAddMunicipalityModal;
+        window.closeModal = closeModal;
+        window.editLocation = editLocation;
+        window.editSystem = editSystem;
+        window.editMunicipality = editMunicipality;
+        window.deleteLocation = deleteLocation;
+        window.deleteSystem = deleteSystem;
+        window.deleteMunicipality = deleteMunicipality;
+        window.exportLocations = exportLocations;
+        window.loadLocations = loadLocations;
+        window.loadSystems = loadSystems;
+        window.loadMunicipalities = loadMunicipalities;
+        window.logout = logout;
+    </script>
+</body>
+</html>

@@ -221,6 +221,16 @@
             color: var(--text-color);
             box-sizing: border-box;
         }
+
+        .form-group input.optional-field {
+            border-left: 4px solid #28a745;
+            padding-left: 14px;
+        }
+
+        .form-group input.optional-field::placeholder {
+            color: #28a745;
+            font-style: italic;
+        }
         
         /* System access checkboxes */
         .systems-container {
@@ -351,9 +361,11 @@
     <div class="container">
         <div class="menu">
             <a href="dashboard.html">🏠 Baza</a>
-            <a href="inspections.html">🔧 Pregledi</a>
+            <a href="pregledi.html">🔧 Pregledi</a>
+            <a href="chat.html">💬 Chat</a>
             <a href="users.html" class="active" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
+            <a href="admin_locations.html" id="locationsMenuLink" style="display: none;">🏢 Lokacije</a>
             <a href="settings.html">⚙️ Nastavitve</a>
             <a href="#" onclick="logout()">🚪 Odjavi se</a>
         </div>
@@ -405,8 +417,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">Geslo *</label>
-                    <input type="password" id="password" required>
+                    <label for="password">Geslo <span id="passwordLabel">*</span></label>
+                    <input type="password" id="password" class="password-field">
                 </div>
                 
                 <div class="form-group">
@@ -422,11 +434,10 @@
                 <div class="form-group">
                     <label>Sistemi za dostop *</label>
                     <div class="systems-container">
-                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KOLESCE"> KolesCE</label>
-                        <label class="system-checkbox"><input type="checkbox" name="systems" value="Ljubljana in Medvode"> LUR</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KolesCE"> KolesCE</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="Ljubljana"> Ljubljana</label>
                         <label class="system-checkbox"><input type="checkbox" name="systems" value="GO2GO"> GO2GO</label>
-                        <label class="system-checkbox"><input type="checkbox" name="systems" value="KOR"> KOR</label>
-                        <label class="system-checkbox"><input type="checkbox" name="systems" value="ZANAPREJ"> ZaNaprej</label>
+                        <label class="system-checkbox"><input type="checkbox" name="systems" value="ZaNaprej"> ZaNaprej</label>
                     </div>
                 </div>
                 
@@ -501,6 +512,7 @@
             if (currentUser.vloga === 'admin') {
                 document.getElementById('usersMenuLink').style.display = 'inline-block';
                 document.getElementById('notificationsMenuLink').style.display = 'inline-block';
+                document.getElementById('locationsMenuLink').style.display = 'inline-block';
             }
             
             // Initialize theme
@@ -708,11 +720,19 @@
             document.getElementById('modalTitle').textContent = 'Dodaj novega uporabnika';
             document.getElementById('userForm').reset();
             
+            // Reset password field styling for new user
+            const passwordField = document.getElementById('password');
+            const passwordLabel = document.getElementById('passwordLabel');
+            passwordField.required = true;
+            passwordField.placeholder = '';
+            passwordField.classList.remove('optional-field');
+            passwordLabel.textContent = '*';
+            
             // Show modal
             document.getElementById('userModal').style.display = 'block';
         }
 
-        // Edit user
+        // Edit user - POPRAVKA
         async function editUser(userId) {
             if (currentUser && currentUser.vloga !== 'admin') {
                 alert('Samo administratorji lahko urejajo uporabnike.');
@@ -738,12 +758,23 @@
                 document.getElementById('firstName').value = user.ime || '';
                 document.getElementById('lastName').value = user.priimek || '';
                 document.getElementById('username').value = user.uporabniskoIme || '';
-                document.getElementById('password').value = '';
+                
+                // POPRAVKA: Nastavi geslo kot opcijsko pri urejanju
+                const passwordField = document.getElementById('password');
+                const passwordLabel = document.getElementById('passwordLabel');
+                passwordField.value = '';
+                passwordField.required = false;
+                passwordField.placeholder = 'Pustite prazno, če ne želite spremeniti gesla';
+                passwordField.classList.add('optional-field');
+                passwordLabel.textContent = '(opcijsko)';
+                
                 document.getElementById('role').value = user.vloga || '';
                 
-                // Check systems
+                // Check systems - popravi za različne možne formate
                 document.querySelectorAll('input[name="systems"]').forEach(checkbox => {
-                    checkbox.checked = user.sistemi && user.sistemi.includes(checkbox.value);
+                    const isChecked = (user.sistemi && user.sistemi.includes(checkbox.value)) ||
+                                     (user.accessibleSystems && user.accessibleSystems.includes(checkbox.value));
+                    checkbox.checked = isChecked;
                 });
                 
                 // Show modal
@@ -755,7 +786,7 @@
             }
         }
 
-        // Handle form submission
+        // Handle form submission - POPRAVKA
         async function handleUserFormSubmit(event) {
             event.preventDefault();
             
@@ -780,7 +811,7 @@
                     return;
                 }
                 
-                // For new users, password is required
+                // POPRAVKA: Za nove uporabnike je geslo obvezno, za urejanje pa ne
                 if (!editingUserId && !password) {
                     alert('Geslo je obvezno za nove uporabnike.');
                     return;
@@ -793,12 +824,12 @@
                     uporabniskoIme: username,
                     vloga: role,
                     sistemi: systems,
-                    email: `${username}@nomago.si`, // Dodaj email
-                    accessibleSystems: systems, // Dodaj za kompatibilnost
+                    email: `${username}@nomago.si`,
+                    accessibleSystems: systems,
                     updatedAt: window.firebaseFunctions.serverTimestamp()
                 };
                 
-                // Only update password if it's not empty
+                // POPRAVKA: Samo posodobi geslo, če je bilo vnešeno
                 if (password) {
                     userData.geslo = password;
                 }
@@ -813,9 +844,14 @@
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', editingUserId) :
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
                 
-                await window.firebaseFunctions.setDoc(userRef, userData, { merge: true });
+                // POPRAVKA: Uporabi merge: true samo pri urejanju
+                if (editingUserId) {
+                    await window.firebaseFunctions.setDoc(userRef, userData, { merge: true });
+                } else {
+                    await window.firebaseFunctions.setDoc(userRef, userData);
+                }
                 
-                // POMEMBNO: Sinhroniziraj uporabnike v system kolekcijo za chat
+                // Sinhroniziraj uporabnike v system kolekcijo za chat
                 await syncUsersToSystemCollection();
                 
                 alert(`Uporabnik ${username} je bil uspešno ${editingUserId ? 'posodobljen' : 'dodan'}!`);
@@ -852,7 +888,7 @@
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', userId)
                 );
                 
-                // POMEMBNO: Sinhroniziraj uporabnike v system kolekcijo za chat
+                // Sinhroniziraj uporabnike v system kolekcijo za chat
                 await syncUsersToSystemCollection();
                 
                 alert('Uporabnik je bil uspešno izbrisan!');
@@ -867,6 +903,13 @@
         function closeModal() {
             document.getElementById('userModal').style.display = 'none';
             editingUserId = null;
+            
+            // Reset password field
+            const passwordField = document.getElementById('password');
+            const passwordLabel = document.getElementById('passwordLabel');
+            passwordField.classList.remove('optional-field');
+            passwordField.placeholder = '';
+            passwordLabel.textContent = '*';
         }
 
         // Refresh user list
@@ -874,9 +917,42 @@
             loadUsers();
         }
 
-        // Export users to CSV (placeholder)
+        // Export users to CSV
         function exportUsersToCSV() {
-            alert('Funkcija izvoza v CSV bo implementirana v naslednji verziji.');
+            // Get users data from the table
+            const table = document.querySelector('.users-table');
+            if (!table) {
+                alert('Ni podatkov za izvoz.');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Ime,Priimek,Uporabniško ime,Vloga,Sistemi\n";
+            
+            // Extract data from table rows (skip header)
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 5) {
+                    const rowData = [
+                        cells[0].textContent.trim(),
+                        cells[1].textContent.trim(),
+                        cells[2].textContent.trim(),
+                        cells[3].textContent.trim(),
+                        cells[4].textContent.trim()
+                    ].map(field => `"${field}"`).join(',');
+                    
+                    csvContent += rowData + "\n";
+                }
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `nomago_uporabniki_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Global functions
