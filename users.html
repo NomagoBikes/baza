@@ -367,6 +367,7 @@
                     <button onclick="showAddUserForm()">➕ Dodaj uporabnika</button>
                     <button onclick="refreshUserList()">🔄 Osveži seznam</button>
                     <button onclick="exportUsersToCSV()">📤 Izvoz v CSV</button>
+                    <button onclick="manualSyncUsers()">🔄 Sinhroniziraj za chat</button>
                 </div>
 
                 <div id="usersList">
@@ -579,6 +580,61 @@
             });
         }
 
+        // Sync users to system collection for chat
+        async function syncUsersToSystemCollection() {
+            try {
+                console.log('Syncing users to system collection for chat...');
+                
+                // Preberi uporabnike iz glavne kolekcije
+                const usersCollection = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
+                );
+                
+                if (usersCollection.empty) {
+                    console.log('No users to sync');
+                    return;
+                }
+                
+                let syncData = [];
+                usersCollection.forEach(doc => {
+                    const user = doc.data();
+                    syncData.push({
+                        id: doc.id,
+                        ime: user.ime,
+                        priimek: user.priimek,
+                        vloga: user.vloga,
+                        uporabniskoIme: user.uporabniskoIme,
+                        email: user.email || `${user.uporabniskoIme}@nomago.si`,
+                        sistemi: user.sistemi || []
+                    });
+                });
+                
+                // Shrani v system/users za chat
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users'),
+                    {
+                        data: syncData,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                console.log('Users synced to system collection successfully');
+                
+            } catch (error) {
+                console.error('Error syncing users to system collection:', error);
+            }
+        }
+
+        // Manual sync function
+        async function manualSyncUsers() {
+            try {
+                await syncUsersToSystemCollection();
+                alert('Uporabniki so bili uspešno sinhronizirani v chat sistem.');
+            } catch (error) {
+                alert('Napaka pri sinhronizaciji: ' + error.message);
+            }
+        }
+
         // Load users from Firebase
         async function loadUsers() {
             try {
@@ -629,6 +685,9 @@
                 
                 html += `</tbody></table>`;
                 usersList.innerHTML = html;
+                
+                // Avtomatsko sinhroniziraj uporabnike v system kolekcijo
+                await syncUsersToSystemCollection();
                 
                 console.log('Uporabniki naloženi uspešno');
                 
@@ -734,6 +793,8 @@
                     uporabniskoIme: username,
                     vloga: role,
                     sistemi: systems,
+                    email: `${username}@nomago.si`, // Dodaj email
+                    accessibleSystems: systems, // Dodaj za kompatibilnost
                     updatedAt: window.firebaseFunctions.serverTimestamp()
                 };
                 
@@ -753,6 +814,9 @@
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', username);
                 
                 await window.firebaseFunctions.setDoc(userRef, userData, { merge: true });
+                
+                // POMEMBNO: Sinhroniziraj uporabnike v system kolekcijo za chat
+                await syncUsersToSystemCollection();
                 
                 alert(`Uporabnik ${username} je bil uspešno ${editingUserId ? 'posodobljen' : 'dodan'}!`);
                 closeModal();
@@ -788,6 +852,9 @@
                     window.firebaseFunctions.doc(window.firebaseDb, 'uporabniki', userId)
                 );
                 
+                // POMEMBNO: Sinhroniziraj uporabnike v system kolekcijo za chat
+                await syncUsersToSystemCollection();
+                
                 alert('Uporabnik je bil uspešno izbrisan!');
                 loadUsers();
             } catch (error) {
@@ -821,6 +888,8 @@
         window.exportUsersToCSV = exportUsersToCSV;
         window.logout = logout;
         window.showNotification = showNotification;
+        window.syncUsersToSystemCollection = syncUsersToSystemCollection;
+        window.manualSyncUsers = manualSyncUsers;
 
         // Close modal when clicking outside
         window.onclick = function(event) {

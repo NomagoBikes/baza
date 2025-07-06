@@ -850,7 +850,7 @@
             apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
             authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
             projectId: "nomago-bikes-portal-f33da",
-            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            storageBucket: "nomago-bikes-portal-f33da.appspot.com",
             messagingSenderId: "647987655592",
             appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
             measurementId: "G-D1CBD3V7ZV"
@@ -959,9 +959,14 @@
             // Ensure user has ID
             if (!currentUser.id) {
                 console.error('User missing ID, generating one...');
-                currentUser.id = currentUser.email || Date.now().toString();
+                // Use uporabniskoIme as ID if ID is not available
+                currentUser.id = currentUser.uporabniskoIme || currentUser.email || Date.now().toString();
                 sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
+            
+            // Debug data
+            console.log('Authenticated user ID:', currentUser.id);
+            console.log('User role:', currentUser.vloga);
             
             return currentUser;
         }
@@ -981,31 +986,118 @@
             }
         }
 
-        // Load all users
+        // Load all users - improved version
         async function loadUsers() {
             try {
                 console.log('Loading users from Firebase...');
-                const usersDoc = await withRetry(async () => {
-                    return await window.firebaseFunctions.getDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+                
+                // First try from 'uporabniki' collection (main collection)
+                const usersCollection = await withRetry(async () => {
+                    return await window.firebaseFunctions.getDocs(
+                        window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
                     );
                 }, 'loadUsers');
                 
-                if (usersDoc.exists()) {
-                    const userData = usersDoc.data().data || [];
-                    console.log('Raw user data:', userData);
-                    allUsers = userData.filter(user => user.id !== currentUser.id);
-                    console.log('Filtered users (excluding current):', allUsers);
-                    updateUserSelects();
+                let userData = [];
+                
+                if (!usersCollection.empty) {
+                    console.log('Found users in "uporabniki" collection');
+                    usersCollection.forEach(doc => {
+                        const user = doc.data();
+                        // Add ID from document ID
+                        userData.push({
+                            id: doc.id,
+                            ime: user.ime,
+                            priimek: user.priimek,
+                            vloga: user.vloga,
+                            uporabniskoIme: user.uporabniskoIme,
+                            email: user.email || `${user.uporabniskoIme}@nomago.si`
+                        });
+                    });
                 } else {
-                    console.log('No users document found');
-                    document.getElementById('userSelect').innerHTML = '<option value="">Ni uporabnikov</option>';
-                    document.getElementById('usersList').innerHTML = 'Ni uporabnikov v sistemu.';
+                    // If not in uporabniki collection, try from system/users
+                    console.log('No users in "uporabniki", trying "system/users"');
+                    const usersDoc = await window.firebaseFunctions.getDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+                    );
+                    
+                    if (usersDoc.exists()) {
+                        userData = usersDoc.data().data || [];
+                        console.log('Found users in "system/users"');
+                    }
                 }
+                
+                console.log('Raw user data:', userData);
+                
+                // Filter out current user and ensure all users have required fields
+                allUsers = userData.filter(user => {
+                    const hasRequiredFields = user.ime && user.priimek && user.id;
+                    const isNotCurrentUser = user.id !== currentUser.id && 
+                                            user.uporabniskoIme !== currentUser.uporabniskoIme;
+                    
+                    if (!hasRequiredFields) {
+                        console.warn('User missing required fields:', user);
+                    }
+                    
+                    return hasRequiredFields && isNotCurrentUser;
+                });
+                
+                console.log('Filtered users (excluding current):', allUsers);
+                updateUserSelects();
+                
+                if (allUsers.length === 0) {
+                    console.warn('No other users found in system');
+                }
+                
             } catch (error) {
                 console.error('Error loading users:', error);
                 document.getElementById('userSelect').innerHTML = '<option value="">Napaka pri nalaganju</option>';
-                document.getElementById('usersList').innerHTML = 'Napaka pri nalaganju uporabnikov.';
+                document.getElementById('usersList').innerHTML = 'Napaka pri nalaganju uporabnikov: ' + error.message;
+            }
+        }
+
+        // Sync users to system collection
+        async function syncUsersToSystemCollection() {
+            try {
+                console.log('Syncing users to system collection...');
+                
+                // Read users from main collection
+                const usersCollection = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
+                );
+                
+                if (usersCollection.empty) {
+                    console.log('No users to sync');
+                    return;
+                }
+                
+                let syncData = [];
+                usersCollection.forEach(doc => {
+                    const user = doc.data();
+                    syncData.push({
+                        id: doc.id,
+                        ime: user.ime,
+                        priimek: user.priimek,
+                        vloga: user.vloga,
+                        uporabniskoIme: user.uporabniskoIme,
+                        email: user.email || `${user.uporabniskoIme}@nomago.si`,
+                        sistemi: user.sistemi || []
+                    });
+                });
+                
+                // Save to system/users for chat
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users'),
+                    {
+                        data: syncData,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                console.log('Users synced successfully');
+                
+            } catch (error) {
+                console.error('Error syncing users:', error);
             }
         }
 
@@ -1737,6 +1829,43 @@
             });
         }
 
+        // Debug function to check Firebase users structure
+        async function debugFirebaseUsers() {
+            try {
+                console.log('=== DEBUG: Checking Firebase users structure ===');
+                
+                // Check uporabniki collection
+                const usersCollection = await window.firebaseFunctions.getDocs(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'uporabniki')
+                );
+                
+                console.log('Users in "uporabniki" collection:', usersCollection.size);
+                usersCollection.forEach(doc => {
+                    console.log('User doc:', doc.id, doc.data());
+                });
+                
+                // Check system/users document
+                const systemUsersDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+                );
+                
+                if (systemUsersDoc.exists()) {
+                    const systemUsers = systemUsersDoc.data().data || [];
+                    console.log('Users in "system/users":', systemUsers.length);
+                    systemUsers.forEach(user => {
+                        console.log('System user:', user);
+                    });
+                } else {
+                    console.log('No "system/users" document found');
+                }
+                
+                console.log('=== END DEBUG ===');
+                
+            } catch (error) {
+                console.error('Debug error:', error);
+            }
+        }
+
         // Initialize chat system
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing chat system...');
@@ -1749,6 +1878,11 @@
                 setTimeout(async () => {
                     try {
                         console.log('Loading users and chats...');
+                        
+                        // First sync users to system collection
+                        await syncUsersToSystemCollection();
+                        
+                        // Then load users and chats
                         await loadUsers();
                         await loadChats();
                         updateConnectionStatus('connected');
@@ -1906,6 +2040,7 @@
         window.deleteGroup = deleteGroup;
         window.leaveGroup = leaveGroup;
         window.removeMember = removeMember;
+        window.debugFirebaseUsers = debugFirebaseUsers;
     </script>
 </body>
 </html>

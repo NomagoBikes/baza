@@ -694,8 +694,10 @@
         <div class="menu">
             <a href="dashboard.html">🏠 Baza</a>
             <a href="#" class="active">🔧 Pregledi</a>
+            <a href="chat.html">💬 Chat</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
+            <a href="admin_locations.html" id="locationsMenuLink" style="display: none;">🏢 Lokacije</a>
             <a href="settings.html">⚙️ Nastavitve</a>
             <a href="#" onclick="logout()">🚪 Odjavi se</a>
         </div>
@@ -873,7 +875,7 @@
         let inspectionLog = [];
         let locations = [];
 
-        // Check authentication - POPRAVKA: Beri iz sessionStorage namesto iz serviserApp_currentUser
+        // Check authentication - POPRAVKA: Beri iz sessionStorage
         function checkAuth() {
             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
@@ -881,12 +883,25 @@
                 window.location.href = 'index.html';
                 return null;
             }
+            
+            // Zagotovi, da ima uporabnik ID
+            if (!currentUser.id) {
+                console.error('User missing ID, generating one...');
+                currentUser.id = currentUser.uporabniskoIme || currentUser.email || Date.now().toString();
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
+            // Debug info
+            console.log('Authenticated user:', currentUser);
+            console.log('User systems:', currentUser.accessibleSystems);
+            console.log('User locations:', currentUser.accessibleLocations);
+            
             return currentUser;
         }
 
-        // Initialize user display and access control
+        // Initialize user display and access control - POPRAVKA
         function initializeUserDisplay() {
-            if (currentUser.ime) {
+            if (currentUser && currentUser.ime) {
                 document.getElementById('userName').textContent = 
                     `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
                 
@@ -894,11 +909,16 @@
                 if (currentUser.vloga === 'admin') {
                     document.getElementById('usersMenuLink').style.display = 'inline-block';
                     document.getElementById('notificationsMenuLink').style.display = 'inline-block';
-                }
-                
-                // POPRAVKA: Zagotovi, da ima uporabnik dostop do sistemov
-                if (!currentUser.accessibleSystems) {
+                    document.getElementById('locationsMenuLink').style.display = 'inline-block';
+                    
+                    // Admin ima dostop do vseh sistemov
                     currentUser.accessibleSystems = ['KolesCE', 'GO2GO', 'ZaNaprej', 'Ljubljana'];
+                } else {
+                    // Zagotovi, da ima uporabnik dostop do sistemov
+                    if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                        console.warn('User has no accessible systems assigned');
+                        currentUser.accessibleSystems = [];
+                    }
                 }
                 
                 if (!currentUser.accessibleLocations) {
@@ -913,7 +933,7 @@
                         <span>🔄</span> Povezano s Firebase
                     </div>
                     🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
-                    (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 'Vse'} lokacij)
+                    (${currentUser.accessibleLocations && currentUser.accessibleLocations.length > 0 ? currentUser.accessibleLocations.length + ' specifičnih' : 'Vse'} lokacij)
                 `;
                 
                 // Show main interface
@@ -939,7 +959,7 @@
             const systemFilter = document.getElementById('systemFilter');
             systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
             
-            if (currentUser.accessibleSystems) {
+            if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
                 currentUser.accessibleSystems.forEach(system => {
                     systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
                 });
@@ -1014,12 +1034,24 @@
         // Get accessible locations for current user - POPRAVKA
         function getAccessibleLocations() {
             if (!currentUser.accessibleSystems || !locations || locations.length === 0) {
+                console.log('No accessible systems or no locations');
                 return [];
+            }
+
+            console.log('Current user accessible systems:', currentUser.accessibleSystems);
+            console.log('All locations:', locations.length);
+
+            // Admin vidi vse lokacije
+            if (currentUser.vloga === 'admin') {
+                console.log('Admin user - showing all locations');
+                return locations;
             }
 
             // Filter locations by accessible systems
             let accessibleLocs = locations.filter(location => {
-                return currentUser.accessibleSystems.includes(location.system);
+                const hasAccess = currentUser.accessibleSystems.includes(location.system);
+                console.log(`Location ${location.name} (${location.system}): ${hasAccess}`);
+                return hasAccess;
             });
 
             // If user has specific location restrictions, apply them
@@ -1029,6 +1061,7 @@
                 });
             }
 
+            console.log('Final accessible locations:', accessibleLocs.length);
             return accessibleLocs;
         }
 
@@ -1819,4 +1852,5 @@
         window.logout = logout;
     </script>
 </body>
-</html>
+</html> 
+                    
