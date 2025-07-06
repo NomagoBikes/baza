@@ -831,53 +831,90 @@
 
         // Check authentication
         function checkAuth() {
+            console.log('Checking authentication...');
             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            console.log('Current user from session:', currentUser);
+            
             if (!currentUser) {
                 alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
                 window.location.href = 'index.html';
                 return null;
             }
+            
+            // Ensure user has ID
+            if (!currentUser.id) {
+                console.error('User missing ID, generating one...');
+                currentUser.id = currentUser.email || Date.now().toString();
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
             return currentUser;
         }
 
         // Initialize user display
         function initializeUserDisplay() {
             if (currentUser && currentUser.ime) {
+                console.log('Initializing user display for:', currentUser);
                 document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
                 
                 // Show admin-only elements
                 if (currentUser.vloga === 'admin') {
                     document.getElementById('newGroupBtn').style.display = 'inline-block';
                 }
+            } else {
+                console.error('No current user or missing name data');
             }
         }
 
         // Load all users
         async function loadUsers() {
             try {
+                console.log('Loading users from Firebase...');
                 const usersDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
                 );
                 
                 if (usersDoc.exists()) {
-                    allUsers = usersDoc.data().data.filter(user => user.id !== currentUser.id);
+                    const userData = usersDoc.data().data || [];
+                    console.log('Raw user data:', userData);
+                    allUsers = userData.filter(user => user.id !== currentUser.id);
+                    console.log('Filtered users (excluding current):', allUsers);
                     updateUserSelects();
+                } else {
+                    console.log('No users document found');
+                    // Show error in UI
+                    document.getElementById('userSelect').innerHTML = '<option value="">Ni uporabnikov</option>';
+                    document.getElementById('usersList').innerHTML = 'Ni uporabnikov v sistemu.';
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
+                // Show error in UI
+                document.getElementById('userSelect').innerHTML = '<option value="">Napaka pri nalaganju</option>';
+                document.getElementById('usersList').innerHTML = 'Napaka pri nalaganju uporabnikov.';
             }
         }
 
         // Update user select dropdowns
         function updateUserSelects() {
+            console.log('Updating user selects with users:', allUsers);
             const userSelect = document.getElementById('userSelect');
             userSelect.innerHTML = '<option value="">Izberite uporabnika</option>';
+            
+            if (allUsers.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Ni drugih uporabnikov';
+                userSelect.appendChild(option);
+                updateUsersListForGroup();
+                return;
+            }
             
             allUsers.forEach(user => {
                 const option = document.createElement('option');
                 option.value = user.id;
                 option.textContent = `${user.ime} ${user.priimek} (${user.vloga})`;
                 userSelect.appendChild(option);
+                console.log('Added user to select:', user.ime, user.priimek);
             });
 
             updateUsersListForGroup();
@@ -885,8 +922,14 @@
 
         // Update users list for group creation
         function updateUsersListForGroup() {
+            console.log('Updating users list for group creation');
             const usersList = document.getElementById('usersList');
             usersList.innerHTML = '';
+            
+            if (allUsers.length === 0) {
+                usersList.innerHTML = 'Ni drugih uporabnikov v sistemu.';
+                return;
+            }
             
             allUsers.forEach(user => {
                 const div = document.createElement('div');
@@ -896,6 +939,7 @@
                     <label for="user_${user.id}">${user.ime} ${user.priimek} (${user.vloga})</label>
                 `;
                 usersList.appendChild(div);
+                console.log('Added user to group list:', user.ime, user.priimek);
             });
         }
 
@@ -982,7 +1026,15 @@
                 // 1-on-1 chat - get other user's name
                 const otherUserId = chat.participants.find(id => id !== currentUser.id);
                 const otherUser = allUsers.find(user => user.id === otherUserId);
-                return otherUser ? `${otherUser.ime} ${otherUser.priimek}` : 'Neznani uporabnik';
+                if (otherUser) {
+                    return `${otherUser.ime} ${otherUser.priimek}`;
+                } else {
+                    // Try to find user in current user (in case it's self-reference)
+                    if (otherUserId === currentUser.id) {
+                        return `${currentUser.ime} ${currentUser.priimek} (Vi)`;
+                    }
+                    return `Uporabnik ID: ${otherUserId}`;
+                }
             }
         }
 
@@ -1040,7 +1092,11 @@
             } else {
                 const otherUserId = chat.participants.find(id => id !== currentUser.id);
                 const otherUser = allUsers.find(user => user.id === otherUserId);
-                chatInfo.textContent = otherUser ? `${otherUser.vloga}` : 'Neznani uporabnik';
+                if (otherUser) {
+                    chatInfo.textContent = `${otherUser.vloga}`;
+                } else {
+                    chatInfo.textContent = `Uporabnik ID: ${otherUserId}`;
+                }
                 groupSettingsBtn.style.display = 'none';
                 leaveGroupBtn.style.display = 'none';
             }
@@ -1593,11 +1649,20 @@
 
         // Initialize chat system
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing chat system...');
             const currentUserCheck = checkAuth();
             if (currentUserCheck) {
+                console.log('User authenticated:', currentUserCheck);
                 initializeUserDisplay();
-                loadUsers();
-                loadChats();
+                
+                // Add delay to ensure Firebase is ready
+                setTimeout(() => {
+                    console.log('Loading users and chats...');
+                    loadUsers();
+                    loadChats();
+                }, 1000);
+            } else {
+                console.error('User not authenticated');
             }
 
             // Theme toggle functionality
