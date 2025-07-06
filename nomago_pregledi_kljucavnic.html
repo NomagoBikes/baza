@@ -155,6 +155,111 @@
             color: var(--secondary-yellow);
         }
 
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        button { 
+            background-color: var(--primary-blue);
+            color: white; 
+            border: none; 
+            padding: 10px 20px;
+            cursor: pointer; 
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+
+        button:hover { 
+            background-color: #003366;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .export-button {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        h2, h3 {
+            color: var(--primary-blue);
+        }
+
+        .dark-mode h2, .dark-mode h3 {
+            color: var(--secondary-yellow);
+        }
+
+        .highlight {
+            color: var(--secondary-yellow);
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .dark-mode .stat-card {
+            background: var(--menu-bg);
+            border-left-color: var(--secondary-yellow);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .dark-mode .stat-number {
+            color: var(--secondary-yellow);
+        }
+
         .alerts-bar {
             margin-bottom: 20px;
             display: flex;
@@ -222,78 +327,27 @@
             background: var(--bg-color);
         }
 
-        button { 
-            background-color: var(--primary-blue);
-            color: white; 
-            border: none; 
-            padding: 10px 20px;
-            cursor: pointer; 
-            border-radius: 4px;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 700;
-            transition: background-color 0.3s;
-        }
-
-        button:hover { 
-            background-color: #003366;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-        }
-
-        .export-button {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .summary-card {
+        .no-access {
+            text-align: center;
+            padding: 3rem 2rem;
             background: var(--card-bg);
-            padding: 20px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            margin: 2rem 0;
         }
 
-        .summary-item {
-            text-align: center;
-            padding: 15px;
-            border-radius: var(--radius);
-            border: 1px solid #eee;
-            background: var(--light-blue);
-        }
-
-        .dark-mode .summary-item {
-            border-color: #555;
-            background: var(--menu-bg);
-        }
-
-        .summary-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 4px;
+        .no-access h2 {
             color: var(--primary-blue);
+            margin-bottom: 1rem;
         }
 
-        .dark-mode .summary-number {
+        .dark-mode .no-access h2 {
             color: var(--secondary-yellow);
         }
 
-        .summary-label {
-            font-size: 0.9rem;
+        .no-access p {
             color: var(--text-light);
+            font-size: 1.1rem;
         }
 
         .location-card {
@@ -504,44 +558,6 @@
         .status-NZ { background: var(--lockfail); color: white; }
         .status-NO { background: var(--unlockfail); color: white; }
 
-        .no-access {
-            text-align: center;
-            padding: 3rem 2rem;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin: 2rem 0;
-        }
-
-        .no-access h2 {
-            color: var(--primary-blue);
-            margin-bottom: 1rem;
-        }
-
-        .dark-mode .no-access h2 {
-            color: var(--secondary-yellow);
-        }
-
-        .no-access p {
-            color: var(--text-light);
-            font-size: 1.1rem;
-        }
-
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-
         /* Modal styles */
         .modal {
             display: none;
@@ -618,18 +634,6 @@
             background: var(--menu-bg);
         }
 
-        .connection-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-            border-radius: 4px;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -662,7 +666,7 @@
                 width: 100%;
             }
             
-            .summary-card {
+            .stats-grid {
                 grid-template-columns: 1fr 1fr;
             }
             
@@ -689,7 +693,7 @@
     <div class="container">
         <div class="menu">
             <a href="dashboard.html">🏠 Baza</a>
-            <a href="nomago_pregledi_kljucavnic.html" class="active">🔧 Pregledi</a>
+            <a href="#" class="active">🔧 Pregledi</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
@@ -697,6 +701,13 @@
         </div>
 
         <div class="content">
+            <!-- Connection Status -->
+            <div class="access-info" id="connectionStatus">
+                <div class="connection-status">
+                    <span>🔄</span> Povezovanje s Firebase...
+                </div>
+            </div>
+
             <!-- User access info -->
             <div class="access-info" id="accessInfo" style="display: none;">
                 <div class="connection-status">
@@ -715,7 +726,28 @@
             <div class="alerts-bar" id="alertsBar"></div>
             
             <!-- Summary statistics -->
-            <div class="summary-card" id="summaryCard"></div>
+            <div class="stats-grid" id="summaryCard" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStations">0</div>
+                    <div>Postaje skupaj</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRacks">0</div>
+                    <div>Ključavnice skupaj</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="overdueRacks">0</div>
+                    <div>Zamujene ključavnice</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="dueSoonRacks">0</div>
+                    <div>Pregledi kmalu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="maintenanceNeeded">0</div>
+                    <div>Potrebno vzdrževanje</div>
+                </div>
+            </div>
             
             <!-- Filters -->
             <div class="filter-section" id="filterSection" style="display: none;">
@@ -804,6 +836,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
+        // Firebase config - isti projekt kot dashboard
         const firebaseConfig = {
             apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
             authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
@@ -830,17 +863,17 @@
             serverTimestamp
         };
 
-        console.log("Firebase initialized in inspection app");
+        console.log("Firebase initialized in new inspection system");
     </script>
 
     <script>
-        // Global variables
+        // Global variables - iste kot v dashboard
         let currentUser = null;
         let inspectionData = {};
         let inspectionLog = [];
         let locations = [];
 
-        // Check authentication
+        // Check authentication - isto kot v dashboard
         function checkAuth() {
             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
@@ -851,7 +884,7 @@
             return currentUser;
         }
 
-        // Initialize user display and access control
+        // Initialize user display and access control - isto kot v dashboard
         function initializeUserDisplay() {
             if (currentUser.ime) {
                 document.getElementById('userName').textContent = 
@@ -866,13 +899,17 @@
                 if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
                     const accessInfo = document.getElementById('accessInfo');
                     accessInfo.style.display = 'block';
-                    accessInfo.innerHTML += `
+                    accessInfo.innerHTML = `
+                        <div class="connection-status">
+                            <span>🔄</span> Povezano s Firebase
+                        </div>
                         🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
                         (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
                     `;
                     
                     // Show main interface
                     document.getElementById('filterSection').style.display = 'block';
+                    document.getElementById('summaryCard').style.display = 'grid';
                     
                     // Populate system filter with user's accessible systems
                     populateSystemFilter();
@@ -905,7 +942,7 @@
             }
         }
 
-        // Load inspection data from Firebase
+        // Load inspection data from Firebase - ista struktura kot v dashboard
         async function loadInspectionData() {
             try {
                 // Load locations
@@ -931,12 +968,14 @@
                 }
                 
                 console.log('Inspection data loaded from Firebase');
+                return true;
             } catch (error) {
                 console.error('Error loading inspection data:', error);
+                return false;
             }
         }
 
-        // Save inspection data to Firebase
+        // Save inspection data to Firebase - isto kot v dashboard
         async function saveInspectionData() {
             try {
                 await window.firebaseFunctions.setDoc(
@@ -961,7 +1000,7 @@
             }
         }
 
-        // Get accessible locations for current user
+        // Get accessible locations for current user - isto kot v dashboard
         function getAccessibleLocations() {
             if (!currentUser.accessibleSystems || !currentUser.accessibleLocations) {
                 return [];
@@ -973,7 +1012,7 @@
             });
         }
 
-        // Calculate next inspection date (every 3 months)
+        // Calculate next inspection date (every 3 months) - isto kot v dashboard
         function getNextInspectionDate(lastInspection) {
             if (!lastInspection) {
                 return new Date(); // If never inspected, it's overdue
@@ -985,7 +1024,7 @@
             return nextDate;
         }
 
-        // Get inspection status for a rack
+        // Get inspection status for a rack - isto kot v dashboard
         function getInspectionStatus(terminal, rackNumber) {
             const key = `${terminal}-${rackNumber}`;
             const rackData = inspectionData[key];
@@ -1007,7 +1046,7 @@
             }
         }
 
-        // Format inspection status display
+        // Format inspection status display - isto kot v dashboard
         function formatInspectionStatus(status, nextDue) {
             const now = new Date();
             const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
@@ -1025,7 +1064,7 @@
             }
         }
 
-        // Update rack status and log the change
+        // Update rack status and log the change - isto kot v dashboard
         async function updateRackStatus(select) {
             const terminal = select.dataset.terminal;
             const rackNumber = select.dataset.rack;
@@ -1068,9 +1107,6 @@
                     notes: notes
                 });
                 
-                // Note: Removed notification creation to prevent spam in dashboard
-                // Notifications are now only managed through the notifications.html admin panel
-                
             } else {
                 // If new status is empty, completely remove this rack's data
                 // This means it goes back to "never inspected" state
@@ -1090,10 +1126,7 @@
             console.log(`Rack ${terminal}-${rackNumber} updated: ${oldStatus} → ${newStatus || 'reset to never inspected'}`);
         }
 
-        // Note: createBazaNotification function removed to prevent notification spam
-        // All notifications are now managed through the admin notifications panel only
-
-        // Update alerts display
+        // Update alerts display - isto kot v dashboard
         function updateAlerts() {
             const alertsBar = document.getElementById('alertsBar');
             const overdue = [];
@@ -1135,7 +1168,7 @@
             alertsBar.innerHTML = alertsHtml;
         }
 
-        // Update summary statistics
+        // Update summary statistics - isto kot v dashboard
         function updateSummary() {
             let total = 0;
             let overdue = 0;
@@ -1163,32 +1196,15 @@
                 }
             });
             
-            const summaryCard = document.getElementById('summaryCard');
-            summaryCard.innerHTML = `
-                <div class="summary-item">
-                    <div class="summary-number">${total}</div>
-                    <div class="summary-label">Skupaj ključavnic</div>
-                </div>
-                <div class="summary-item" style="color: var(--overdue);">
-                    <div class="summary-number">${overdue}</div>
-                    <div class="summary-label">Zamujen pregled</div>
-                </div>
-                <div class="summary-item" style="color: var(--due-soon);">
-                    <div class="summary-number">${dueSoon}</div>
-                    <div class="summary-label">Pregled kmalu</div>
-                </div>
-                <div class="summary-item" style="color: var(--ok);">
-                    <div class="summary-number">${ok}</div>
-                    <div class="summary-label">V redu</div>
-                </div>
-                <div class="summary-item" style="color: var(--fail);">
-                    <div class="summary-number">${needsMaintenance}</div>
-                    <div class="summary-label">Potrebno vzdrževanje</div>
-                </div>
-            `;
+            // Update UI
+            document.getElementById('totalStations').textContent = accessibleLocations.length;
+            document.getElementById('totalRacks').textContent = total;
+            document.getElementById('overdueRacks').textContent = overdue;
+            document.getElementById('dueSoonRacks').textContent = dueSoon;
+            document.getElementById('maintenanceNeeded').textContent = needsMaintenance;
         }
 
-        // Filter functions
+        // Filter functions - isto kot v dashboard
         function filterOverdue() {
             document.getElementById('statusFilter').value = 'overdue';
             filterLocations();
@@ -1199,7 +1215,7 @@
             filterLocations();
         }
 
-        // Enhanced location rendering with inspection status and access control
+        // Enhanced location rendering with inspection status and access control - isto kot v dashboard
         function renderLocations() {
             const container = document.getElementById("locationsContainer");
             container.innerHTML = "";
@@ -1311,7 +1327,7 @@
             return rackData ? rackData.lastInspection : null;
         }
 
-        // Simple filtering with access control
+        // Simple filtering with access control - isto kot v dashboard
         function filterLocations() {
             const system = document.getElementById("systemFilter").value;
             const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
@@ -1359,7 +1375,7 @@
             });
         }
 
-        // Export inspection report with access control
+        // Export inspection report - isto kot v dashboard
         function exportInspectionReport() {
             const accessibleLocations = getAccessibleLocations();
             
@@ -1404,7 +1420,7 @@
             document.body.removeChild(link);
         }
 
-        // Show inspection logs modal with access control
+        // Show inspection logs modal - isto kot v dashboard
         function showInspectionLogs() {
             document.getElementById('logsModal').style.display = 'block';
             loadInspectionLogs();
@@ -1594,7 +1610,7 @@
             filterLocations();
         }
 
-        // Enhanced municipalities update with access control
+        // Enhanced municipalities update with access control - isto kot v dashboard
         function updateMunicipalities() {
             const system = document.getElementById("systemFilter").value;
             const municipalitySelect = document.getElementById("municipalityFilter");
@@ -1652,7 +1668,7 @@
             filterLocations();
         }
 
-        // Logout function
+        // Logout function - isto kot v dashboard
         function logout() {
             if (confirm('Ste prepričani, da se želite odjaviti?')) {
                 sessionStorage.removeItem('currentUser');
@@ -1662,7 +1678,7 @@
             }
         }
 
-        // Initialize the app
+        // Initialize the app - glavna funkcija
         document.addEventListener('DOMContentLoaded', async () => {
             // Check authentication first
             if (!checkAuth()) {
@@ -1670,16 +1686,39 @@
             }
             
             if (!initializeUserDisplay()) {
+                document.getElementById('connectionStatus').style.display = 'none';
                 return; // Stop if no access
             }
             
-            // Load inspection data from Firebase
-            await loadInspectionData();
-            
-            renderLocations();
-            updateMunicipalities();
-            updateAlerts();
-            updateSummary();
+            try {
+                // Load inspection data from Firebase
+                const dataLoaded = await loadInspectionData();
+                
+                if (dataLoaded) {
+                    renderLocations();
+                    updateMunicipalities();
+                    updateAlerts();
+                    updateSummary();
+                    
+                    // Hide connection status, show main content
+                    document.getElementById('connectionStatus').style.display = 'none';
+                    
+                    console.log('Inspection system successfully initialized');
+                } else {
+                    document.getElementById('connectionStatus').innerHTML = `
+                        <div class="connection-status" style="color: var(--fail);">
+                            <span>❌</span> Napaka pri povezovanju s Firebase
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('connectionStatus').innerHTML = `
+                    <div class="connection-status" style="color: var(--fail);">
+                        <span>❌</span> Napaka pri inicializaciji: ${error.message}
+                    </div>
+                `;
+            }
             
             // Add event listeners
             document.getElementById('systemFilter').addEventListener('change', function() {
@@ -1694,7 +1733,7 @@
             // Restore filters if they exist
             restoreFilters();
 
-            // Theme toggle functionality
+            // Theme toggle functionality - isto kot v dashboard
             const themeToggle = document.getElementById('themeToggle');
             
             // Check localStorage for saved theme
@@ -1719,7 +1758,7 @@
                 }
             });
 
-            // Adjust logo size for mobile
+            // Adjust logo size for mobile - isto kot v dashboard
             function adjustLogoSize() {
                 const logos = document.querySelectorAll('.logo-left, .logo-center');
                 const size = window.innerWidth <= 768 ? '40px' : '50px';
@@ -1740,7 +1779,7 @@
             }, 5 * 60 * 1000);
         });
 
-        // Global functions
+        // Global functions - enake kot v dashboard
         window.updateRackStatus = updateRackStatus;
         window.filterOverdue = filterOverdue;
         window.filterDueSoon = filterDueSoon;
@@ -1753,4 +1792,3 @@
     </script>
 </body>
 </html>
-                

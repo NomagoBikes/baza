@@ -19,6 +19,12 @@
             --menu-bg: #004899;
             --nav-bg: #fbb900;
             --nav-text: #333333;
+            --ok: #4caf50;
+            --fail: #e53935;
+            --warn: #fb8c00;
+            --overdue: #d32f2f;
+            --due-soon: #f57c00;
+            --shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .dark-mode {
@@ -28,6 +34,7 @@
             --menu-bg: #0a1a33;
             --nav-bg: #333333;
             --nav-text: #ffffff;
+            --light-blue: #2c3e50;
         }
 
         body { 
@@ -122,7 +129,7 @@
             padding: 20px; 
             border-radius: 8px; 
             margin-bottom: 20px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
         .dashboard-actions {
             display: flex;
@@ -176,6 +183,11 @@
             border-radius: 8px;
             text-align: center;
             border-left: 4px solid var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
         .dark-mode .stat-card {
             background: var(--menu-bg);
@@ -220,7 +232,7 @@
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
         .notification-item {
             background: var(--light-blue);
@@ -316,6 +328,111 @@
             font-style: italic;
             padding: 20px;
         }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .quick-action-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary-blue);
+        }
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .quick-action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .quick-action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-blue);
+        }
+        .dark-mode .quick-action-title {
+            color: var(--secondary-yellow);
+        }
+        .quick-action-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        /* Access Info */
+        .access-info {
+            background: rgba(255, 187, 51, 0.1);
+            border: 1px solid rgba(255, 187, 51, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+            font-size: 0.9rem;
+        }
+        .dark-mode .access-info {
+            background: rgba(255, 187, 51, 0.2);
+            color: var(--secondary-yellow);
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        .activity-icon.success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--ok);
+        }
+        .activity-icon.warning {
+            background: rgba(245, 124, 0, 0.1);
+            color: var(--warn);
+        }
+        .activity-icon.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--fail);
+        }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
         
         @keyframes slideIn {
             from {
@@ -365,6 +482,9 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
             .notification-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -391,7 +511,7 @@
     <div class="container">
         <div class="menu">
             <a href="dashboard.html" class="active">🏠 Baza</a>
-            <a href="nomago_pregledi_kljucavnic.html">🔧 Pregledi</a>
+            <a href="pregledi_kljucavnic.html">🔧 Pregledi</a>
             <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
             <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
             <a href="settings.html">⚙️ Nastavitve</a>
@@ -399,11 +519,50 @@
         </div>
 
         <div class="content">
+            <!-- User access info -->
+            <div class="access-info" id="accessInfo" style="display: none;">
+                <div class="connection-status">
+                    <span>🔄</span> Povezano s Firebase
+                </div>
+                <!-- Access info will be shown here -->
+            </div>
+
             <!-- Admin obvestila section - samo pomembna obvestila -->
             <div class="notifications-section" id="notificationsSection" style="display: none;">
                 <h3>📢 Pomembna obvestila</h3>
                 <div id="notificationsList">
                     <div class="no-notifications">Nalaganje obvestil...</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-action-card" onclick="window.location.href='pregledi_kljucavnic.html'">
+                    <div class="quick-action-icon">🔧</div>
+                    <div class="quick-action-title">Pregledi ključavnic</div>
+                    <div class="quick-action-desc">Izvedi preglede in beleženje statusov ključavnic</div>
+                    <button class="btn-success">Odpri preglede</button>
+                </div>
+
+                <div class="quick-action-card" onclick="exportDashboardReport()">
+                    <div class="quick-action-icon">📊</div>
+                    <div class="quick-action-title">Izvozi poročilo</div>
+                    <div class="quick-action-desc">Celotno poročilo o stanju sistemov</div>
+                    <button>Izvozi CSV</button>
+                </div>
+
+                <div class="quick-action-card" onclick="window.location.href='notifications.html'" id="notificationQuickAction" style="display: none;">
+                    <div class="quick-action-icon">✉️</div>
+                    <div class="quick-action-title">Upravljaj obvestila</div>
+                    <div class="quick-action-desc">Dodaj in upravljaj sistemska obvestila</div>
+                    <button>Odpri obvestila</button>
+                </div>
+
+                <div class="quick-action-card" onclick="window.location.href='users.html'" id="usersQuickAction" style="display: none;">
+                    <div class="quick-action-icon">👥</div>
+                    <div class="quick-action-title">Upravljaj uporabnike</div>
+                    <div class="quick-action-desc">Dodaj in urejaj uporabniške račune</div>
+                    <button>Upravljaj uporabnike</button>
                 </div>
             </div>
 
@@ -439,11 +598,13 @@
                         <div>Potrebno vzdrževanje</div>
                     </div>
                 </div>
-                
-                <div class="dashboard-actions">
-                    <button onclick="window.location.href='nomago_pregledi_kljucavnic.html'" class="btn-success">🔧 Odpri preglede</button>
-                    <button onclick="exportInspectionReport()">📊 Izvozi poročilo</button>
-                    <button onclick="window.location.href='notifications.html'" id="notificationAdminBtn" style="display: none;">✉️ Upravljaj obvestila</button>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity" id="recentActivity">
+                <h3>📈 Nedavna aktivnost</h3>
+                <div id="activityList">
+                    <div class="no-notifications">Nalaganje aktivnosti...</div>
                 </div>
             </div>
         </div>
@@ -490,28 +651,18 @@
             serverTimestamp
         };
 
-        console.log("Firebase initialized in dashboard");
+        console.log("Firebase initialized in renovated dashboard");
     </script>
 
     <script>
-        // Mock Firebase functions for development
-        const mockFirebase = {
-            notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
-            
-            getActiveNotifications: function() {
-                return Promise.resolve(this.notifications.filter(n => n.active));
-            }
-        };
-
-        // Dismissed notifications (per user session)
-        let dismissedNotifications = JSON.parse(sessionStorage.getItem('dismissedNotifications') || '[]');
-
-        // Global variables for inspection data
+        // Global variables
         let currentUser = null;
         let inspectionData = {};
         let locations = [];
+        let inspectionLog = [];
+        let dismissedNotifications = JSON.parse(sessionStorage.getItem('dismissedNotifications') || '[]');
 
-        // Preveri če je uporabnik prijavljen
+        // Check authentication
         function checkAuth() {
             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
@@ -563,14 +714,6 @@
                     const notifications = notificationsDoc.data().data || [];
                     console.log('Total notifications:', notifications.length);
                     console.log('Active notifications:', notifications.filter(n => n.active).length);
-                    console.log('Service notifications about locks:', 
-                        notifications.filter(n => 
-                            n.title.includes('ključavnica') || 
-                            n.title.includes('pregled') ||
-                            n.message.includes('ključavnica') ||
-                            n.message.includes('pregled')
-                        ).length
-                    );
                 }
                 
             } catch (error) {
@@ -597,10 +740,18 @@
                 );
                 inspectionData = inspectionDoc.exists() ? inspectionDoc.data().data || {} : {};
 
+                // Load inspection log
+                const logsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+                );
+                inspectionLog = logsDoc.exists() ? logsDoc.data().data || [] : [];
+
                 console.log('Loaded locations:', locations.length);
                 console.log('Loaded inspection data entries:', Object.keys(inspectionData).length);
+                console.log('Loaded inspection logs:', inspectionLog.length);
                 
                 updateDashboardStats();
+                updateRecentActivity();
             } catch (error) {
                 console.error('Error loading inspection stats:', error);
                 
@@ -656,15 +807,9 @@
             accessibleLocations.forEach(location => {
                 totalRacks += location.racks;
                 
-                // Check station status
-                const stationStatus = getInspectionStatus('station', location.terminal);
-                if (stationStatus === 'overdue') overdueStations++;
-                
-                const stationKey = `${location.terminal}-station`;
-                const stationData = inspectionData[stationKey];
-                if (stationData && stationData.currentStatus && stationData.currentStatus !== 'BP') {
-                    maintenanceNeeded++;
-                }
+                // Check station status (commented out as not implemented in original)
+                // const stationStatus = getInspectionStatus('station', location.terminal);
+                // if (stationStatus === 'overdue') overdueStations++;
                 
                 // Check racks
                 for (let i = 1; i <= location.racks; i++) {
@@ -687,8 +832,72 @@
             document.getElementById('maintenanceNeeded').textContent = maintenanceNeeded;
         }
 
-        // Export inspection report
-        function exportInspectionReport() {
+        // Update recent activity
+        function updateRecentActivity() {
+            const activityList = document.getElementById('activityList');
+            
+            if (inspectionLog.length === 0) {
+                activityList.innerHTML = '<div class="no-notifications">Ni nedavne aktivnosti.</div>';
+                return;
+            }
+            
+            // Get recent logs (last 10)
+            const recentLogs = inspectionLog
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 10);
+            
+            let html = '';
+            recentLogs.forEach(log => {
+                const date = new Date(log.timestamp);
+                const timeAgo = getTimeAgo(date);
+                const location = locations.find(l => l.terminal === log.terminal);
+                const locationName = location ? location.name : `Terminal ${log.terminal}`;
+                
+                let iconClass = 'success';
+                let iconSymbol = '✅';
+                if (log.newStatus === 'X') {
+                    iconClass = 'error';
+                    iconSymbol = '❌';
+                } else if (log.newStatus === 'NP' || log.newStatus === 'NZ' || log.newStatus === 'NO') {
+                    iconClass = 'warning';
+                    iconSymbol = '⚠️';
+                }
+                
+                html += `
+                    <div class="activity-item">
+                        <div class="activity-icon ${iconClass}">${iconSymbol}</div>
+                        <div class="activity-content">
+                            <div class="activity-title">
+                                ${locationName} - Ključavnica ${log.rackNumber}
+                            </div>
+                            <div class="activity-time">
+                                ${log.inspector} • ${log.newStatus} • ${timeAgo}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityList.innerHTML = html;
+        }
+
+        // Helper function to get time ago
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Pravkar';
+            if (diffMins < 60) return `${diffMins}min`;
+            if (diffHours < 24) return `${diffHours}h`;
+            if (diffDays < 7) return `${diffDays}d`;
+            return date.toLocaleDateString('sl-SI');
+        }
+
+        // Export dashboard report
+        function exportDashboardReport() {
             const accessibleLocations = getAccessibleLocations();
             
             if (accessibleLocations.length === 0) {
@@ -700,29 +909,6 @@
             csvContent += "Lokacija,Terminal,Sistem,Občina,Tip,Element,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
             
             accessibleLocations.forEach(location => {
-                // Station data
-                const stationKey = `${location.terminal}-station`;
-                const stationData = inspectionData[stationKey] || {};
-                const stationStatus = getInspectionStatus('station', location.terminal);
-                const stationNextDue = getNextInspectionDate(stationData.lastInspection);
-                
-                const stationRow = [
-                    location.name,
-                    location.terminal,
-                    location.system,
-                    location.municipality,
-                    'Postaja',
-                    'Postaja',
-                    stationStatus === 'overdue' ? 'ZAMUJEN' : stationStatus === 'warning' ? 'KMALU' : 'V REDU',
-                    stationData.lastInspection ? new Date(stationData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
-                    stationNextDue.toLocaleDateString('sl-SI'),
-                    stationData.currentStatus || 'Ni podatka',
-                    (stationData.notes || '').replace(/,/g, ';'),
-                    stationData.inspector || 'Ni podatka'
-                ].map(field => `"${field}"`).join(',');
-                
-                csvContent += stationRow + "\n";
-                
                 // Rack data
                 for (let i = 1; i <= location.racks; i++) {
                     const rackKey = `${location.terminal}-${i}`;
@@ -769,7 +955,7 @@
             return nextDate;
         }
 
-        // Odjava
+        // Logout function
         function logout() {
             if (confirm('Ste prepričani, da se želite odjaviti?')) {
                 sessionStorage.removeItem('currentUser');
@@ -778,12 +964,7 @@
             }
         }
 
-        // Prikaži obvestilo
-        function showNotification(message) {
-            alert(message);
-        }
-
-        // Naloži in prikaži samo pomembna obvestila (ne servisnih)
+        // Load and display notifications (non-service notifications only)
         async function loadNotifications() {
             try {
                 const notificationsDoc = await window.firebaseFunctions.getDoc(
@@ -822,14 +1003,12 @@
                 displayNotifications(visibleNotifications);
             } catch (error) {
                 console.error('Napaka pri nalaganju obvestil:', error);
-                // Fallback to mock data if Firebase fails
-                const notifications = await mockFirebase.getActiveNotifications();
-                const visibleNotifications = notifications.filter(n => !dismissedNotifications.includes(n.id));
-                displayNotifications(visibleNotifications);
+                // Hide notifications section on error
+                document.getElementById('notificationsSection').style.display = 'none';
             }
         }
 
-        // Prikaži obvestila
+        // Display notifications
         function displayNotifications(notifications) {
             const section = document.getElementById('notificationsSection');
             const container = document.getElementById('notificationsList');
@@ -867,7 +1046,7 @@
             container.innerHTML = html;
         }
 
-        // Skrij obvestilo
+        // Dismiss notification
         function dismissNotification(id) {
             dismissedNotifications.push(id);
             sessionStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
@@ -886,7 +1065,7 @@
             }
         }
 
-        // Pomožne funkcije
+        // Helper functions
         function getTypeText(type) {
             const types = {
                 info: 'Info',
@@ -906,23 +1085,42 @@
             return priorities[priority] || priority;
         }
 
-        // Inicializacija
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentUser = checkAuth();
-            if (currentUser) {
+        // Initialize user display
+        function initializeUserDisplay() {
+            if (currentUser.ime) {
                 document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
                 
                 // Show admin-only elements
                 if (currentUser.vloga === 'admin') {
                     document.getElementById('usersMenuLink').style.display = 'inline-block';
                     document.getElementById('notificationsMenuLink').style.display = 'inline-block';
-                    document.getElementById('notificationAdminBtn').style.display = 'inline-block';
+                    document.getElementById('notificationQuickAction').style.display = 'block';
+                    document.getElementById('usersQuickAction').style.display = 'block';
                 }
                 
-                // Load filtered notifications (no service notifications about locks)
-                loadNotifications();
+                // Show access info
+                if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
+                    const accessInfo = document.getElementById('accessInfo');
+                    accessInfo.style.display = 'block';
+                    accessInfo.innerHTML = `
+                        <div class="connection-status">
+                            <span>🔄</span> Povezano s Firebase
+                        </div>
+                        🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+                        (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
+                    `;
+                }
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = checkAuth();
+            if (currentUser) {
+                initializeUserDisplay();
                 
-                // Load inspection statistics
+                // Load data
+                loadNotifications();
                 loadInspectionStats();
                 
                 // Debug: Check user access
@@ -931,13 +1129,13 @@
                 console.log('Accessible locations:', currentUser.accessibleLocations);
             }
             
-            // Posodobi čas zadnje osvežitve
+            // Update last update time
             document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
 
-            // Temni način
+            // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
             
-            // Preveri lokalno shrambo za shranjeno temo
+            // Check localStorage for saved theme
             const currentTheme = localStorage.getItem('theme');
             if (currentTheme === 'dark') {
                 document.body.classList.add('dark-mode');
@@ -946,7 +1144,7 @@
                 themeToggle.textContent = '🌙';
             }
             
-            // Poslušalec za gumb za preklop teme
+            // Theme toggle event listener
             themeToggle.addEventListener('click', function() {
                 if (document.body.classList.contains('dark-mode')) {
                     document.body.classList.remove('dark-mode');
@@ -959,7 +1157,7 @@
                 }
             });
 
-            // Prilagodi velikost logotipov za mobilne naprave
+            // Adjust logo size for mobile
             function adjustLogoSize() {
                 const logos = document.querySelectorAll('.logo-left, .logo-center');
                 const size = window.innerWidth <= 768 ? '40px' : '50px';
@@ -971,7 +1169,7 @@
             window.addEventListener('resize', adjustLogoSize);
             adjustLogoSize();
 
-            // Posodobi čas vsako minuto
+            // Update time every minute
             setInterval(() => {
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
             }, 60000);
@@ -986,8 +1184,8 @@
         // Global function assignments
         window.logout = logout;
         window.dismissNotification = dismissNotification;
-        window.exportInspectionReport = exportInspectionReport;
-        window.debugFirebaseAccess = debugFirebaseAccess; // Add debug function to global scope
+        window.exportDashboardReport = exportDashboardReport;
+        window.debugFirebaseAccess = debugFirebaseAccess;
     </script>
 </body>
 </html>

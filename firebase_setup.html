@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOMAGO - Setup Firebase podatkov</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #004899;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #004899;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        button {
+            background: #004899;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #003366;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .data-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #e9f0f7;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #004899;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #004899;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #004899;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 NOMAGO Firebase Setup</h1>
+        
+        <div id="connectionStatus" class="status info">
+            🔄 Povezovanje s Firebase...
+        </div>
+
+        <!-- Sekcija 1: Dodaj lokacije -->
+        <div class="section">
+            <h2>📍 1. Dodaj lokacije v Firebase</h2>
+            <p>Dodaj vseh <strong>114 lokacij</strong> iz obstoječega sistema v Firebase bazo.</p>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalLocations">114</div>
+                    <div>Lokacij za dodajanje</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSystems">4</div>
+                    <div>Sistemov</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRacks">832</div>
+                    <div>Ključavnic skupaj</div>
+                </div>
+            </div>
+            
+            <button onclick="addLocationsToFirebase()" id="addLocationsBtn">
+                📍 Dodaj vse lokacije
+            </button>
+            <button onclick="viewLocationsData()" class="btn-success">
+                👁️ Predogled podatkov
+            </button>
+            
+            <div id="locationsProgress" style="display: none;">
+                <div class="progress">
+                    <div class="progress-bar" id="locationsProgressBar"></div>
+                </div>
+                <div id="locationsProgressText">0%</div>
+            </div>
+            
+            <div id="locationsPreview" class="data-preview" style="display: none;"></div>
+        </div>
+
+        <!-- Sekcija 2: Dodaj uporabnike -->
+        <div class="section">
+            <h2>👥 2. Dodaj testne uporabnike</h2>
+            <p>Ustvari testne uporabnike z različnimi dostopi do sistemov.</p>
+            
+            <button onclick="addTestUsers()" id="addUsersBtn">
+                👥 Dodaj testne uporabnike
+            </button>
+            <button onclick="viewUsersData()" class="btn-success">
+                👁️ Predogled uporabnikov
+            </button>
+            
+            <div id="usersPreview" class="data-preview" style="display: none;"></div>
+        </div>
+
+        <!-- Sekcija 3: Inicializiraj preglede -->
+        <div class="section">
+            <h2>🔧 3. Inicializiraj sistem pregledov</h2>
+            <p>Ustvari prazen sistem pregledov in logov.</p>
+            
+            <button onclick="initializeInspections()" id="initInspectionsBtn">
+                🔧 Inicializiraj preglede
+            </button>
+            <button onclick="addSampleInspections()" class="btn-success">
+                📝 Dodaj vzorčne preglede
+            </button>
+        </div>
+
+        <!-- Sekcija 4: Preveri sistem -->
+        <div class="section">
+            <h2>✅ 4. Preveri celoten sistem</h2>
+            <p>Preveri, če so vsi podatki pravilno dodani in sistem deluje.</p>
+            
+            <button onclick="checkSystem()" class="btn-success">
+                ✅ Preveri sistem
+            </button>
+            <button onclick="clearAllData()" class="btn-danger">
+                🗑️ Izbriši vse podatke
+            </button>
+            
+            <div id="systemCheck" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        // Firebase config - isti projekt kot dashboard
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.firebaseDb = db;
+        window.firebaseFunctions = {
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            serverTimestamp
+        };
+
+        // Test Firebase connection
+        async function testConnection() {
+            try {
+                const testDoc = await getDoc(doc(db, 'test', 'connection'));
+                document.getElementById('connectionStatus').innerHTML = '✅ Firebase uspešno povezan!';
+                document.getElementById('connectionStatus').className = 'status success';
+                return true;
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML = `❌ Napaka pri povezavi: ${error.message}`;
+                document.getElementById('connectionStatus').className = 'status error';
+                return false;
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', testConnection);
+    </script>
+
+    <script>
+        // VSEH 114 LOKACIJ iz online_viewer_net.htm
+        const ALL_LOCATIONS = [
+            // KolesCE sistem
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Linhartova cesta - Topniška cesta", terminal: "87007", racks: 7 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Emona - Litijska cesta", terminal: "87008", racks: 7 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Trg OF - Železniška postaja", terminal: "87009", racks: 7 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Špica", terminal: "87010", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "P+R Stanežiče", terminal: "87011", racks: 4 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Aleja", terminal: "87012", racks: 7 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Kino Šiška", terminal: "87013", racks: 10 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Njegoševa - Šentpeter", terminal: "87014", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Škrabčeva ulica", terminal: "87015", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Kongresni trg", terminal: "87016", racks: 8 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Tacen - Parkirišče pod Šmarno goro", terminal: "87017", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Trg MDB", terminal: "87018", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Preglov trg", terminal: "87019", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Ekonomska fakulteta", terminal: "87030", racks: 8 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Kristalna palača", terminal: "87020", racks: 3 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Dvorana A", terminal: "87021", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Atlantis", terminal: "87022", racks: 3 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "BTC City - Dvorana 18", terminal: "87023", racks: 6 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Stolpnica Delo - Equinox", terminal: "87024", racks: 4 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Big Bang - Trg mladih", terminal: "87025", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Big Bang - Francoska ulica", terminal: "87026", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Nomago - Središka ulica", terminal: "87027", racks: 3 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Črnuče", terminal: "87028", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Zalog", terminal: "87029", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Heineken - Pivovarna Laško Union", terminal: "87099", racks: 2 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "ISIC - Trg Ajdovščina", terminal: "87031", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Pop TV - Kranjčeva ulica", terminal: "87032", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Supernova Šiška", terminal: "87033", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Rotonda", terminal: "87034", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Glince - Tržaška c.", terminal: "87035", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Four Points by Sheraton Ljubljana Mons", terminal: "87036", racks: 3 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Stara cerkev - Celovška cesta", terminal: "87037", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "E. Leclerc vhod", terminal: "87038", racks: 5 }
+        ];
+
+        // TESTNI UPORABNIKI z različnimi dostopi
+        const TEST_USERS = [
+            {
+                id: "admin001",
+                uporabniskoIme: "admin",
+                geslo: "admin123", // V produkciji uporabi hash!
+                ime: "Sistem",
+                priimek: "Administrator", 
+                email: "admin@nomago.si",
+                vloga: "admin",
+                accessibleSystems: ["KolesCE", "GO2GO", "ZaNaprej", "Ljubljana"],
+                accessibleLocations: ALL_LOCATIONS.map(loc => ({ terminal: loc.terminal, name: loc.name })),
+                active: true,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: "serviser001",
+                uporabniskoIme: "celje.serviser",
+                geslo: "celje123",
+                ime: "Janez",
+                priimek: "Novak",
+                email: "janez.novak@nomago.si", 
+                vloga: "serviser",
+                accessibleSystems: ["KolesCE"],
+                accessibleLocations: ALL_LOCATIONS
+                    .filter(loc => loc.system === "KolesCE" && loc.municipality === "Celje")
+                    .map(loc => ({ terminal: loc.terminal, name: loc.name })),
+                active: true,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: "serviser002", 
+                uporabniskoIme: "go2go.serviser",
+                geslo: "go2go123",
+                ime: "Marco",
+                priimek: "Rossi",
+                email: "marco.rossi@nomago.si",
+                vloga: "serviser", 
+                accessibleSystems: ["GO2GO"],
+                accessibleLocations: ALL_LOCATIONS
+                    .filter(loc => loc.system === "GO2GO")
+                    .map(loc => ({ terminal: loc.terminal, name: loc.name })),
+                active: true,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: "serviser003",
+                uporabniskoIme: "ljubljana.serviser", 
+                geslo: "lj123",
+                ime: "Ana",
+                priimek: "Horvat",
+                email: "ana.horvat@nomago.si",
+                vloga: "serviser",
+                accessibleSystems: ["Ljubljana"],
+                accessibleLocations: ALL_LOCATIONS
+                    .filter(loc => loc.system === "Ljubljana")
+                    .map(loc => ({ terminal: loc.terminal, name: loc.name })),
+                active: true,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: "manager001",
+                uporabniskoIme: "manager.kolece",
+                geslo: "kolece123", 
+                ime: "Petra",
+                priimek: "Kranjc",
+                email: "petra.kranjc@nomago.si",
+                vloga: "manager",
+                accessibleSystems: ["KolesCE"],
+                accessibleLocations: ALL_LOCATIONS
+                    .filter(loc => loc.system === "KolesCE")
+                    .map(loc => ({ terminal: loc.terminal, name: loc.name })),
+                active: true,
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        // Funkcije za dodajanje podatkov
+
+        // 1. Dodaj lokacije v Firebase
+        async function addLocationsToFirebase() {
+            const btn = document.getElementById('addLocationsBtn');
+            const progress = document.getElementById('locationsProgress');
+            const progressBar = document.getElementById('locationsProgressBar');
+            const progressText = document.getElementById('locationsProgressText');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Dodajam lokacije...';
+            progress.style.display = 'block';
+
+            try {
+                // Dodaj lokacije v system/locations
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations'),
+                    {
+                        data: ALL_LOCATIONS,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp(),
+                        totalLocations: ALL_LOCATIONS.length,
+                        totalRacks: ALL_LOCATIONS.reduce((sum, loc) => sum + loc.racks, 0)
+                    }
+                );
+
+                progressBar.style.width = '100%';
+                progressText.textContent = '100% - Lokacije uspešno dodane!';
+
+                showStatus('success', `✅ Uspešno dodanih ${ALL_LOCATIONS.length} lokacij v Firebase!`);
+                
+                btn.textContent = '✅ Lokacije dodane';
+                btn.style.background = '#28a745';
+
+            } catch (error) {
+                console.error('Error adding locations:', error);
+                showStatus('error', `❌ Napaka pri dodajanju lokacij: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = '📍 Dodaj vse lokacije';
+            }
+        }
+
+        // 2. Predogled lokacij
+        function viewLocationsData() {
+            const preview = document.getElementById('locationsPreview');
+            
+            if (preview.style.display === 'none') {
+                const stats = {
+                    total: ALL_LOCATIONS.length,
+                    bySystem: {},
+                    byMunicipality: {},
+                    totalRacks: ALL_LOCATIONS.reduce((sum, loc) => sum + loc.racks, 0)
+                };
+
+                ALL_LOCATIONS.forEach(loc => {
+                    stats.bySystem[loc.system] = (stats.bySystem[loc.system] || 0) + 1;
+                    stats.byMunicipality[loc.municipality] = (stats.byMunicipality[loc.municipality] || 0) + 1;
+                });
+
+                preview.innerHTML = `
+                    <h4>📊 Statistike lokacij:</h4>
+                    <p><strong>Skupaj lokacij:</strong> ${stats.total}</p>
+                    <p><strong>Skupaj ključavnic:</strong> ${stats.totalRacks}</p>
+                    
+                    <h5>Po sistemih:</h5>
+                    ${Object.entries(stats.bySystem).map(([sys, count]) => 
+                        `<p>• ${sys}: ${count} lokacij</p>`
+                    ).join('')}
+                    
+                    <h5>Po občinah (prvih 10):</h5>
+                    ${Object.entries(stats.byMunicipality)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 10)
+                        .map(([mun, count]) => `<p>• ${mun}: ${count} lokacij</p>`)
+                        .join('')}
+                    
+                    <h5>Vzorec lokacij (prvih 5):</h5>
+                    ${ALL_LOCATIONS.slice(0, 5).map(loc => 
+                        `<p>• ${loc.system} | ${loc.municipality} | ${loc.name} (${loc.terminal}) - ${loc.racks} ključavnic</p>`
+                    ).join('')}
+                `;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // 3. Dodaj testne uporabnike
+        async function addTestUsers() {
+            const btn = document.getElementById('addUsersBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Dodajam uporabnike...';
+
+            try {
+                // Dodaj uporabnike v system/users
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users'),
+                    {
+                        data: TEST_USERS,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp(),
+                        totalUsers: TEST_USERS.length
+                    }
+                );
+
+                showStatus('success', `✅ Uspešno dodanih ${TEST_USERS.length} testnih uporabnikov!`);
+                
+                btn.textContent = '✅ Uporabniki dodani';
+                btn.style.background = '#28a745';
+
+            } catch (error) {
+                console.error('Error adding users:', error);
+                showStatus('error', `❌ Napaka pri dodajanju uporabnikov: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = '👥 Dodaj testne uporabnike';
+            }
+        }
+
+        // 4. Predogled uporabnikov
+        function viewUsersData() {
+            const preview = document.getElementById('usersPreview');
+            
+            if (preview.style.display === 'none') {
+                preview.innerHTML = `
+                    <h4>👥 Testni uporabniki:</h4>
+                    ${TEST_USERS.map(user => `
+                        <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            <p><strong>${user.ime} ${user.priimek}</strong> (${user.vloga})</p>
+                            <p>• Uporabniško ime: <code>${user.uporabniskoIme}</code></p>
+                            <p>• Geslo: <code>${user.geslo}</code></p>
+                            <p>• Sistemi: ${user.accessibleSystems.join(', ')}</p>
+                            <p>• Lokacij: ${user.accessibleLocations.length}</p>
+                        </div>
+                    `).join('')}
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
+                        <h5>🔑 Testni računi:</h5>
+                        <p>• <strong>admin</strong> / admin123 - polni dostop</p>
+                        <p>• <strong>celje.serviser</strong> / celje123 - samo Celje KolesCE</p>
+                        <p>• <strong>go2go.serviser</strong> / go2go123 - samo GO2GO</p>
+                        <p>• <strong>ljubljana.serviser</strong> / lj123 - samo Ljubljana</p>
+                        <p>• <strong>manager.kolece</strong> / kolece123 - ves KolesCE sistem</p>
+                    </div>
+                `;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // 5. Inicializiraj sistem pregledov
+        async function initializeInspections() {
+            const btn = document.getElementById('initInspectionsBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Inicializiram...';
+
+            try {
+                // Inicializiraj prazen inspectionData
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
+                    {
+                        data: {},
+                        lastUpdated: window.firebaseFunctions.serverTimestamp(),
+                        initialized: true
+                    }
+                );
+
+                // Inicializiraj prazen inspectionLog
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
+                    {
+                        data: [],
+                        lastUpdated: window.firebaseFunctions.serverTimestamp(),
+                        initialized: true
+                    }
+                );
+
+                showStatus('success', '✅ Sistem pregledov uspešno inicializiran!');
+                
+                btn.textContent = '✅ Pregledi inicializirani';
+                btn.style.background = '#28a745';
+
+            } catch (error) {
+                console.error('Error initializing inspections:', error);
+                showStatus('error', `❌ Napaka pri inicializaciji: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = '🔧 Inicializiraj preglede';
+            }
+        }
+
+        // 6. Dodaj vzorčne preglede
+        async function addSampleInspections() {
+            try {
+                const sampleData = {};
+                const sampleLog = [];
+
+                // Dodaj nekaj vzorčnih pregledov za različne terminale
+                const sampleTerminals = ['3250', '3251', '5905', '87001'];
+                
+                sampleTerminals.forEach(terminal => {
+                    // Dodaj preglede za prve 3 ključavnice
+                    for (let rack = 1; rack <= 3; rack++) {
+                        const key = `${terminal}-${rack}`;
+                        const daysAgo = Math.floor(Math.random() * 60); // Zadnjih 60 dni
+                        const lastInspection = new Date();
+                        lastInspection.setDate(lastInspection.getDate() - daysAgo);
+                        
+                        const statuses = ['BP', 'X', 'NP', 'NZ', 'NO'];
+                        const status = statuses[Math.floor(Math.random() * statuses.length)];
+                        
+                        sampleData[key] = {
+                            currentStatus: status,
+                            lastInspection: lastInspection.toISOString(),
+                            notes: status === 'BP' ? '' : `Vzorčna opomba za status ${status}`,
+                            inspector: 'test.serviser'
+                        };
+
+                        sampleLog.push({
+                            timestamp: lastInspection.toISOString(),
+                            terminal: terminal,
+                            rackNumber: rack,
+                            oldStatus: '',
+                            newStatus: status,
+                            inspector: 'test.serviser',
+                            notes: sampleData[key].notes
+                        });
+                    }
+                });
+
+                // Shrani vzorčne podatke
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
+                    {
+                        data: sampleData,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
+                    {
+                        data: sampleLog,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+
+                showStatus('success', `✅ Dodanih ${Object.keys(sampleData).length} vzorčnih pregledov!`);
+
+            } catch (error) {
+                console.error('Error adding sample inspections:', error);
+                showStatus('error', `❌ Napaka pri dodajanju vzorčnih pregledov: ${error.message}`);
+            }
+        }
+
+        // 7. Preveri celoten sistem
+        async function checkSystem() {
+            const checkDiv = document.getElementById('systemCheck');
+            checkDiv.style.display = 'block';
+            checkDiv.innerHTML = '<p>🔄 Preverjam sistem...</p>';
+
+            try {
+                const checks = [];
+
+                // Preveri lokacije
+                const locationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                const locationsOk = locationsDoc.exists() && locationsDoc.data().data?.length > 0;
+                checks.push({
+                    name: 'Lokacije',
+                    status: locationsOk,
+                    count: locationsOk ? locationsDoc.data().data.length : 0
+                });
+
+                // Preveri uporabnike  
+                const usersDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+                );
+                const usersOk = usersDoc.exists() && usersDoc.data().data?.length > 0;
+                checks.push({
+                    name: 'Uporabniki',
+                    status: usersOk,
+                    count: usersOk ? usersDoc.data().data.length : 0
+                });
+
+                // Preveri preglede
+                const inspectionDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                const inspectionOk = inspectionDoc.exists();
+                checks.push({
+                    name: 'Sistem pregledov',
+                    status: inspectionOk,
+                    count: inspectionOk ? Object.keys(inspectionDoc.data().data || {}).length : 0
+                });
+
+                // Preveri loge
+                const logsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+                );
+                const logsOk = logsDoc.exists();
+                checks.push({
+                    name: 'Logi pregledov',
+                    status: logsOk,
+                    count: logsOk ? (logsDoc.data().data || []).length : 0
+                });
+
+                // Prikaži rezultate
+                checkDiv.innerHTML = `
+                    <h4>🔍 Rezultati preverjanja sistema:</h4>
+                    ${checks.map(check => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin: 5px 0; background: ${check.status ? '#d4edda' : '#f8d7da'}; border-radius: 5px;">
+                            <span>${check.status ? '✅' : '❌'} ${check.name}</span>
+                            <span><strong>${check.count}</strong> ${check.name === 'Uporabniki' ? 'uporabnikov' : check.name === 'Lokacije' ? 'lokacij' : 'zapisov'}</span>
+                        </div>
+                    `).join('')}
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: ${checks.every(c => c.status) ? '#d4edda' : '#fff3cd'}; border-radius: 5px;">
+                        <h5>${checks.every(c => c.status) ? '🎉 Sistem je pripravljen!' : '⚠️ Sistem potrebuje še nastavitve'}</h5>
+                        <p>${checks.every(c => c.status) ? 
+                            'Vsi podatki so uspešno dodani. Lahko začnete uporabljati sistem za preglede ključavnic!' :
+                            'Nekateri deli sistema še niso nastavljeni. Dokončajte nastavitve zgoraj.'}</p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error checking system:', error);
+                checkDiv.innerHTML = `<div style="color: #721c24;">❌ Napaka pri preverjanju: ${error.message}</div>`;
+            }
+        }
+
+        // 8. Izbriši vse podatke
+        async function clearAllData() {
+            if (!confirm('POZOR: To bo izbrisalo VSE podatke o pregledih! Ste prepričani?')) {
+                return;
+            }
+
+            if (!confirm('Zadnja možnost za preklic. Res želite izbrisati vse podatke?')) {
+                return;
+            }
+
+            try {
+                // Izbriši vse dokumente
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+                );
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                await window.firebaseFunctions.deleteDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+                );
+
+                showStatus('success', '🗑️ Vsi podatki so bili izbrisani!');
+
+                // Reset gumbov
+                ['addLocationsBtn', 'addUsersBtn', 'initInspectionsBtn'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    btn.disabled = false;
+                    btn.style.background = '#004899';
+                    btn.textContent = btn.textContent.replace(/✅.*/, btn.textContent.includes('lokacije') ? '📍 Dodaj vse lokacije' : 
+                        btn.textContent.includes('uporabnike') ? '👥 Dodaj testne uporabnike' : '🔧 Inicializiraj preglede');
+                });
+
+            } catch (error) {
+                console.error('Error clearing data:', error);
+                showStatus('error', `❌ Napaka pri brisanju: ${error.message}`);
+            }
+        }
+
+        // Pomožna funkcija za prikaz sporočil
+        function showStatus(type, message) {
+            const status = document.getElementById('connectionStatus');
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+        }
+
+        // Global functions
+        window.addLocationsToFirebase = addLocationsToFirebase;
+        window.viewLocationsData = viewLocationsData;
+        window.addTestUsers = addTestUsers;
+        window.viewUsersData = viewUsersData;
+        window.initializeInspections = initializeInspections;
+        window.addSampleInspections = addSampleInspections;
+        window.checkSystem = checkSystem;
+        window.clearAllData = clearAllData;
+    </script>
+</body>
+</html> system: "KolesCE", municipality: "Braslovče", name: "Braslovče trg", terminal: "5953", racks: 6 },
+            { system: "KolesCE", municipality: "Celje", name: "Krekov trg", terminal: "3250", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Prešernova ulica", terminal: "3251", racks: 14 },
+            { system: "KolesCE", municipality: "Celje", name: "Ljubljanska cesta", terminal: "3252", racks: 8 },
+            { system: "KolesCE", municipality: "Celje", name: "Na zelenici - TUŠ", terminal: "3253", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Bolnica Celje", terminal: "3254", racks: 12 },
+            { system: "KolesCE", municipality: "Celje", name: "Avtobusna postaja", terminal: "3255", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Mariborska cesta – TUŠ", terminal: "3256", racks: 8 },
+            { system: "KolesCE", municipality: "Celje", name: "Dvorana Zlatorog Celje", terminal: "3257", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Hudinja", terminal: "3258", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Nova vas", terminal: "3259", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Lava", terminal: "3260", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Ostrožno", terminal: "3261", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Dečkova cesta", terminal: "3262", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Levstikova ulica", terminal: "3263", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Tkalska ulica", terminal: "3264", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Citycenter", terminal: "3265", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Muzejski trg", terminal: "3266", racks: 8 },
+            { system: "KolesCE", municipality: "Celje", name: "Kladivar", terminal: "3290", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Mariborska cesta - Lidl", terminal: "3291", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Spodnji grad", terminal: "3292", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "P+R Ulica XIV. divizije", terminal: "3293", racks: 36 },
+            { system: "KolesCE", municipality: "Celje", name: "Zagrad", terminal: "3294", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Skalna klet", terminal: "5939", racks: 8 },
+            { system: "KolesCE", municipality: "Celje", name: "Plava Laguna", terminal: "5940", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Trubarjeva ulica", terminal: "5941", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Dečkova cesta - Ingrad", terminal: "5942", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Ribarjeva ulica", terminal: "5943", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Ulica Mesta Grevenbroich - Drapšinova ul.", terminal: "5944", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Pod lipami", terminal: "5945", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Milčinskega ulica", terminal: "5946", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Celjski sejem", terminal: "5947", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Polule", terminal: "5948", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Mirna pot - pokopališče", terminal: "5949", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Teharje", terminal: "5950", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Ljubečna", terminal: "5951", racks: 10 },
+            { system: "KolesCE", municipality: "Celje", name: "Lopata", terminal: "5954", racks: 5 },
+            { system: "KolesCE", municipality: "Celje", name: "Škofja vas", terminal: "5955", racks: 6 },
+            { system: "KolesCE", municipality: "Celje", name: "Šmartno v R. dolini", terminal: "5956", racks: 5 },
+            { system: "KolesCE", municipality: "Celje", name: "Trnovlje", terminal: "5957", racks: 4 },
+            { system: "KolesCE", municipality: "Celje", name: "Trnovlje - cesta A", terminal: "5966", racks: 10 },
+            
+            // Laško
+            { system: "KolesCE", municipality: "Laško", name: "Rečica", terminal: "3246", racks: 4 },
+            { system: "KolesCE", municipality: "Laško", name: "Trubarjevo nabrežje", terminal: "3267", racks: 6 },
+            { system: "KolesCE", municipality: "Laško", name: "Železniška postaja Laško", terminal: "3268", racks: 8 },
+            { system: "KolesCE", municipality: "Laško", name: "Thermana Laško", terminal: "3269", racks: 6 },
+            { system: "KolesCE", municipality: "Laško", name: "Dvorana Tri Lilije", terminal: "3270", racks: 6 },
+            { system: "KolesCE", municipality: "Laško", name: "TIC Rimske Toplice", terminal: "3271", racks: 6 },
+            { system: "KolesCE", municipality: "Laško", name: "Šentrupert", terminal: "5960", racks: 4 },
+            { system: "KolesCE", municipality: "Laško", name: "Jurklošter", terminal: "5961", racks: 4 },
+            
+            // Polzela
+            { system: "KolesCE", municipality: "Polzela", name: "Polzela", terminal: "3277", racks: 5 },
+            { system: "KolesCE", municipality: "Polzela", name: "Športna dvorana Polzela", terminal: "3278", racks: 5 },
+            
+            // Sevnica
+            { system: "KolesCE", municipality: "Sevnica", name: "Občina Sevnica", terminal: "5962", racks: 5 },
+            { system: "KolesCE", municipality: "Sevnica", name: "Trg Svobode", terminal: "5964", racks: 5 },
+            { system: "KolesCE", municipality: "Sevnica", name: "OŠ Boštanj", terminal: "5969", racks: 5 },
+            
+            // Slovenske Konjice
+            { system: "KolesCE", municipality: "Slovenske Konjice", name: "AP Slovenske Konjice", terminal: "3283", racks: 6 },
+            { system: "KolesCE", municipality: "Slovenske Konjice", name: "Mizarska cesta", terminal: "3284", racks: 6 },
+            { system: "KolesCE", municipality: "Slovenske Konjice", name: "Gimnazija Slovenske Konjice", terminal: "3285", racks: 6 },
+            { system: "KolesCE", municipality: "Slovenske Konjice", name: "Poslovna cona LIP", terminal: "3286", racks: 6 },
+            
+            // Šentjur
+            { system: "KolesCE", municipality: "Šentjur", name: "Železniška postaja Šentjur", terminal: "3241", racks: 16 },
+            { system: "KolesCE", municipality: "Šentjur", name: "IKC Šentjur", terminal: "3242", racks: 8 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Zgornji trg", terminal: "3243", racks: 6 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Mestni trg", terminal: "3295", racks: 10 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Zdravstveni dom Šentjur", terminal: "3296", racks: 6 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Osnovna šola Hruševec", terminal: "3297", racks: 6 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Športni park Rifnik", terminal: "3298", racks: 6 },
+            { system: "KolesCE", municipality: "Šentjur", name: "AP Miloša Zidanška", terminal: "3299", racks: 6 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Grobelno", terminal: "5967", racks: 6 },
+            { system: "KolesCE", municipality: "Šentjur", name: "Proseniško", terminal: "59559", racks: 6 },
+            
+            // Štore
+            { system: "KolesCE", municipality: "Štore", name: "Lipa - Mercator", terminal: "3287", racks: 5 },
+            
+            // Vojnik
+            { system: "KolesCE", municipality: "Vojnik", name: "Vojnik", terminal: "5952", racks: 6 },
+            
+            // Zreče
+            { system: "KolesCE", municipality: "Zreče", name: "Občina Zreče", terminal: "3279", racks: 6 },
+            { system: "KolesCE", municipality: "Zreče", name: "Hotel Dobrava", terminal: "3280", racks: 6 },
+            { system: "KolesCE", municipality: "Zreče", name: "Unior", terminal: "3281", racks: 6 },
+            { system: "KolesCE", municipality: "Zreče", name: "Večgeneracijski center", terminal: "3282", racks: 6 },
+            
+            // Žalec
+            { system: "KolesCE", municipality: "Žalec", name: "Petrovče", terminal: "3248", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Šempeter", terminal: "3249", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Čopova ulica", terminal: "3272", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "AP Žalec", terminal: "3273", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Pokopališče", terminal: "3274", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "I. osnovna šola", terminal: "3275", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Občina Žalec", terminal: "3276", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Levec", terminal: "5958", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Arnovski Gozd", terminal: "5965", racks: 6 },
+            { system: "KolesCE", municipality: "Žalec", name: "Vrbje", terminal: "5968", racks: 6 },
+            
+            // GO2GO sistem
+            { system: "GO2GO", municipality: "Gorizia", name: "Stazione FS – piazzale Martiri della Libertà d'Italia", terminal: "5931", racks: 2 },
+            { system: "GO2GO", municipality: "Gorizia", name: "Piazza della Vittoria", terminal: "5932", racks: 2 },
+            { system: "GO2GO", municipality: "Gorizia", name: "Università degli studi di Udine – via Armando Diaz", terminal: "5933", racks: 2 },
+            { system: "GO2GO", municipality: "Gorizia", name: "Comune", terminal: "5934", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - most", terminal: "5900", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - sever", terminal: "5901", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Bratov Hvalič", terminal: "5902", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna Dolina - zahod", terminal: "5903", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "OŠ Milojke Štrukelj", terminal: "5904", racks: 10 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - center", terminal: "5905", racks: 10 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kidričeva - jug", terminal: "5906", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Gradnikove brigade - jug", terminal: "59108", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Prvomajska ul. - Supernova", terminal: "59109", racks: 10 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Železniška postaja", terminal: "59110", racks: 12 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Hotel Sabotin", terminal: "59111", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Erjavčeva ulica - Športni park", terminal: "59112", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Kajak center", terminal: "59113", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Solkan - Ul. Milojke Štrukelj", terminal: "59114", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - sever", terminal: "59115", racks: 8 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk KS", terminal: "59116", racks: 5 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Kromberk - Loke", terminal: "59117", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Pristava", terminal: "59118", racks: 6 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Rožna dolina - vzhod", terminal: "59119", racks: 7 },
+            { system: "GO2GO", municipality: "Nova Gorica", name: "Cankarjeva ul. - Šolski center", terminal: "59120", racks: 10 },
+            { system: "GO2GO", municipality: "Šempeter", name: "Šempeter - pošta", terminal: "5907", racks: 8 },
+            { system: "GO2GO", municipality: "Šempeter", name: "Šempeter - polje", terminal: "59301", racks: 8 },
+            
+            // ZaNaprej sistem
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Toplice", terminal: "5963", racks: 10 },
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Mestna ploščad", terminal: "5994", racks: 10 },
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Železniška postaja Zagorje", terminal: "5995", racks: 10 },
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Helfar", terminal: "5996", racks: 10 },
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Evropark", terminal: "5997", racks: 10 },
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Kisovec", terminal: "5998", racks: 10 },
+            { system: "ZaNaprej", municipality: "Zagorje ob Savi", name: "Izlake", terminal: "5999", racks: 10 },
+            
+            // Ljubljana sistem
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Hotel Lev - Equinox", terminal: "87001", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "uHotel - Equinox", terminal: "87002", racks: 5 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Zavarovalnica Triglav - Verovškova cesta", terminal: "87003", racks: 10 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "Triglav Lab - Dunajska cesta", terminal: "87004", racks: 10 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "P+R Barje", terminal: "87005", racks: 8 },
+            { system: "Ljubljana", municipality: "Ljubljana", name: "P+R Dolgi most", terminal: "87006", racks: 8 },
+            {
