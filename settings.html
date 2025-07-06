@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOMAGO bikes - Sistemske nastavitve</title>
+    <title>NOMAGO bikes - Nastavitve</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Navigacijski sistem -->
+    <script src="navigation.js"></script>
+    
     <style>
         :root {
             --primary-blue: #004899;
@@ -23,6 +27,7 @@
             --warning-color: #ffc107;
             --error-color: #dc3545;
             --border-color: #e0e0e0;
+            --shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .dark-mode {
@@ -33,6 +38,7 @@
             --nav-bg: #333333;
             --nav-text: #ffffff;
             --border-color: #333333;
+            --light-blue: #2c3e50;
         }
 
         body { 
@@ -73,6 +79,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .theme-toggle {
@@ -89,6 +98,53 @@
 
         .theme-toggle:hover {
             opacity: 0.8;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        .chat-btn {
+            background-color: var(--secondary-yellow);
+            color: var(--text-dark);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+
+        .chat-btn:hover {
+            background-color: #e0a800;
+        }
+
+        .chat-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         .nav { 
@@ -140,7 +196,7 @@
             padding: 20px; 
             border-radius: 8px; 
             margin-bottom: 20px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
         }
 
@@ -274,21 +330,6 @@
         }
 
         .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-        }
-
-        .logout-btn:hover {
             background-color: #c82333;
         }
 
@@ -480,6 +521,21 @@
             margin-top: 10px;
         }
 
+        .access-warning {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #721c24;
+            font-size: 0.9rem;
+        }
+
+        .dark-mode .access-warning {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
         h2, h3 {
             color: var(--primary-blue);
         }
@@ -488,36 +544,119 @@
             color: var(--secondary-yellow);
         }
 
+        /* MOBILNI RESPONSIVE STILI */
         @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+            
+            .logo-left, .logo-center {
+                height: 35px;
+            }
+            
+            .logo-center {
+                left: 15px;
+                transform: none;
+                position: absolute;
+                top: 50%;
+                margin-top: -17.5px;
+            }
+            
+            /* POENOSTAVI USER INFO - samo ime */
+            .user-info {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 11px;
+                max-width: 100px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            /* SKRIJ CHAT IN LOGOUT GUMBE NA MAJHNIH ZASLONIH */
+            .user-info .chat-btn,
+            .user-info .logout-btn {
+                display: none;
+            }
+            
+            /* THEME TOGGLE SKRIJ */
+            .theme-toggle {
+                display: none;
+            }
+            
+            /* LOGOUT FUNKCIONALNOST V MENU */
+            .menu a:last-child {
+                background-color: #dc3545 !important;
+            }
+            
             .container {
                 padding: 10px;
             }
-            .header {
-                padding: 15px;
-            }
-            .logo-left, .logo-center {
-                height: 40px;
-            }
-            .user-info {
-                right: 60px;
-                font-size: 14px;
-                max-width: 150px;
-            }
+            
             .menu a {
                 padding: 8px 5px;
-                font-size: 14px;
+                font-size: 12px;
             }
+            
             .settings-grid {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
+            
             .system-stats {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
+            
             .button-group {
                 flex-direction: column;
             }
+            
             .button-group button {
                 width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .settings-section {
+                padding: 15px;
+            }
+            
+            .settings-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+            
+            .feature-toggle {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 15px 0;
+            }
+            
+            .toggle-switch {
+                margin-left: 0;
+                align-self: flex-end;
+            }
+            
+            .setting-card {
+                padding: 12px;
+            }
+            
+            .setting-card h4 {
+                font-size: 1rem;
+            }
+            
+            .setting-card p {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -526,261 +665,76 @@
     <div class="header">
         <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
-        <div class="user-info" id="userInfo">
-            <span id="userName"></span>
-            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
-        </div>
+        
+        <!-- Navigation.js bo avtomatsko napolnil user-info -->
+        <div class="user-info" id="userInfo"></div>
+        
         <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
     </div>
 
     <div class="nav"></div>
 
     <div class="container">
-        <div class="menu">
-            <a href="dashboard.html">🏠 Baza</a>
-            <a href="inspections.html">🔧 Pregledi</a>
-            <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
-            <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
-            <a href="settings.html" class="active">⚙️ Nastavitve</a>
-            <a href="#" onclick="logout()">🚪 Odjavi se</a>
+        <!-- Navigation.js bo avtomatsko napolnil menu -->
+        <div class="menu"></div>
+
+        <div class="content" id="mainContent">
+            <!-- Loading message -->
+            <div class="settings-section">
+                <h3>Nalaganje nastavitev...</h3>
+                <p>Preverjam dostop...</p>
+            </div>
         </div>
+    </div>
 
-        <div class="content">
-            <!-- Firebase Management Section -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <h3 class="section-title">🔥 Firebase upravljanje</h3>
-                    <div class="status-indicator status-connected" id="firebaseStatus">
-                        <span>🟢</span> Povezano
-                    </div>
-                </div>
-                
-                <div class="system-stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="userCount">5</div>
-                        <div class="stat-label">Uporabniki</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="dataSize">2.3 MB</div>
-                        <div class="stat-label">Velikost podatkov</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="lastBackup">Danes</div>
-                        <div class="stat-label">Zadnji backup</div>
-                    </div>
-                </div>
-
-                <div class="settings-grid">
-                    <div class="setting-card">
-                        <h4>🔄 Povezava s Firebase</h4>
-                        <p>Testira in preveri povezavo z Firebase bazo podatkov.</p>
-                        <div class="button-group">
-                            <button onclick="testFirebaseConnection()">Preveri povezavo</button>
-                            <button onclick="resetFirebaseConnection()" class="btn-warning">Ponovno poveži</button>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>🔧 Začetni podatki</h4>
-                        <p>Ustvari osnovne podatke in admin račun če še ne obstajajo.</p>
-                        <div class="button-group">
-                            <button onclick="initializeDatabase()" class="btn-success">Inicializiraj bazo</button>
-                            <button onclick="createAdminUser()" class="btn-secondary">Ustvari admin račun</button>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>💾 Backup & Restore</h4>
-                        <p>Naredi varnostno kopijo podatkov ali obnovi iz varnostne kopije.</p>
-                        <div class="button-group">
-                            <button onclick="backupDatabase()" class="btn-success">Naredi backup</button>
-                            <button onclick="restoreDatabase()" class="btn-warning">Obnovi backup</button>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>🧹 Čiščenje podatkov</h4>
-                        <p>Počisti stare podatke in optimiziraj podatkovno bazo.</p>
-                        <div class="button-group">
-                            <button onclick="cleanupOldData()" class="btn-warning">Počisti podatke</button>
-                            <button onclick="optimizeDatabase()" class="btn-secondary">Optimiziraj DB</button>
-                        </div>
-                    </div>
-                </div>
+    <!-- User Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+            <h3>Moj profil</h3>
+            <div class="form-group">
+                <label for="profileName">Ime:</label>
+                <input type="text" id="profileName" placeholder="Vaše ime">
             </div>
-
-            <!-- System Features Section -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <h3 class="section-title">🚀 Sistemske funkcionalnosti</h3>
-                    <div class="status-indicator status-connected">
-                        <span>⚡</span> Aktivno
-                    </div>
-                </div>
-                
-                <div class="feature-toggle">
-                    <div class="feature-info">
-                        <div class="feature-name">Uporabniški sistem</div>
-                        <div class="feature-description">Omogoči upravljanje uporabnikov in vlog</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="userSystemToggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div class="feature-toggle">
-                    <div class="feature-info">
-                        <div class="feature-name">Sistem obvestil</div>
-                        <div class="feature-description">Omogoči pošiljanje in upravljanje obvestil</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="notificationSystemToggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div class="feature-toggle">
-                    <div class="feature-info">
-                        <div class="feature-name">Pregledi ključavnic</div>
-                        <div class="feature-description">Omogoči funkcionalnost pregledov ključavnic</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="inspectionSystemToggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div class="feature-toggle">
-                    <div class="feature-info">
-                        <div class="feature-name">Statistike in poročila</div>
-                        <div class="feature-description">Omogoči generiranje statistik in poročil</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="statisticsSystemToggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <div class="feature-toggle">
-                    <div class="feature-info">
-                        <div class="feature-name">API dostop</div>
-                        <div class="feature-description">Omogoči API dostop za zunanje aplikacije</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="apiAccessToggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
+            <div class="form-group">
+                <label for="profileSurname">Priimek:</label>
+                <input type="text" id="profileSurname" placeholder="Vaš priimek">
             </div>
-
-            <!-- Application Configuration Section -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <h3 class="section-title">🔧 Konfiguracija aplikacije</h3>
-                </div>
-                
-                <div class="settings-grid">
-                    <div class="setting-card">
-                        <h4>🎨 Tema in izgled</h4>
-                        <div class="form-group">
-                            <label for="defaultTheme">Privzeta tema:</label>
-                            <select id="defaultTheme">
-                                <option value="light">Svetla</option>
-                                <option value="dark">Temna</option>
-                                <option value="auto">Avtomatsko</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="primaryColor">Glavna barva:</label>
-                            <input type="color" id="primaryColor" value="#004899">
-                        </div>
-                        <button onclick="updateThemeSettings()" class="btn-success">Posodobi nastavitve</button>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>📧 Email nastavitve</h4>
-                        <div class="form-group">
-                            <label for="smtpServer">SMTP strežnik:</label>
-                            <input type="text" id="smtpServer" placeholder="smtp.gmail.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="emailFrom">Pošiljatelj:</label>
-                            <input type="email" id="emailFrom" placeholder="noreply@nomago.si">
-                        </div>
-                        <button onclick="updateEmailSettings()" class="btn-success">Shrani nastavitve</button>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>🔐 Varnost</h4>
-                        <div class="form-group">
-                            <label for="sessionTimeout">Timeout seje (minute):</label>
-                            <input type="number" id="sessionTimeout" value="30" min="5" max="480">
-                        </div>
-                        <div class="form-group">
-                            <label for="maxLoginAttempts">Največ poskusov prijave:</label>
-                            <input type="number" id="maxLoginAttempts" value="5" min="3" max="10">
-                        </div>
-                        <button onclick="updateSecuritySettings()" class="btn-success">Posodobi varnost</button>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>📊 Sistem logov</h4>
-                        <p>Preglej sistemske loge in napake.</p>
-                        <div class="button-group">
-                            <button onclick="viewSystemLogs()" class="btn-secondary">Prikaži loge</button>
-                            <button onclick="clearLogs()" class="btn-warning">Počisti loge</button>
-                            <button onclick="downloadLogs()" class="btn-success">Prenesi loge</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="profileEmail">Email:</label>
+                <input type="email" id="profileEmail" placeholder="Vaš email">
             </div>
+            <div class="form-group">
+                <label for="profilePhone">Telefon:</label>
+                <input type="tel" id="profilePhone" placeholder="Vaša telefonska številka">
+            </div>
+            <div style="margin-top: 15px;">
+                <button onclick="saveProfile()" class="btn-success">Shrani profil</button>
+                <button onclick="closeProfileModal()" class="btn-secondary">Prekliči</button>
+            </div>
+        </div>
+    </div>
 
-            <!-- Maintenance Section -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <h3 class="section-title">🔧 Vzdrževanje sistema</h3>
-                    <div class="status-indicator status-connected">
-                        <span>✅</span> Sistem zdrav
-                    </div>
-                </div>
-                
-                <div class="settings-grid">
-                    <div class="setting-card">
-                        <h4>🚨 Režim vzdrževanja</h4>
-                        <p>Omogoči režim vzdrževanja za vse uporabnike razen adminov.</p>
-                        <div class="button-group">
-                            <button onclick="toggleMaintenanceMode()" id="maintenanceBtn" class="btn-warning">Omogoči vzdrževanje</button>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>🔄 Sistem posodobitve</h4>
-                        <p>Preveri in namesti posodobitve sistema.</p>
-                        <div class="button-group">
-                            <button onclick="checkForUpdates()" class="btn-secondary">Preveri posodobitve</button>
-                            <button onclick="installUpdates()" class="btn-success" disabled>Namesti posodobitve</button>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>📈 Sistemske statistike</h4>
-                        <p>Prikaži podrobne statistike o delovanju sistema.</p>
-                        <div class="button-group">
-                            <button onclick="generateSystemReport()" class="btn-success">Generiraj poročilo</button>
-                            <button onclick="exportSystemData()" class="btn-secondary">Izvozi podatke</button>
-                        </div>
-                    </div>
-                    
-                    <div class="setting-card">
-                        <h4>⚠️ Nevarno območje</h4>
-                        <p>Kritične operacije, ki lahko poškodujejo sistem.</p>
-                        <div class="button-group">
-                            <button onclick="resetAllSettings()" class="btn-danger">Ponastavi nastavitve</button>
-                            <button onclick="factoryReset()" class="btn-danger">Tovarniške nastavitve</button>
-                        </div>
-                    </div>
-                </div>
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePasswordModal()">&times;</span>
+            <h3>Sprememba gesla</h3>
+            <div class="form-group">
+                <label for="currentPassword">Trenutno geslo:</label>
+                <input type="password" id="currentPassword" placeholder="Trenutno geslo">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Novo geslo:</label>
+                <input type="password" id="newPassword" placeholder="Novo geslo">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Ponovite novo geslo:</label>
+                <input type="password" id="confirmPassword" placeholder="Ponovite novo geslo">
+            </div>
+            <div style="margin-top: 15px;">
+                <button onclick="changePassword()" class="btn-success">Spremeni geslo</button>
+                <button onclick="closePasswordModal()" class="btn-secondary">Prekliči</button>
             </div>
         </div>
     </div>
@@ -788,7 +742,7 @@
     <!-- Log Viewer Modal -->
     <div id="logModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" onclick="closeLogModal()">&times;</span>
             <h3>Sistemski logi</h3>
             <div class="log-viewer" id="logViewer">
                 Nalaganje logov...
@@ -801,14 +755,8 @@
     </div>
 
     <script>
-        // Mock Firebase functions
-        const mockFirebase = {
-            testConnection: () => Promise.resolve({ success: true, latency: 50 }),
-            initializeDatabase: () => Promise.resolve({ success: true, message: 'Baza inicializirana' }),
-            backupDatabase: () => Promise.resolve({ success: true, backupId: 'backup_123' })
-        };
-
-        // System settings
+        // Global variables
+        let currentUser = null;
         let systemSettings = {
             maintenanceMode: false,
             features: {
@@ -822,45 +770,513 @@
 
         // System logs
         let systemLogs = [
-            '[2025-07-05 14:30:25] INFO: System started successfully',
-            '[2025-07-05 14:30:26] INFO: Firebase connection established',
-            '[2025-07-05 14:32:15] INFO: User admin logged in',
-            '[2025-07-05 14:40:12] INFO: Database backup completed'
+            '[2025-07-06 14:30:25] INFO: System started successfully',
+            '[2025-07-06 14:30:26] INFO: Firebase connection established',
+            '[2025-07-06 14:32:15] INFO: User admin logged in',
+            '[2025-07-06 14:40:12] INFO: Database backup completed'
         ];
 
-        // Authentication check
+        // Check authentication and determine access level
         function checkAuth() {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
-                alert('Niste prijavljeni.');
+                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
                 window.location.href = 'index.html';
-                return null;
-            }
-            if (currentUser.vloga !== 'admin') {
-                alert('Nimate dovoljenj za nastavitve.');
-                window.location.href = 'dashboard.html';
                 return null;
             }
             return currentUser;
-        }
-
-        function logout() {
-            if (confirm('Ste prepričani, da se želite odjaviti?')) {
-                sessionStorage.removeItem('currentUser');
-                window.location.href = 'index.html';
-            }
         }
 
         function showNotification(message, type = 'info') {
             alert(message);
         }
 
-        // Firebase functions
+        // Load user-specific settings content
+        function loadUserSettings() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <!-- User Profile Section -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">👤 Moj profil</h3>
+                        <div class="status-indicator status-connected">
+                            <span>👤</span> Uporabnik
+                        </div>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h4>📝 Osebni podatki</h4>
+                            <p>Uredite svoje osebne podatke in kontaktne informacije.</p>
+                            <div class="button-group">
+                                <button onclick="editProfile()" class="btn-success">Uredi profil</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>🔐 Varnost</h4>
+                            <p>Spremenite geslo in upravljajte varnostne nastavitve.</p>
+                            <div class="button-group">
+                                <button onclick="changePasswordModal()" class="btn-warning">Spremeni geslo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Firebase Management Section (Admin only) -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">🔥 Firebase upravljanje</h3>
+                        <div class="status-indicator status-connected" id="firebaseStatus">
+                            <span>🟢</span> Povezano
+                        </div>
+                    </div>
+                    
+                    <div class="system-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="userCount">5</div>
+                            <div class="stat-label">Uporabniki</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="dataSize">2.3 MB</div>
+                            <div class="stat-label">Velikost podatkov</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="lastBackup">Danes</div>
+                            <div class="stat-label">Zadnji backup</div>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h4>🔄 Povezava s Firebase</h4>
+                            <p>Testira in preveri povezavo z Firebase bazo podatkov.</p>
+                            <div class="button-group">
+                                <button onclick="testFirebaseConnection()">Preveri povezavo</button>
+                                <button onclick="resetFirebaseConnection()" class="btn-warning">Ponovno poveži</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>🔧 Začetni podatki</h4>
+                            <p>Ustvari osnovne podatke in admin račun če še ne obstajajo.</p>
+                            <div class="button-group">
+                                <button onclick="initializeDatabase()" class="btn-success">Inicializiraj bazo</button>
+                                <button onclick="createAdminUser()" class="btn-secondary">Ustvari admin račun</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>💾 Backup & Restore</h4>
+                            <p>Naredi varnostno kopijo podatkov ali obnovi iz varnostne kopije.</p>
+                            <div class="button-group">
+                                <button onclick="backupDatabase()" class="btn-success">Naredi backup</button>
+                                <button onclick="restoreDatabase()" class="btn-warning">Obnovi backup</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>🧹 Čiščenje podatkov</h4>
+                            <p>Počisti stare podatke in optimiziraj podatkovno bazo.</p>
+                            <div class="button-group">
+                                <button onclick="cleanupOldData()" class="btn-warning">Počisti podatke</button>
+                                <button onclick="optimizeDatabase()" class="btn-secondary">Optimiziraj DB</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Features Section (Admin only) -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">🚀 Sistemske funkcionalnosti</h3>
+                        <div class="status-indicator status-connected">
+                            <span>⚡</span> Aktivno
+                        </div>
+                    </div>
+                    
+                    <div class="feature-toggle">
+                        <div class="feature-info">
+                            <div class="feature-name">Uporabniški sistem</div>
+                            <div class="feature-description">Omogoči upravljanje uporabnikov in vlog</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="userSystemToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="feature-toggle">
+                        <div class="feature-info">
+                            <div class="feature-name">Sistem obvestil</div>
+                            <div class="feature-description">Omogoči pošiljanje in upravljanje obvestil</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notificationSystemToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="feature-toggle">
+                        <div class="feature-info">
+                            <div class="feature-name">Pregledi ključavnic</div>
+                            <div class="feature-description">Omogoči funkcionalnost pregledov ključavnic</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="inspectionSystemToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="feature-toggle">
+                        <div class="feature-info">
+                            <div class="feature-name">Statistike in poročila</div>
+                            <div class="feature-description">Omogoči generiranje statistik in poročil</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="statisticsSystemToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="feature-toggle">
+                        <div class="feature-info">
+                            <div class="feature-name">API dostop</div>
+                            <div class="feature-description">Omogoči API dostop za zunanje aplikacije</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="apiAccessToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Application Configuration Section (Admin only) -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">🔧 Konfiguracija aplikacije</h3>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h4>🎨 Tema in izgled</h4>
+                            <div class="form-group">
+                                <label for="defaultTheme">Privzeta tema:</label>
+                                <select id="defaultTheme">
+                                    <option value="light">Svetla</option>
+                                    <option value="dark">Temna</option>
+                                    <option value="auto">Avtomatsko</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="primaryColor">Glavna barva:</label>
+                                <input type="color" id="primaryColor" value="#004899">
+                            </div>
+                            <button onclick="updateThemeSettings()" class="btn-success">Posodobi nastavitve</button>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>📧 Email nastavitve</h4>
+                            <div class="form-group">
+                                <label for="smtpServer">SMTP strežnik:</label>
+                                <input type="text" id="smtpServer" placeholder="smtp.gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="emailFrom">Pošiljatelj:</label>
+                                <input type="email" id="emailFrom" placeholder="noreply@nomago.si">
+                            </div>
+                            <button onclick="updateEmailSettings()" class="btn-success">Shrani nastavitve</button>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>🔐 Varnost</h4>
+                            <div class="form-group">
+                                <label for="sessionTimeout">Timeout seje (minute):</label>
+                                <input type="number" id="sessionTimeout" value="30" min="5" max="480">
+                            </div>
+                            <div class="form-group">
+                                <label for="maxLoginAttempts">Največ poskusov prijave:</label>
+                                <input type="number" id="maxLoginAttempts" value="5" min="3" max="10">
+                            </div>
+                            <button onclick="updateSecuritySettings()" class="btn-success">Posodobi varnost</button>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>📊 Sistem logov</h4>
+                            <p>Preglej sistemske loge in napake.</p>
+                            <div class="button-group">
+                                <button onclick="viewSystemLogs()" class="btn-secondary">Prikaži loge</button>
+                                <button onclick="clearLogs()" class="btn-warning">Počisti loge</button>
+                                <button onclick="downloadLogs()" class="btn-success">Prenesi loge</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maintenance Section (Admin only) -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">🔧 Vzdrževanje sistema</h3>
+                        <div class="status-indicator status-connected">
+                            <span>✅</span> Sistem zdrav
+                        </div>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h4>🚨 Režim vzdrževanja</h4>
+                            <p>Omogoči režim vzdrževanja za vse uporabnike razen adminov.</p>
+                            <div class="button-group">
+                                <button onclick="toggleMaintenanceMode()" id="maintenanceBtn" class="btn-warning">Omogoči vzdrževanje</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>🔄 Sistem posodobitve</h4>
+                            <p>Preveri in namesti posodobitve sistema.</p>
+                            <div class="button-group">
+                                <button onclick="checkForUpdates()" class="btn-secondary">Preveri posodobitve</button>
+                                <button onclick="installUpdates()" class="btn-success" disabled>Namesti posodobitve</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>📈 Sistemske statistike</h4>
+                            <p>Prikaži podrobne statistike o delovanju sistema.</p>
+                            <div class="button-group">
+                                <button onclick="generateSystemReport()" class="btn-success">Generiraj poročilo</button>
+                                <button onclick="exportSystemData()" class="btn-secondary">Izvozi podatke</button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>⚠️ Nevarno območje</h4>
+                            <p>Kritične operacije, ki lahko poškodujejo sistem.</p>
+                            <div class="button-group">
+                                <button onclick="resetAllSettings()" class="btn-danger">Ponastavi nastavitve</button>
+                                <button onclick="factoryReset()" class="btn-danger">Tovarniške nastavitve</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Preferences Section -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">🎨 Nastavitve vmesnika</h3>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h4>🌙 Tema</h4>
+                            <div class="form-group">
+                                <label for="userTheme">Izbrana tema:</label>
+                                <select id="userTheme">
+                                    <option value="light">Svetla</option>
+                                    <option value="dark">Temna</option>
+                                    <option value="auto">Avtomatsko</option>
+                                </select>
+                            </div>
+                            <button onclick="updateUserTheme()" class="btn-success">Shrani</button>
+                        </div>
+                        
+                        <div class="setting-card">
+                            <h4>🔔 Obvestila</h4>
+                            <div class="feature-toggle">
+                                <div class="feature-info">
+                                    <div class="feature-name">Email obvestila</div>
+                                    <div class="feature-description">Prejemaj obvestila na email</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="emailNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="feature-toggle">
+                                <div class="feature-info">
+                                    <div class="feature-name">Push obvestila</div>
+                                    <div class="feature-description">Prikaži obvestila v brskalniku</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="pushNotifications" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Access Info Section -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">🔑 Moj dostop</h3>
+                    </div>
+                    
+                    <div class="system-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${currentUser.vloga}</div>
+                            <div class="stat-label">Vloga</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${currentUser.accessibleSystems ? currentUser.accessibleSystems.length : 0}</div>
+                            <div class="stat-label">Sistemi</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 'Vse'}</div>
+                            <div class="stat-label">Lokacije</div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-card">
+                        <h4>🌐 Dostopni sistemi</h4>
+                        <p><strong>Sistemi:</strong> ${currentUser.accessibleSystems ? currentUser.accessibleSystems.join(', ') : 'Ni določeno'}</p>
+                        <p><strong>Lokacije:</strong> ${currentUser.accessibleLocations && currentUser.accessibleLocations.length > 0 ? 
+                            currentUser.accessibleLocations.map(loc => loc.terminal).join(', ') : 'Vse v dostopnih sistemih'}</p>
+                        <p><strong>Zadnja prijava:</strong> ${new Date().toLocaleDateString('sl-SI')}</p>
+                    </div>
+                </div>
+            `;
+
+            // Set current theme in selector
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (document.getElementById('defaultTheme')) {
+                document.getElementById('defaultTheme').value = currentTheme;
+            }
+
+            // Setup admin feature toggles
+            setupFeatureToggles();
+        }
+
+        // User profile functions
+        function editProfile() {
+            // Load current user data into modal
+            document.getElementById('profileName').value = currentUser.ime || '';
+            document.getElementById('profileSurname').value = currentUser.priimek || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.telefon || '';
+            
+            document.getElementById('profileModal').style.display = 'block';
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('profileName').value.trim();
+            const surname = document.getElementById('profileSurname').value.trim();
+            const email = document.getElementById('profileEmail').value.trim();
+            const phone = document.getElementById('profilePhone').value.trim();
+
+            if (!name || !surname || !email) {
+                alert('Prosim izpolnite obvezna polja (ime, priimek, email).');
+                return;
+            }
+
+            // Update current user data
+            currentUser.ime = name;
+            currentUser.priimek = surname;
+            currentUser.email = email;
+            currentUser.telefon = phone;
+
+            // Save to session storage
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Here you would normally save to Firebase
+            showNotification('Profil je bil uspešno posodobljen.', 'success');
+            closeProfileModal();
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function changePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Prosim izpolnite vsa polja.');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Novi gesli se ne ujemata.');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('Novo geslo mora imeti vsaj 6 znakov.');
+                return;
+            }
+
+            // Here you would normally verify current password and update in Firebase
+            showNotification('Geslo je bilo uspešno spremenjeno.', 'success');
+            closePasswordModal();
+            
+            // Clear form
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function updateUserTheme() {
+            const selectedTheme = document.getElementById('userTheme').value;
+            localStorage.setItem('theme', selectedTheme);
+            
+            // Apply theme immediately
+            document.body.classList.remove('dark-mode');
+            if (selectedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').textContent = '☀️';
+            } else {
+                document.getElementById('themeToggle').textContent = '🌙';
+            }
+            
+            showNotification('Tema je bila uspešno posodobljena.', 'success');
+        }
+
+        function loadUserNotificationPreferences() {
+            // Load saved preferences from localStorage
+            const emailPref = localStorage.getItem('emailNotifications') !== 'false';
+            const pushPref = localStorage.getItem('pushNotifications') !== 'false';
+            
+            if (document.getElementById('emailNotifications')) {
+                document.getElementById('emailNotifications').checked = emailPref;
+            }
+            if (document.getElementById('pushNotifications')) {
+                document.getElementById('pushNotifications').checked = pushPref;
+            }
+            
+            // Add event listeners
+            if (document.getElementById('emailNotifications')) {
+                document.getElementById('emailNotifications').addEventListener('change', function(e) {
+                    localStorage.setItem('emailNotifications', e.target.checked);
+                    showNotification(`Email obvestila ${e.target.checked ? 'omogočena' : 'onemogočena'}`, 'info');
+                });
+            }
+            
+            if (document.getElementById('pushNotifications')) {
+                document.getElementById('pushNotifications').addEventListener('change', function(e) {
+                    localStorage.setItem('pushNotifications', e.target.checked);
+                    showNotification(`Push obvestila ${e.target.checked ? 'omogočena' : 'onemogočena'}`, 'info');
+                });
+            }
+        }
+
+        // Admin-only functions
         async function testFirebaseConnection() {
             showNotification('Testiram povezavo...', 'info');
             try {
-                const result = await mockFirebase.testConnection();
-                showNotification('Povezava uspešna!', 'success');
+                // Mock Firebase test
+                setTimeout(() => {
+                    showNotification('Povezava uspešna! Latenca: 45ms', 'success');
+                }, 1000);
             } catch (error) {
                 showNotification('Napaka pri povezavi', 'error');
             }
@@ -955,6 +1371,8 @@
 
         function toggleMaintenanceMode() {
             const btn = document.getElementById('maintenanceBtn');
+            if (!btn) return;
+            
             systemSettings.maintenanceMode = !systemSettings.maintenanceMode;
             
             if (systemSettings.maintenanceMode) {
@@ -982,7 +1400,12 @@
         function generateSystemReport() {
             showNotification('Generiram poročilo...', 'info');
             setTimeout(() => {
-                const data = JSON.stringify({ timestamp: new Date(), system: 'healthy' }, null, 2);
+                const data = JSON.stringify({ 
+                    timestamp: new Date(), 
+                    system: 'healthy',
+                    users: 5,
+                    dataSize: '2.3 MB'
+                }, null, 2);
                 const blob = new Blob([data], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1019,7 +1442,7 @@
             }
         }
 
-        // Feature toggles
+        // Feature toggles for admin
         function setupFeatureToggles() {
             const toggles = {
                 userSystemToggle: 'userSystem',
@@ -1031,28 +1454,47 @@
 
             Object.entries(toggles).forEach(([toggleId, feature]) => {
                 const toggle = document.getElementById(toggleId);
-                toggle.checked = systemSettings.features[feature];
-                toggle.addEventListener('change', (e) => {
-                    systemSettings.features[feature] = e.target.checked;
-                    showNotification(`${feature} ${e.target.checked ? 'omogočen' : 'onemogočen'}`, 'info');
-                });
+                if (toggle) {
+                    toggle.checked = systemSettings.features[feature];
+                    toggle.addEventListener('change', (e) => {
+                        systemSettings.features[feature] = e.target.checked;
+                        showNotification(`${feature} ${e.target.checked ? 'omogočen' : 'onemogočen'}`, 'info');
+                    });
+                }
             });
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                sessionStorage.removeItem('dismissedNotifications');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Chat functionality
+        function openChat() {
+            window.open('chat.html', '_blank');
         }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            const currentUser = checkAuth();
-            if (currentUser) {
-                document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
-                
-                // Show admin navigation
-                document.getElementById('usersMenuLink').style.display = 'inline-block';
-                document.getElementById('notificationsMenuLink').style.display = 'inline-block';
-                
-                setupFeatureToggles();
+            // Check authentication first
+            const user = checkAuth();
+            if (!user) return;
+            
+            // Initialize navigation system
+            window.initNavigation('settings');
+            
+            // Load appropriate content based on user role
+            if (user.vloga === 'admin') {
+                loadAdminSettings();
+            } else {
+                loadUserSettings();
             }
 
-            // Theme toggle
+            // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
             const currentTheme = localStorage.getItem('theme');
             if (currentTheme === 'dark') {
@@ -1075,14 +1517,72 @@
             });
 
             // Modal close functionality
-            document.querySelector('.close').onclick = closeLogModal;
             window.onclick = function(event) {
-                const modal = document.getElementById('logModal');
-                if (event.target == modal) {
-                    closeLogModal();
-                }
+                const modals = ['profileModal', 'passwordModal', 'logModal'];
+                modals.forEach(modalId => {
+                    const modal = document.getElementById(modalId);
+                    if (event.target == modal) {
+                        modal.style.display = 'none';
+                    }
+                });
             };
+
+            console.log('Mobile-optimized settings page initialized');
+            console.log('User role:', user.vloga);
         });
+
+        // Global function assignments
+        window.logout = logout;
+        window.openChat = openChat;
+        window.editProfile = editProfile;
+        window.saveProfile = saveProfile;
+        window.closeProfileModal = closeProfileModal;
+        window.changePasswordModal = changePasswordModal;
+        window.changePassword = changePassword;
+        window.closePasswordModal = closePasswordModal;
+        window.updateUserTheme = updateUserTheme;
+        window.testFirebaseConnection = testFirebaseConnection;
+        window.resetFirebaseConnection = resetFirebaseConnection;
+        window.initializeDatabase = initializeDatabase;
+        window.createAdminUser = createAdminUser;
+        window.backupDatabase = backupDatabase;
+        window.restoreDatabase = restoreDatabase;
+        window.cleanupOldData = cleanupOldData;
+        window.optimizeDatabase = optimizeDatabase;
+        window.updateThemeSettings = updateThemeSettings;
+        window.updateEmailSettings = updateEmailSettings;
+        window.updateSecuritySettings = updateSecuritySettings;
+        window.viewSystemLogs = viewSystemLogs;
+        window.refreshLogs = refreshLogs;
+        window.clearLogs = clearLogs;
+        window.downloadLogs = downloadLogs;
+        window.closeLogModal = closeLogModal;
+        window.toggleMaintenanceMode = toggleMaintenanceMode;
+        window.checkForUpdates = checkForUpdates;
+        window.installUpdates = installUpdates;
+        window.generateSystemReport = generateSystemReport;
+        window.exportSystemData = exportSystemData;
+        window.resetAllSettings = resetAllSettings;
+        window.factoryReset = factoryReset;
     </script>
 </body>
 </html>
+
+        // Load admin-specific settings content
+        function loadAdminSettings() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <!-- User Profile Section (for admin too) -->
+                <div class="settings-section">
+                    <div class="settings-header">
+                        <h3 class="section-title">👤 Moj profil</h3>
+                        <div class="status-indicator status-connected">
+                            <span>👑</span> Administrator
+                        </div>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <h4>📝 Osebni podatki</h4>
+                            <p>Uredite svoje osebne podatke in kontaktne informacije.</p>
+                            
