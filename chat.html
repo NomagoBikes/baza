@@ -645,9 +645,42 @@
                 width: 95%;
             }
         }
+
+        /* Connection status indicator */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.connected {
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+        }
+
+        .connection-status.connecting {
+            background: rgba(255, 193, 7, 0.9);
+            color: #333;
+        }
     </style>
 </head>
 <body>
+    <!-- Connection Status Indicator -->
+    <div class="connection-status connecting" id="connectionStatus">
+        🔄 Povezovanje...
+    </div>
+
     <div class="header">
         <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
@@ -730,6 +763,30 @@
                 </select>
             </div>
             <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('newChatModal')">Prekliči</button>
+                <button type="button" class="btn btn-primary" onclick="createNewChat()">Začni pogovor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Group Modal -->
+    <div id="newGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">👥 Nova skupina</h4>
+                <button class="close" onclick="closeModal('newGroupModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ime skupine:</label>
+                <input type="text" class="form-input" id="groupName" placeholder="Vnesite ime skupine">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Izberite člane:</label>
+                <div id="usersList">
+                    Nalaganje uporabnikov...
+                </div>
+            </div>
+            <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('newGroupModal')">Prekliči</button>
                 <button type="button" class="btn btn-primary" onclick="createNewGroup()">Ustvari skupino</button>
             </div>
@@ -779,11 +836,14 @@
             getDocs, 
             deleteDoc,
             updateDoc,
+            addDoc,
             serverTimestamp,
             onSnapshot,
             query,
             orderBy,
-            where
+            where,
+            writeBatch,
+            runTransaction
         } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -809,14 +869,20 @@
             getDocs,
             deleteDoc,
             updateDoc,
+            addDoc,
             serverTimestamp,
             onSnapshot,
             query,
             orderBy,
-            where
+            where,
+            writeBatch,
+            runTransaction
         };
 
-        console.log("Firebase initialized in chat");
+        console.log("Firebase initialized with new structure support");
+        
+        // Update connection status
+        updateConnectionStatus('connected');
     </script>
 
     <script>
@@ -828,6 +894,55 @@
         let activeChat = null;
         let messagesListener = null;
         let chatsListener = null;
+        let connectionRetries = 0;
+        const MAX_RETRIES = 3;
+
+        // Connection status management
+        function updateConnectionStatus(status) {
+            const statusElement = document.getElementById('connectionStatus');
+            
+            switch(status) {
+                case 'connected':
+                    statusElement.className = 'connection-status connected';
+                    statusElement.textContent = '✅ Povezano';
+                    connectionRetries = 0;
+                    setTimeout(() => {
+                        statusElement.style.opacity = '0';
+                    }, 3000);
+                    break;
+                case 'disconnected':
+                    statusElement.className = 'connection-status disconnected';
+                    statusElement.textContent = '❌ Ni povezave';
+                    statusElement.style.opacity = '1';
+                    break;
+                case 'connecting':
+                    statusElement.className = 'connection-status connecting';
+                    statusElement.textContent = '🔄 Povezovanje...';
+                    statusElement.style.opacity = '1';
+                    break;
+            }
+        }
+
+        // Error handling with retry logic
+        async function withRetry(operation, context = '') {
+            for (let i = 0; i <= MAX_RETRIES; i++) {
+                try {
+                    if (i > 0) {
+                        updateConnectionStatus('connecting');
+                        await new Promise(resolve => setTimeout(resolve, 1000 * i)); // Exponential backoff
+                    }
+                    const result = await operation();
+                    if (i > 0) updateConnectionStatus('connected');
+                    return result;
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed for ${context}:`, error);
+                    if (i === MAX_RETRIES) {
+                        updateConnectionStatus('disconnected');
+                        throw error;
+                    }
+                }
+            }
+        }
 
         // Check authentication
         function checkAuth() {
@@ -870,9 +985,11 @@
         async function loadUsers() {
             try {
                 console.log('Loading users from Firebase...');
-                const usersDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
-                );
+                const usersDoc = await withRetry(async () => {
+                    return await window.firebaseFunctions.getDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'system', 'users')
+                    );
+                }, 'loadUsers');
                 
                 if (usersDoc.exists()) {
                     const userData = usersDoc.data().data || [];
@@ -882,13 +999,11 @@
                     updateUserSelects();
                 } else {
                     console.log('No users document found');
-                    // Show error in UI
                     document.getElementById('userSelect').innerHTML = '<option value="">Ni uporabnikov</option>';
                     document.getElementById('usersList').innerHTML = 'Ni uporabnikov v sistemu.';
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
-                // Show error in UI
                 document.getElementById('userSelect').innerHTML = '<option value="">Napaka pri nalaganju</option>';
                 document.getElementById('usersList').innerHTML = 'Napaka pri nalaganju uporabnikov.';
             }
@@ -943,31 +1058,46 @@
             });
         }
 
-        // Load chats
+        // Load chats with new structure
         async function loadChats() {
             try {
-                // Set up real-time listener for chats
+                console.log('Loading chats with new structure...');
+                
+                // Clean up previous listener
                 if (chatsListener) {
                     chatsListener();
                 }
 
+                // Listen to chats collection directly
                 chatsListener = window.firebaseFunctions.onSnapshot(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                    (doc) => {
-                        if (doc.exists()) {
-                            const allChats = doc.data().data || [];
-                            // Filter chats where current user is a participant
-                            chats = allChats.filter(chat => 
-                                chat.participants.includes(currentUser.id)
-                            );
-                        } else {
-                            chats = [];
-                        }
+                    window.firebaseFunctions.collection(window.firebaseDb, 'chats'),
+                    (snapshot) => {
+                        chats = [];
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (data.participants && data.participants.includes(currentUser.id)) {
+                                chats.push({
+                                    id: doc.id,
+                                    ...data
+                                });
+                            }
+                        });
+                        console.log('Loaded chats:', chats.length);
                         updateChatList();
+                    },
+                    (error) => {
+                        console.error('Error in chats listener:', error);
+                        updateConnectionStatus('disconnected');
+                        
+                        // Retry connection after delay
+                        setTimeout(() => {
+                            loadChats();
+                        }, 5000);
                     }
                 );
             } catch (error) {
                 console.error('Error loading chats:', error);
+                updateConnectionStatus('disconnected');
             }
         }
 
@@ -988,8 +1118,8 @@
 
             // Sort chats by last message time
             const sortedChats = [...chats].sort((a, b) => {
-                const aTime = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
-                const bTime = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+                const aTime = a.lastMessageTime ? a.lastMessageTime.toDate() : new Date(0);
+                const bTime = b.lastMessageTime ? b.lastMessageTime.toDate() : new Date(0);
                 return bTime - aTime;
             });
 
@@ -998,7 +1128,7 @@
                 const isActive = activeChat && activeChat.id === chat.id;
                 const chatName = getChatName(chat);
                 const lastMessage = chat.lastMessage || 'Ni sporočil';
-                const lastTime = chat.lastMessageTime ? formatTime(new Date(chat.lastMessageTime)) : '';
+                const lastTime = chat.lastMessageTime ? formatTime(chat.lastMessageTime.toDate()) : '';
                 const unreadCount = getUnreadCount(chat);
                 
                 html += `
@@ -1029,7 +1159,6 @@
                 if (otherUser) {
                     return `${otherUser.ime} ${otherUser.priimek}`;
                 } else {
-                    // Try to find user in current user (in case it's self-reference)
                     if (otherUserId === currentUser.id) {
                         return `${currentUser.ime} ${currentUser.priimek} (Vi)`;
                     }
@@ -1040,8 +1169,6 @@
 
         // Get user online status (placeholder)
         function getUserOnlineStatus(chat) {
-            // For now, show offline indicator
-            // In real implementation, you'd track user online status
             return '<span class="offline-indicator"></span>';
         }
 
@@ -1050,7 +1177,7 @@
             const lastReadTime = localStorage.getItem(`lastRead_${chat.id}_${currentUser.id}`) || '0';
             return messages.filter(msg => 
                 msg.chatId === chat.id &&
-                new Date(msg.timestamp) > new Date(parseInt(lastReadTime)) &&
+                msg.timestamp && msg.timestamp.toDate() > new Date(parseInt(lastReadTime)) &&
                 msg.senderId !== currentUser.id
             ).length;
         }
@@ -1102,30 +1229,43 @@
             }
         }
 
-        // Load messages for chat
+        // Load messages with new structure
         function loadMessages(chatId) {
             try {
+                console.log('Loading messages for chat:', chatId);
+                
                 // Clean up previous listener
                 if (messagesListener) {
                     messagesListener();
                 }
 
-                // Set up real-time listener for messages
-                messagesListener = window.firebaseFunctions.onSnapshot(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'messages'),
-                    (doc) => {
-                        if (doc.exists()) {
-                            const allMessages = doc.data().data || [];
-                            messages = allMessages.filter(msg => msg.chatId === chatId);
-                            messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                        } else {
-                            messages = [];
-                        }
+                // Listen to messages collection with query
+                const q = window.firebaseFunctions.query(
+                    window.firebaseFunctions.collection(window.firebaseDb, 'messages'),
+                    window.firebaseFunctions.where('chatId', '==', chatId),
+                    window.firebaseFunctions.orderBy('timestamp', 'asc')
+                );
+
+                messagesListener = window.firebaseFunctions.onSnapshot(q, 
+                    (snapshot) => {
+                        messages = [];
+                        snapshot.forEach(doc => {
+                            messages.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+                        console.log('Loaded messages:', messages.length);
                         displayMessages();
+                    },
+                    (error) => {
+                        console.error('Error in messages listener:', error);
+                        updateConnectionStatus('disconnected');
                     }
                 );
             } catch (error) {
                 console.error('Error loading messages:', error);
+                updateConnectionStatus('disconnected');
             }
         }
 
@@ -1148,8 +1288,8 @@
             messages.forEach(message => {
                 const isOwn = message.senderId === currentUser.id;
                 const sender = allUsers.find(user => user.id === message.senderId) || currentUser;
-                const senderName = message.senderId === currentUser.id ? 'Vi' : `${sender.ime} ${sender.priimek}`;
-                const time = formatTime(new Date(message.timestamp));
+                const senderName = message.senderId === currentUser.id ? 'Vi' : (message.senderName || `${sender.ime} ${sender.priimek}`);
+                const time = formatTime(message.timestamp ? message.timestamp.toDate() : new Date());
 
                 html += `
                     <div class="message ${isOwn ? 'own' : ''}">
@@ -1190,38 +1330,38 @@
             return div.innerHTML;
         }
 
-        // Send message
+        // Send message with new structure
         async function sendMessage(text) {
             if (!activeChat || !text.trim()) return;
 
             try {
-                // Load current messages
-                const messagesDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'messages')
-                );
+                console.log('Sending message to chat:', activeChat.id);
                 
-                const currentMessages = messagesDoc.exists() ? messagesDoc.data().data || [] : [];
-                
-                // Create new message
-                const newMessage = {
-                    id: Date.now().toString(),
-                    chatId: activeChat.id,
-                    senderId: currentUser.id,
-                    text: text.trim(),
-                    timestamp: new Date().toISOString()
-                };
-
-                // Add to messages array
-                const updatedMessages = [...currentMessages, newMessage];
-
-                // Save messages
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'messages'),
-                    { data: updatedMessages }
-                );
+                // Add message to messages collection
+                await withRetry(async () => {
+                    return await window.firebaseFunctions.addDoc(
+                        window.firebaseFunctions.collection(window.firebaseDb, 'messages'),
+                        {
+                            chatId: activeChat.id,
+                            senderId: currentUser.id,
+                            senderName: `${currentUser.ime} ${currentUser.priimek}`,
+                            text: text.trim(),
+                            timestamp: window.firebaseFunctions.serverTimestamp(),
+                            type: 'text'
+                        }
+                    );
+                }, 'sendMessage');
 
                 // Update chat with last message info
-                await updateChatLastMessage(activeChat.id, text.trim());
+                await withRetry(async () => {
+                    return await window.firebaseFunctions.updateDoc(
+                        window.firebaseFunctions.doc(window.firebaseDb, 'chats', activeChat.id),
+                        {
+                            lastMessage: text.trim(),
+                            lastMessageTime: window.firebaseFunctions.serverTimestamp()
+                        }
+                    );
+                }, 'updateChatLastMessage');
 
                 // Clear input
                 document.getElementById('messageInput').value = '';
@@ -1229,37 +1369,12 @@
 
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Napaka pri pošiljanju sporočila.');
+                alert('Napaka pri pošiljanju sporočila. Poskusite znova.');
+                updateConnectionStatus('disconnected');
             }
         }
 
-        // Update chat last message
-        async function updateChatLastMessage(chatId, messageText) {
-            try {
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
-                
-                if (chatsDoc.exists()) {
-                    const currentChats = chatsDoc.data().data || [];
-                    const chatIndex = currentChats.findIndex(chat => chat.id === chatId);
-                    
-                    if (chatIndex !== -1) {
-                        currentChats[chatIndex].lastMessage = messageText;
-                        currentChats[chatIndex].lastMessageTime = new Date().toISOString();
-                        
-                        await window.firebaseFunctions.setDoc(
-                            window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                            { data: currentChats }
-                        );
-                    }
-                }
-            } catch (error) {
-                console.error('Error updating chat last message:', error);
-            }
-        }
-
-        // Create new chat
+        // Create new chat with new structure
         async function createNewChat() {
             const selectedUserId = document.getElementById('userSelect').value;
             if (!selectedUserId) {
@@ -1268,58 +1383,67 @@
             }
 
             try {
-                // Check if chat already exists
-                const existingChat = chats.find(chat => 
-                    chat.type === 'direct' && 
-                    chat.participants.includes(selectedUserId) && 
-                    chat.participants.includes(currentUser.id)
-                );
-
-                if (existingChat) {
-                    selectChat(existingChat.id);
-                    closeModal('newChatModal');
-                    return;
-                }
-
-                // Load current chats
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
+                console.log('Creating new chat with user:', selectedUserId);
                 
-                const currentChats = chatsDoc.exists() ? chatsDoc.data().data || [] : [];
-                
-                // Create new chat
-                const newChat = {
-                    id: Date.now().toString(),
-                    type: 'direct',
-                    participants: [currentUser.id, selectedUserId],
-                    createdAt: new Date().toISOString(),
-                    createdBy: currentUser.id
-                };
+                // Check if direct chat already exists
+                const result = await withRetry(async () => {
+                    return await window.firebaseFunctions.runTransaction(window.firebaseDb, async (transaction) => {
+                        // Query for existing direct chats with current user
+                        const q = window.firebaseFunctions.query(
+                            window.firebaseFunctions.collection(window.firebaseDb, 'chats'),
+                            window.firebaseFunctions.where('type', '==', 'direct'),
+                            window.firebaseFunctions.where('participants', 'array-contains', currentUser.id)
+                        );
 
-                // Add to chats array
-                const updatedChats = [...currentChats, newChat];
+                        const snapshot = await window.firebaseFunctions.getDocs(q);
+                        let existingChat = null;
+                        
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (data.participants.includes(selectedUserId) && data.participants.length === 2) {
+                                existingChat = { id: doc.id, ...data };
+                            }
+                        });
 
-                // Save chats
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                    { data: updatedChats }
-                );
+                        if (existingChat) {
+                            return { id: existingChat.id, existed: true };
+                        }
+
+                        // Create new chat
+                        const chatRef = window.firebaseFunctions.doc(window.firebaseFunctions.collection(window.firebaseDb, 'chats'));
+                        transaction.set(chatRef, {
+                            type: 'direct',
+                            participants: [currentUser.id, selectedUserId],
+                            createdAt: window.firebaseFunctions.serverTimestamp(),
+                            createdBy: currentUser.id,
+                            lastMessage: '',
+                            lastMessageTime: null
+                        });
+
+                        return { id: chatRef.id, existed: false };
+                    });
+                }, 'createNewChat');
 
                 closeModal('newChatModal');
                 
-                // Auto-select the new chat
+                // Auto-select the chat
                 setTimeout(() => {
-                    selectChat(newChat.id);
+                    selectChat(result.id);
                 }, 500);
+
+                if (result.existed) {
+                    console.log('Using existing chat:', result.id);
+                } else {
+                    console.log('Created new chat:', result.id);
+                }
 
             } catch (error) {
                 console.error('Error creating chat:', error);
-                alert('Napaka pri ustvarjanju pogovora.');
+                alert('Napaka pri ustvarjanju pogovora. Poskusite znova.');
             }
         }
 
-        // Create new group
+        // Create new group with new structure
         async function createNewGroup() {
             const groupName = document.getElementById('groupName').value.trim();
             const selectedUsers = Array.from(document.querySelectorAll('#usersList input:checked')).map(cb => cb.value);
@@ -1335,31 +1459,23 @@
             }
 
             try {
-                // Load current chats
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
-                
-                const currentChats = chatsDoc.exists() ? chatsDoc.data().data || [] : [];
+                console.log('Creating new group:', groupName);
                 
                 // Create new group
-                const newGroup = {
-                    id: Date.now().toString(),
-                    type: 'group',
-                    name: groupName,
-                    participants: [currentUser.id, ...selectedUsers],
-                    createdAt: new Date().toISOString(),
-                    createdBy: currentUser.id
-                };
-
-                // Add to chats array
-                const updatedChats = [...currentChats, newGroup];
-
-                // Save chats
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                    { data: updatedChats }
-                );
+                const docRef = await withRetry(async () => {
+                    return await window.firebaseFunctions.addDoc(
+                        window.firebaseFunctions.collection(window.firebaseDb, 'chats'),
+                        {
+                            type: 'group',
+                            name: groupName,
+                            participants: [currentUser.id, ...selectedUsers],
+                            createdAt: window.firebaseFunctions.serverTimestamp(),
+                            createdBy: currentUser.id,
+                            lastMessage: '',
+                            lastMessageTime: null
+                        }
+                    );
+                }, 'createNewGroup');
 
                 closeModal('newGroupModal');
                 
@@ -1369,12 +1485,14 @@
                 
                 // Auto-select the new group
                 setTimeout(() => {
-                    selectChat(newGroup.id);
+                    selectChat(docRef.id);
                 }, 500);
+
+                console.log('Created new group:', docRef.id);
 
             } catch (error) {
                 console.error('Error creating group:', error);
-                alert('Napaka pri ustvarjanju skupine.');
+                alert('Napaka pri ustvarjanju skupine. Poskusite znova.');
             }
         }
 
@@ -1443,27 +1561,22 @@
             if (!confirm('Ste prepričani, da želite odstraniti tega člana?')) return;
 
             try {
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
-                
-                if (chatsDoc.exists()) {
-                    const currentChats = chatsDoc.data().data || [];
-                    const chatIndex = currentChats.findIndex(chat => chat.id === activeChat.id);
+                await withRetry(async () => {
+                    const chatRef = window.firebaseFunctions.doc(window.firebaseDb, 'chats', activeChat.id);
+                    const newParticipants = activeChat.participants.filter(id => id !== userId);
                     
-                    if (chatIndex !== -1) {
-                        currentChats[chatIndex].participants = currentChats[chatIndex].participants.filter(id => id !== userId);
-                        
-                        await window.firebaseFunctions.setDoc(
-                            window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                            { data: currentChats }
-                        );
+                    await window.firebaseFunctions.updateDoc(chatRef, {
+                        participants: newParticipants
+                    });
+                    
+                    // Update local data
+                    activeChat.participants = newParticipants;
+                }, 'removeMember');
 
-                        // Reload group members
-                        loadGroupMembers();
-                        loadAddableMembers();
-                    }
-                }
+                // Reload group members
+                loadGroupMembers();
+                loadAddableMembers();
+
             } catch (error) {
                 console.error('Error removing member:', error);
                 alert('Napaka pri odstranjevanju člana.');
@@ -1481,26 +1594,21 @@
             }
 
             try {
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
-                
-                if (chatsDoc.exists()) {
-                    const currentChats = chatsDoc.data().data || [];
-                    const chatIndex = currentChats.findIndex(chat => chat.id === activeChat.id);
+                await withRetry(async () => {
+                    const chatRef = window.firebaseFunctions.doc(window.firebaseDb, 'chats', activeChat.id);
+                    const updateData = {
+                        name: newGroupName
+                    };
                     
-                    if (chatIndex !== -1) {
-                        currentChats[chatIndex].name = newGroupName;
-                        currentChats[chatIndex].participants = [...currentChats[chatIndex].participants, ...newMembers];
-                        
-                        await window.firebaseFunctions.setDoc(
-                            window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                            { data: currentChats }
-                        );
-
-                        closeModal('groupSettingsModal');
+                    if (newMembers.length > 0) {
+                        updateData.participants = [...activeChat.participants, ...newMembers];
                     }
-                }
+                    
+                    await window.firebaseFunctions.updateDoc(chatRef, updateData);
+                }, 'updateGroup');
+
+                closeModal('groupSettingsModal');
+
             } catch (error) {
                 console.error('Error updating group:', error);
                 alert('Napaka pri posodabljanju skupine.');
@@ -1512,35 +1620,25 @@
             if (!confirm('Ste prepričani, da želite izbrisati to skupino? Vsa sporočila bodo izgubljena.')) return;
 
             try {
-                // Remove group from chats
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
-                
-                if (chatsDoc.exists()) {
-                    const currentChats = chatsDoc.data().data || [];
-                    const updatedChats = currentChats.filter(chat => chat.id !== activeChat.id);
-                    
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                        { data: updatedChats }
-                    );
-                }
+                await withRetry(async () => {
+                    // Use transaction to ensure consistency
+                    await window.firebaseFunctions.runTransaction(window.firebaseDb, async (transaction) => {
+                        // Delete chat
+                        const chatRef = window.firebaseFunctions.doc(window.firebaseDb, 'chats', activeChat.id);
+                        transaction.delete(chatRef);
 
-                // Remove messages from this chat
-                const messagesDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'messages')
-                );
-                
-                if (messagesDoc.exists()) {
-                    const currentMessages = messagesDoc.data().data || [];
-                    const updatedMessages = currentMessages.filter(msg => msg.chatId !== activeChat.id);
-                    
-                    await window.firebaseFunctions.setDoc(
-                        window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'messages'),
-                        { data: updatedMessages }
-                    );
-                }
+                        // Delete all messages in this chat
+                        const messagesQuery = window.firebaseFunctions.query(
+                            window.firebaseFunctions.collection(window.firebaseDb, 'messages'),
+                            window.firebaseFunctions.where('chatId', '==', activeChat.id)
+                        );
+                        const messagesSnapshot = await window.firebaseFunctions.getDocs(messagesQuery);
+                        
+                        messagesSnapshot.forEach(doc => {
+                            transaction.delete(doc.ref);
+                        });
+                    });
+                }, 'deleteGroup');
 
                 closeModal('groupSettingsModal');
                 
@@ -1567,41 +1665,33 @@
             if (!confirm('Ste prepričani, da želite zapustiti to skupino?')) return;
 
             try {
-                const chatsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats')
-                );
-                
-                if (chatsDoc.exists()) {
-                    const currentChats = chatsDoc.data().data || [];
-                    const chatIndex = currentChats.findIndex(chat => chat.id === activeChat.id);
+                await withRetry(async () => {
+                    const chatRef = window.firebaseFunctions.doc(window.firebaseDb, 'chats', activeChat.id);
+                    const newParticipants = activeChat.participants.filter(id => id !== currentUser.id);
                     
-                    if (chatIndex !== -1) {
-                        currentChats[chatIndex].participants = currentChats[chatIndex].participants.filter(id => id !== currentUser.id);
-                        
-                        // If no participants left, delete the group
-                        if (currentChats[chatIndex].participants.length === 0) {
-                            await deleteGroup();
-                            return;
-                        }
-                        
-                        await window.firebaseFunctions.setDoc(
-                            window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'chats'),
-                            { data: currentChats }
-                        );
-
-                        // Reset chat view
-                        activeChat = null;
-                        document.getElementById('chatHeader').style.display = 'none';
-                        document.getElementById('messageInputContainer').style.display = 'none';
-                        document.getElementById('messagesContainer').innerHTML = `
-                            <div class="welcome-screen">
-                                <div class="welcome-icon">💬</div>
-                                <div class="welcome-title">Zapustili ste skupino</div>
-                                <div class="welcome-text">Izberite drug pogovor ali začnite novega.</div>
-                            </div>
-                        `;
+                    if (newParticipants.length === 0) {
+                        // Delete group if no participants left
+                        await deleteGroup();
+                        return;
                     }
-                }
+                    
+                    await window.firebaseFunctions.updateDoc(chatRef, {
+                        participants: newParticipants
+                    });
+                }, 'leaveGroup');
+
+                // Reset chat view
+                activeChat = null;
+                document.getElementById('chatHeader').style.display = 'none';
+                document.getElementById('messageInputContainer').style.display = 'none';
+                document.getElementById('messagesContainer').innerHTML = `
+                    <div class="welcome-screen">
+                        <div class="welcome-icon">💬</div>
+                        <div class="welcome-title">Zapustili ste skupino</div>
+                        <div class="welcome-text">Izberite drug pogovor ali začnite novega.</div>
+                    </div>
+                `;
+
             } catch (error) {
                 console.error('Error leaving group:', error);
                 alert('Napaka pri zapuščanju skupine.');
@@ -1655,11 +1745,17 @@
                 console.log('User authenticated:', currentUserCheck);
                 initializeUserDisplay();
                 
-                // Add delay to ensure Firebase is ready
-                setTimeout(() => {
-                    console.log('Loading users and chats...');
-                    loadUsers();
-                    loadChats();
+                // Initialize with retry logic
+                setTimeout(async () => {
+                    try {
+                        console.log('Loading users and chats...');
+                        await loadUsers();
+                        await loadChats();
+                        updateConnectionStatus('connected');
+                    } catch (error) {
+                        console.error('Error during initialization:', error);
+                        updateConnectionStatus('disconnected');
+                    }
                 }, 1000);
             } else {
                 console.error('User not authenticated');
@@ -1690,16 +1786,24 @@
                 }
             });
 
-            // Message form submission
+            // Message form submission with debouncing
             const messageForm = document.getElementById('messageForm');
             const messageInput = document.getElementById('messageInput');
+            let submitTimeout;
 
             messageForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const text = messageInput.value.trim();
-                if (text && activeChat) {
-                    sendMessage(text);
-                }
+                
+                // Clear any existing timeout
+                clearTimeout(submitTimeout);
+                
+                // Debounce submission to prevent duplicates
+                submitTimeout = setTimeout(() => {
+                    const text = messageInput.value.trim();
+                    if (text && activeChat) {
+                        sendMessage(text);
+                    }
+                }, 100);
             });
 
             // Auto-resize textarea
@@ -1727,7 +1831,11 @@
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     if (this.value.trim() && activeChat) {
-                        sendMessage(this.value.trim());
+                        // Use same debouncing as form submission
+                        clearTimeout(submitTimeout);
+                        submitTimeout = setTimeout(() => {
+                            sendMessage(this.value.trim());
+                        }, 100);
                     }
                 }
             });
@@ -1748,6 +1856,36 @@
                 attributes: true,
                 attributeFilter: ['style']
             });
+
+            // Connection monitoring
+            window.addEventListener('online', function() {
+                console.log('Browser back online');
+                updateConnectionStatus('connecting');
+                // Reconnect after a short delay
+                setTimeout(() => {
+                    if (currentUser) {
+                        loadChats();
+                        if (activeChat) {
+                            loadMessages(activeChat.id);
+                        }
+                    }
+                }, 1000);
+            });
+
+            window.addEventListener('offline', function() {
+                console.log('Browser went offline');
+                updateConnectionStatus('disconnected');
+            });
+
+            // Periodic connection check
+            setInterval(() => {
+                if (navigator.onLine && chatsListener && messagesListener) {
+                    // Connection appears healthy
+                    updateConnectionStatus('connected');
+                } else if (!navigator.onLine) {
+                    updateConnectionStatus('disconnected');
+                }
+            }, 30000); // Check every 30 seconds
         });
 
         // Cleanup on page unload
@@ -1770,28 +1908,4 @@
         window.removeMember = removeMember;
     </script>
 </body>
-</html>button" class="btn btn-secondary" onclick="closeModal('newChatModal')">Prekliči</button>
-                <button type="button" class="btn btn-primary" onclick="createNewChat()">Začni pogovor</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- New Group Modal -->
-    <div id="newGroupModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">👥 Nova skupina</h4>
-                <button class="close" onclick="closeModal('newGroupModal')">&times;</button>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Ime skupine:</label>
-                <input type="text" class="form-input" id="groupName" placeholder="Vnesite ime skupine">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Izberite člane:</label>
-                <div id="usersList">
-                    Nalaganje uporabnikov...
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button type="
+</html>
