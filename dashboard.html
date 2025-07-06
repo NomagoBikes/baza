@@ -6,11 +6,10 @@
     <title>NOMAGO bikes - Nadzorna plošča</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     
-    <!-- DODAJTE TO - NAVIGACIJSKI SISTEM -->
+    <!-- Navigacijski sistem -->
     <script src="navigation.js"></script>
     
     <style>
-        /* Isti CSS kot prej - brez sprememb */
         :root {
             --primary-blue: #004899;
             --secondary-yellow: #fbb900;
@@ -42,7 +41,6 @@
             --light-blue: #2c3e50;
         }
 
-        /* Vsi ostali stili ostanejo enaki... */
         body { 
             font-family: 'Roboto', Arial, sans-serif; 
             background-color: var(--bg-color); 
@@ -92,6 +90,51 @@
             z-index: 1;
             transition: opacity 0.3s;
         }
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .chat-btn {
+            background-color: var(--secondary-yellow);
+            color: var(--text-dark);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        .chat-btn:hover {
+            background-color: #e0a800;
+        }
+        .chat-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
         .nav { 
             height: 20px;
             background-color: var(--nav-bg);
@@ -127,6 +170,202 @@
         .menu a:hover, .menu a.active { 
             background-color: #003366;
         }
+        .content {
+            width: 100%;
+        }
+        .dashboard { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            box-shadow: var(--shadow);
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .dashboard-actions button {
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        button { 
+            background-color: var(--primary-blue);
+            color: white; 
+            border: none; 
+            padding: 10px 20px;
+            cursor: pointer; 
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        button:hover { 
+            background-color: #003366;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .highlight {
+            color: var(--secondary-yellow);
+            font-weight: 700;
+        }
+        h2, h3 {
+            color: var(--primary-blue);
+        }
+        .dark-mode h2, .dark-mode h3 {
+            color: var(--secondary-yellow);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: var(--light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .dark-mode .stat-card {
+            background: var(--menu-bg);
+            border-left-color: var(--secondary-yellow);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+        .dark-mode .stat-number {
+            color: var(--secondary-yellow);
+        }
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        /* Obvestila styles */
+        .notifications-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .notification-item {
+            background: var(--light-blue);
+            border-left: 4px solid var(--primary-blue);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+        .dark-mode .notification-item {
+            background: var(--menu-bg);
+            border-left-color: var(--secondary-yellow);
+        }
+        .notification-item.type-info {
+            border-left-color: #007bff;
+        }
+        .notification-item.type-warning {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+        .notification-item.type-success {
+            border-left-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+        .notification-item.type-error {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .notification-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin: 0;
+        }
+        .notification-type {
+            background: var(--primary-blue);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .notification-type.type-info {
+            background: #007bff;
+        }
+        .notification-type.type-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .notification-type.type-success {
+            background: #28a745;
+        }
+        .notification-type.type-error {
+            background: #dc3545;
+        }
+        .notification-meta {
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+        .notification-content {
+            line-height: 1.5;
+        }
+        .notification-dismiss {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        .notification-dismiss:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        .dark-mode .notification-dismiss:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .no-notifications {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* Quick Actions */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -157,47 +396,140 @@
             margin-bottom: 8px;
             color: var(--primary-blue);
         }
+        .dark-mode .quick-action-title {
+            color: var(--secondary-yellow);
+        }
         .quick-action-desc {
             font-size: 0.9rem;
             color: var(--text-light);
             margin-bottom: 15px;
         }
-        button { 
-            background-color: var(--primary-blue);
-            color: white; 
-            border: none; 
-            padding: 10px 20px;
-            cursor: pointer; 
-            border-radius: 4px;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 700;
-            transition: background-color 0.3s;
+
+        /* Access Info */
+        .access-info {
+            background: rgba(255, 187, 51, 0.1);
+            border: 1px solid rgba(255, 187, 51, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+            font-size: 0.9rem;
         }
-        .btn-success {
-            background-color: #28a745;
+        .dark-mode .access-info {
+            background: rgba(255, 187, 51, 0.2);
+            color: var(--secondary-yellow);
         }
-        .chat-btn {
-            background-color: var(--secondary-yellow);
-            color: var(--text-dark);
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-            position: relative;
+
+        /* Recent Activity */
+        .recent-activity {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
         }
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-        /* Ostali stili... */
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        .activity-icon.success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--ok);
+        }
+        .activity-icon.warning {
+            background: rgba(245, 124, 0, 0.1);
+            color: var(--warn);
+        }
+        .activity-icon.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--fail);
+        }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header {
+                padding: 15px;
+            }
+            .logo-left, .logo-center {
+                height: 40px;
+            }
+            .user-info {
+                right: 60px;
+                font-size: 14px;
+                max-width: 150px;
+            }
+            .menu a {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            .dashboard-actions button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            .notification-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .notification-type {
+                margin-top: 5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -205,7 +537,7 @@
         <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
         <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
         
-        <!-- SPREMENITE TO - samo prazen div, navigation.js bo napolnil -->
+        <!-- Navigation.js bo avtomatsko napolnil user-info -->
         <div class="user-info" id="userInfo"></div>
         
         <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
@@ -214,79 +546,666 @@
     <div class="nav"></div>
 
     <div class="container">
-        <!-- SPREMENITE TO - samo prazen div, navigation.js bo napolnil -->
+        <!-- Navigation.js bo avtomatsko napolnil menu -->
         <div class="menu"></div>
 
         <div class="content">
-            <!-- SPREMENITE TO - samo prazen div, navigation.js bo napolnil -->
+            <!-- User access info -->
+            <div class="access-info" id="accessInfo" style="display: none;">
+                <div class="connection-status">
+                    <span>🔄</span> Povezano s Firebase
+                </div>
+                <!-- Access info will be shown here -->
+            </div>
+
+            <!-- Admin obvestila section - samo pomembna obvestila -->
+            <div class="notifications-section" id="notificationsSection" style="display: none;">
+                <h3>📢 Pomembna obvestila</h3>
+                <div id="notificationsList">
+                    <div class="no-notifications">Nalaganje obvestil...</div>
+                </div>
+            </div>
+
+            <!-- Navigation.js bo avtomatsko napolnil quick-actions -->
             <div class="quick-actions"></div>
 
             <div class="dashboard">
                 <h2>Baza</h2>
                 <p>Dobrodošli v upravljavskem portalu <span class="highlight">NOMAGO bikes</span></p>
-                <!-- Ostala vsebina dashboard-a ostane enaka... -->
+                <div class="connection-status">
+                    <span>🔄</span> Povezano s Firebase
+                </div>
+                
+                <h3>📋 Pregledi ključavnic</h3>
+                <p>📊 Vir podatkov: Firebase | Zadnja osvežitev: <span id="lastUpdate">Nalaganje...</span></p>
+                
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalStations">0</div>
+                        <div>Postaje skupaj</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRacks">0</div>
+                        <div>Ključavnice skupaj</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="overdueStations">0</div>
+                        <div>Zamujeni pregledi postaj</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="overdueRacks">0</div>
+                        <div>Zamujene ključavnice</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="maintenanceNeeded">0</div>
+                        <div>Potrebno vzdrževanje</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity" id="recentActivity">
+                <h3>📈 Nedavna aktivnost</h3>
+                <div id="activityList">
+                    <div class="no-notifications">Nalaganje aktivnosti...</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase koda ostane enaka... -->
+    <!-- Firebase Integration Script -->
     <script type="module">
-        // Firebase init code...
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.firebaseDb = db;
+        window.firebaseFunctions = {
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            serverTimestamp
+        };
+
+        console.log("Firebase initialized in updated dashboard");
     </script>
 
     <script>
-        // Glavna sprememba - dodajte to na vrh DOMContentLoaded funkcije
-        document.addEventListener('DOMContentLoaded', function() {
-            // Preveri avtentifikacijo
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        // Global variables
+        let currentUser = null;
+        let inspectionData = {};
+        let locations = [];
+        let inspectionLog = [];
+        let dismissedNotifications = JSON.parse(sessionStorage.getItem('dismissedNotifications') || '[]');
+
+        // Check authentication
+        function checkAuth() {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
                 alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
                 window.location.href = 'index.html';
+                return null;
+            }
+            return currentUser;
+        }
+
+        // Load inspection statistics from Firebase
+        async function loadInspectionStats() {
+            try {
+                // Load locations
+                const locationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                locations = locationsDoc.exists() ? locationsDoc.data().data || [] : [];
+
+                // Load inspection data
+                const inspectionDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                inspectionData = inspectionDoc.exists() ? inspectionDoc.data().data || {} : {};
+
+                // Load inspection log
+                const logsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+                );
+                inspectionLog = logsDoc.exists() ? logsDoc.data().data || [] : [];
+
+                console.log('Loaded locations:', locations.length);
+                console.log('Loaded inspection data entries:', Object.keys(inspectionData).length);
+                console.log('Loaded inspection logs:', inspectionLog.length);
+                
+                updateDashboardStats();
+                updateRecentActivity();
+            } catch (error) {
+                console.error('Error loading inspection stats:', error);
+                
+                // Show user-friendly error message
+                document.getElementById('totalStations').textContent = 'ERR';
+                document.getElementById('totalRacks').textContent = 'ERR';
+                document.getElementById('overdueStations').textContent = 'ERR';
+                document.getElementById('overdueRacks').textContent = 'ERR';
+                document.getElementById('maintenanceNeeded').textContent = 'ERR';
+            }
+        }
+
+        // Get accessible locations
+        function getAccessibleLocations() {
+            if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                // Admin vidi vse lokacije
+                if (currentUser.vloga === 'admin') {
+                    return locations;
+                }
+                return [];
+            }
+            
+            let filtered = locations.filter(location => {
+                const hasSystemAccess = currentUser.accessibleSystems.includes(location.system);
+                
+                if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
+                    return hasSystemAccess;
+                }
+                
+                return hasSystemAccess && 
+                       currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
+            });
+            
+            return filtered;
+        }
+
+        function getInspectionStatus(type, locationId, rackNumber = null) {
+            if (type === 'station') {
+                // Check if any rack at this station is overdue
+                const location = locations.find(loc => loc.terminal === locationId);
+                if (!location) return 'ok';
+                
+                for (let i = 1; i <= location.racks; i++) {
+                    const rackStatus = getInspectionStatus('rack', locationId, i);
+                    if (rackStatus === 'overdue') return 'overdue';
+                }
+                return 'ok';
+            }
+            
+            const key = rackNumber ? `${locationId}-${rackNumber}` : `${locationId}-station`;
+            const data = inspectionData[key];
+            
+            if (!data || !data.lastInspection) {
+                return 'overdue';
+            }
+            
+            const lastDate = new Date(data.lastInspection);
+            const nextDate = new Date(lastDate);
+            nextDate.setMonth(nextDate.getMonth() + 3);
+            
+            const now = new Date();
+            const daysUntilDue = Math.ceil((nextDate - now) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilDue < 0) return 'overdue';
+            if (daysUntilDue <= 14) return 'warning';
+            return 'ok';
+        }
+
+        function updateDashboardStats() {
+            const accessibleLocations = getAccessibleLocations();
+            
+            let totalStations = accessibleLocations.length;
+            let totalRacks = 0;
+            let overdueStations = 0;
+            let overdueRacks = 0;
+            let maintenanceNeeded = 0;
+            
+            accessibleLocations.forEach(location => {
+                totalRacks += location.racks;
+                
+                // Check station status
+                if (getInspectionStatus('station', location.terminal) === 'overdue') {
+                    overdueStations++;
+                }
+                
+                // Check racks
+                for (let i = 1; i <= location.racks; i++) {
+                    const rackStatus = getInspectionStatus('rack', location.terminal, i);
+                    if (rackStatus === 'overdue') overdueRacks++;
+                    
+                    const rackKey = `${location.terminal}-${i}`;
+                    const rackData = inspectionData[rackKey];
+                    if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
+                        maintenanceNeeded++;
+                    }
+                }
+            });
+            
+            // Update UI
+            document.getElementById('totalStations').textContent = totalStations;
+            document.getElementById('totalRacks').textContent = totalRacks;
+            document.getElementById('overdueStations').textContent = overdueStations;
+            document.getElementById('overdueRacks').textContent = overdueRacks;
+            document.getElementById('maintenanceNeeded').textContent = maintenanceNeeded;
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const activityList = document.getElementById('activityList');
+            
+            if (inspectionLog.length === 0) {
+                activityList.innerHTML = '<div class="no-notifications">Ni nedavne aktivnosti.</div>';
                 return;
             }
             
-            // NOVA KODA - Inicializiraj navigacijo
-            window.initNavigation('dashboard');
+            // Get recent logs (last 10)
+            const recentLogs = inspectionLog
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 10);
             
-            // PRIMER: Dodajanje nove funkcije dinamično
-            // window.addNavigationItem({
-            //     id: 'reports',
-            //     icon: '📊',
-            //     label: 'Poročila',
-            //     url: 'reports.html',
-            //     order: 8,
-            //     roles: ['admin'],
-            //     systems: []
-            // });
+            let html = '';
+            recentLogs.forEach(log => {
+                const date = new Date(log.timestamp);
+                const timeAgo = getTimeAgo(date);
+                const location = locations.find(l => l.terminal === log.terminal);
+                const locationName = location ? location.name : `Terminal ${log.terminal}`;
+                
+                let iconClass = 'success';
+                let iconSymbol = '✅';
+                if (log.newStatus === 'X') {
+                    iconClass = 'error';
+                    iconSymbol = '❌';
+                } else if (log.newStatus === 'NP' || log.newStatus === 'NZ' || log.newStatus === 'NO') {
+                    iconClass = 'warning';
+                    iconSymbol = '⚠️';
+                }
+                
+                html += `
+                    <div class="activity-item">
+                        <div class="activity-icon ${iconClass}">${iconSymbol}</div>
+                        <div class="activity-content">
+                            <div class="activity-title">
+                                ${locationName} - Ključavnica ${log.rackNumber}
+                            </div>
+                            <div class="activity-time">
+                                ${log.inspector} • ${log.newStatus} • ${timeAgo}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
             
-            // Ostala koda ostane enaka...
-            initializeTheme();
-            loadInspectionStats();
-            // itd...
-        });
-        
-        // Vse ostale funkcije ostanejo enake
-        function logout() {
-            if (confirm('Ste prepričani, da se želite odjaviti?')) {
-                sessionStorage.removeItem('currentUser');
-                window.location.href = 'index.html';
+            activityList.innerHTML = html;
+        }
+
+        // Helper function to get time ago
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Pravkar';
+            if (diffMins < 60) return `${diffMins}min`;
+            if (diffHours < 24) return `${diffHours}h`;
+            if (diffDays < 7) return `${diffDays}d`;
+            return date.toLocaleDateString('sl-SI');
+        }
+
+        // Export dashboard report
+        function exportDashboardReport() {
+            const accessibleLocations = getAccessibleLocations();
+            
+            if (accessibleLocations.length === 0) {
+                alert('Nimate dostopa do nobenih lokacij za izvoz poročila.');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Lokacija,Terminal,Sistem,Občina,Tip,Element,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
+            
+            accessibleLocations.forEach(location => {
+                // Rack data
+                for (let i = 1; i <= location.racks; i++) {
+                    const rackKey = `${location.terminal}-${i}`;
+                    const rackData = inspectionData[rackKey] || {};
+                    const rackStatus = getInspectionStatus('rack', location.terminal, i);
+                    const rackNextDue = getNextInspectionDate(rackData.lastInspection);
+                    
+                    const rackRow = [
+                        location.name,
+                        location.terminal,
+                        location.system,
+                        location.municipality,
+                        'Ključavnica',
+                        `Ključavnica ${i}`,
+                        rackStatus === 'overdue' ? 'ZAMUJEN' : rackStatus === 'warning' ? 'KMALU' : 'V REDU',
+                        rackData.lastInspection ? new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
+                        rackNextDue.toLocaleDateString('sl-SI'),
+                        rackData.currentStatus || 'Ni podatka',
+                        (rackData.notes || '').replace(/,/g, ';'),
+                        rackData.inspector || 'Ni podatka'
+                    ].map(field => `"${field}"`).join(',');
+                    
+                    csvContent += rackRow + "\n";
+                }
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `nomago_dashboard_pregledi_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function getNextInspectionDate(lastInspection) {
+            if (!lastInspection) {
+                return new Date(); // If never inspected, it's overdue
+            }
+            
+            const lastDate = new Date(lastInspection);
+            const nextDate = new Date(lastDate);
+            nextDate.setMonth(nextDate.getMonth() + 3);
+            return nextDate;
+        }
+
+        // Load and display notifications (non-service notifications only)
+        async function loadNotifications() {
+            try {
+                const notificationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
+                );
+                
+                let notifications = [];
+                if (notificationsDoc.exists()) {
+                    // Filter out ALL service notifications about locks/racks/pregledov - only show admin/system notifications
+                    notifications = notificationsDoc.data().data.filter(n => 
+                        n.active && 
+                        !n.title.includes('Servisno obvestilo') && 
+                        !n.title.includes('ključavnica') &&
+                        !n.title.includes('Ključavnica') &&
+                        !n.title.includes('pregled') &&
+                        !n.title.includes('Pregled') &&
+                        !n.title.includes('pregledov') &&
+                        !n.title.includes('Pregledov') &&
+                        !n.title.includes('System pregledov') &&
+                        !n.message.includes('ključavnica') &&
+                        !n.message.includes('Ključavnica') &&
+                        !n.message.includes('pregled') &&
+                        !n.message.includes('Pregled') &&
+                        !n.message.includes('pregledov') &&
+                        !n.message.includes('Pregledov') &&
+                        !n.message.includes('zamujen') &&
+                        !n.message.includes('Zamujen') &&
+                        !n.message.includes('Taksi preglsite') &&
+                        !n.message.includes('ima zamujen') &&
+                        n.type !== 'maintenance' &&
+                        n.priority !== 'inspection'
+                    );
+                }
+                
+                const visibleNotifications = notifications.filter(n => !dismissedNotifications.includes(n.id));
+                displayNotifications(visibleNotifications);
+            } catch (error) {
+                console.error('Napaka pri nalaganju obvestil:', error);
+                // Hide notifications section on error
+                document.getElementById('notificationsSection').style.display = 'none';
             }
         }
-        
+
+        // Display notifications
+        function displayNotifications(notifications) {
+            const section = document.getElementById('notificationsSection');
+            const container = document.getElementById('notificationsList');
+            
+            if (notifications.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            const html = notifications.map(notification => {
+                const date = new Date(notification.createdAt).toLocaleString('sl-SI');
+                
+                return `
+                    <div class="notification-item type-${notification.type}" id="notification-${notification.id}">
+                        <button class="notification-dismiss" onclick="dismissNotification('${notification.id}')" title="Skrij obvestilo">×</button>
+                        
+                        <div class="notification-header">
+                            <h4 class="notification-title">${notification.title}</h4>
+                            <span class="notification-type type-${notification.type}">${getTypeText(notification.type)}</span>
+                        </div>
+                        
+                        <div class="notification-meta">
+                            📅 ${date} ${notification.priority !== 'normal' ? `| ⚡ ${getPriorityText(notification.priority)}` : ''}
+                        </div>
+                        
+                        <div class="notification-content">
+                            ${notification.message}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // Dismiss notification
+        function dismissNotification(id) {
+            dismissedNotifications.push(id);
+            sessionStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
+            
+            const element = document.getElementById(`notification-${id}`);
+            if (element) {
+                element.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    element.remove();
+                    // Check if any notifications remain
+                    const remainingNotifications = document.querySelectorAll('.notification-item');
+                    if (remainingNotifications.length === 0) {
+                        document.getElementById('notificationsSection').style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+
+        // Helper functions
+        function getTypeText(type) {
+            const types = {
+                info: 'Info',
+                warning: 'Opozorilo',
+                success: 'Uspeh',
+                error: 'Napaka'
+            };
+            return types[type] || type;
+        }
+
+        function getPriorityText(priority) {
+            const priorities = {
+                normal: 'Normalna',
+                high: 'Visoka',
+                urgent: 'Nujna'
+            };
+            return priorities[priority] || priority;
+        }
+
+        // Initialize user display
+        function initializeUserDisplay() {
+            if (currentUser && currentUser.ime) {
+                // Admin ima dostop do vseh sistemov
+                if (currentUser.vloga === 'admin') {
+                    if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                        currentUser.accessibleSystems = ['KolesCE', 'GO2GO', 'ZaNaprej', 'Ljubljana'];
+                        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    }
+                } else {
+                    // Zagotovi, da ima uporabnik dostop do sistemov
+                    if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                        console.warn('User has no accessible systems assigned');
+                        currentUser.accessibleSystems = [];
+                    }
+                }
+                
+                if (!currentUser.accessibleLocations) {
+                    // Če uporabnik nima specificiranih lokacij, naj ima dostop do vseh v svojih sistemih
+                    currentUser.accessibleLocations = [];
+                }
+
+                // Show access info
+                const accessInfo = document.getElementById('accessInfo');
+                accessInfo.style.display = 'block';
+                accessInfo.innerHTML = `
+                    <div class="connection-status">
+                        <span>🔄</span> Povezano s Firebase
+                    </div>
+                    🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+                    (${currentUser.accessibleLocations && currentUser.accessibleLocations.length > 0 ? currentUser.accessibleLocations.length + ' specifičnih' : 'Vse'} lokacij)
+                `;
+            }
+        }
+
+        // Chat functionality
         function openChat() {
             window.open('chat.html', '_blank');
         }
-        
-        function exportDashboardReport() {
-            alert('Izvažam poročilo...');
-            // Implementation...
+
+        // Check for unread messages
+        async function checkUnreadMessages() {
+            try {
+                const messagesDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'chat', 'messages')
+                );
+                
+                if (messagesDoc.exists()) {
+                    const messages = messagesDoc.data().data || [];
+                    const lastReadTime = localStorage.getItem(`lastRead_${currentUser.id}`) || '0';
+                    const unreadCount = messages.filter(msg => 
+                        new Date(msg.timestamp) > new Date(parseInt(lastReadTime)) &&
+                        msg.senderId !== currentUser.id
+                    ).length;
+                    
+                    updateChatNotification(unreadCount);
+                }
+            } catch (error) {
+                console.error('Error checking unread messages:', error);
+            }
         }
-        
-        function initializeTheme() {
-            // Theme logic...
+
+        function updateChatNotification(count) {
+            const chatBtn = document.querySelector('.chat-btn');
+            let notification = chatBtn.querySelector('.chat-notification');
+            
+            if (count > 0) {
+                if (!notification) {
+                    notification = document.createElement('div');
+                    notification.className = 'chat-notification';
+                    chatBtn.appendChild(notification);
+                }
+                notification.textContent = count > 99 ? '99+' : count;
+            } else if (notification) {
+                notification.remove();
+            }
         }
-        
-        // Ostale funkcije...
+
+        // Logout function
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                sessionStorage.removeItem('dismissedNotifications');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Preveri avtentifikacijo
+            const currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            // NOVA NAVIGACIJA - inicializiraj najprej
+            window.initNavigation('dashboard');
+            
+            // Nato inicializiraj ostalo funkcionalnost
+            initializeUserDisplay();
+            loadNotifications();
+            loadInspectionStats();
+            checkUnreadMessages();
+            
+            // Check for unread messages every 30 seconds
+            setInterval(checkUnreadMessages, 30000);
+            
+            console.log('Dashboard initialized with navigation system');
+            console.log('Current user:', currentUser);
+            console.log('Accessible systems:', currentUser.accessibleSystems);
+            console.log('Accessible locations:', currentUser.accessibleLocations);
+            
+            // Update last update time
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                themeToggle.textContent = '🌙';
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+
+            // Update time every minute
+            setInterval(() => {
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString('sl-SI');
+            }, 60000);
+
+            // Refresh notifications and stats every 5 minutes
+            setInterval(() => {
+                loadNotifications();
+                loadInspectionStats();
+            }, 5 * 60 * 1000);
+        });
+
+        // Global function assignments
+        window.logout = logout;
+        window.dismissNotification = dismissNotification;
+        window.exportDashboardReport = exportDashboardReport;
+        window.openChat = openChat;
     </script>
 </body>
 </html>
+            
