@@ -863,17 +863,17 @@
             serverTimestamp
         };
 
-        console.log("Firebase initialized in new inspection system");
+        console.log("Firebase initialized in inspection system");
     </script>
 
     <script>
-        // Global variables - iste kot v dashboard
+        // Global variables
         let currentUser = null;
         let inspectionData = {};
         let inspectionLog = [];
         let locations = [];
 
-        // Check authentication - isto kot v dashboard
+        // Check authentication - POPRAVKA: Beri iz sessionStorage namesto iz serviserApp_currentUser
         function checkAuth() {
             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
@@ -884,7 +884,7 @@
             return currentUser;
         }
 
-        // Initialize user display and access control - isto kot v dashboard
+        // Initialize user display and access control
         function initializeUserDisplay() {
             if (currentUser.ime) {
                 document.getElementById('userName').textContent = 
@@ -896,29 +896,34 @@
                     document.getElementById('notificationsMenuLink').style.display = 'inline-block';
                 }
                 
-                if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
-                    const accessInfo = document.getElementById('accessInfo');
-                    accessInfo.style.display = 'block';
-                    accessInfo.innerHTML = `
-                        <div class="connection-status">
-                            <span>🔄</span> Povezano s Firebase
-                        </div>
-                        🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
-                        (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
-                    `;
-                    
-                    // Show main interface
-                    document.getElementById('filterSection').style.display = 'block';
-                    document.getElementById('summaryCard').style.display = 'grid';
-                    
-                    // Populate system filter with user's accessible systems
-                    populateSystemFilter();
-                    
-                } else {
-                    // No access
-                    document.getElementById('noAccessMessage').style.display = 'block';
-                    return false;
+                // POPRAVKA: Zagotovi, da ima uporabnik dostop do sistemov
+                if (!currentUser.accessibleSystems) {
+                    currentUser.accessibleSystems = ['KolesCE', 'GO2GO', 'ZaNaprej', 'Ljubljana'];
                 }
+                
+                if (!currentUser.accessibleLocations) {
+                    // Če uporabnik nima specificiranih lokacij, naj ima dostop do vseh v svojih sistemih
+                    currentUser.accessibleLocations = [];
+                }
+                
+                const accessInfo = document.getElementById('accessInfo');
+                accessInfo.style.display = 'block';
+                accessInfo.innerHTML = `
+                    <div class="connection-status">
+                        <span>🔄</span> Povezano s Firebase
+                    </div>
+                    🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+                    (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 'Vse'} lokacij)
+                `;
+                
+                // Show main interface
+                document.getElementById('filterSection').style.display = 'block';
+                document.getElementById('summaryCard').style.display = 'grid';
+                
+                // Populate system filter with user's accessible systems
+                populateSystemFilter();
+                
+                return true;
             } else {
                 // No user data
                 document.getElementById('noAccessMessage').style.display = 'block';
@@ -928,7 +933,6 @@
                 `;
                 return false;
             }
-            return true;
         }
 
         function populateSystemFilter() {
@@ -942,14 +946,21 @@
             }
         }
 
-        // Load inspection data from Firebase - ista struktura kot v dashboard
+        // Load inspection data from Firebase
         async function loadInspectionData() {
             try {
                 // Load locations
                 const locationsDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
                 );
-                locations = locationsDoc.exists() ? locationsDoc.data().data || [] : [];
+                
+                if (locationsDoc.exists()) {
+                    locations = locationsDoc.data().data || [];
+                    console.log('Loaded locations from Firebase:', locations.length);
+                } else {
+                    console.warn('No locations found in Firebase');
+                    locations = [];
+                }
                 
                 const inspectionDataDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
@@ -975,7 +986,7 @@
             }
         }
 
-        // Save inspection data to Firebase - isto kot v dashboard
+        // Save inspection data to Firebase
         async function saveInspectionData() {
             try {
                 await window.firebaseFunctions.setDoc(
@@ -1000,19 +1011,28 @@
             }
         }
 
-        // Get accessible locations for current user - isto kot v dashboard
+        // Get accessible locations for current user - POPRAVKA
         function getAccessibleLocations() {
-            if (!currentUser.accessibleSystems || !currentUser.accessibleLocations) {
+            if (!currentUser.accessibleSystems || !locations || locations.length === 0) {
                 return [];
             }
 
-            return locations.filter(location => {
-                return currentUser.accessibleSystems.includes(location.system) &&
-                       currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
+            // Filter locations by accessible systems
+            let accessibleLocs = locations.filter(location => {
+                return currentUser.accessibleSystems.includes(location.system);
             });
+
+            // If user has specific location restrictions, apply them
+            if (currentUser.accessibleLocations && currentUser.accessibleLocations.length > 0) {
+                accessibleLocs = accessibleLocs.filter(location => {
+                    return currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
+                });
+            }
+
+            return accessibleLocs;
         }
 
-        // Calculate next inspection date (every 3 months) - isto kot v dashboard
+        // Calculate next inspection date (every 3 months)
         function getNextInspectionDate(lastInspection) {
             if (!lastInspection) {
                 return new Date(); // If never inspected, it's overdue
@@ -1024,7 +1044,7 @@
             return nextDate;
         }
 
-        // Get inspection status for a rack - isto kot v dashboard
+        // Get inspection status for a rack
         function getInspectionStatus(terminal, rackNumber) {
             const key = `${terminal}-${rackNumber}`;
             const rackData = inspectionData[key];
@@ -1046,7 +1066,7 @@
             }
         }
 
-        // Format inspection status display - isto kot v dashboard
+        // Format inspection status display
         function formatInspectionStatus(status, nextDue) {
             const now = new Date();
             const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
@@ -1064,7 +1084,7 @@
             }
         }
 
-        // Update rack status and log the change - isto kot v dashboard
+        // Update rack status and log the change
         async function updateRackStatus(select) {
             const terminal = select.dataset.terminal;
             const rackNumber = select.dataset.rack;
@@ -1126,7 +1146,7 @@
             console.log(`Rack ${terminal}-${rackNumber} updated: ${oldStatus} → ${newStatus || 'reset to never inspected'}`);
         }
 
-        // Update alerts display - isto kot v dashboard
+        // Update alerts display
         function updateAlerts() {
             const alertsBar = document.getElementById('alertsBar');
             const overdue = [];
@@ -1168,7 +1188,7 @@
             alertsBar.innerHTML = alertsHtml;
         }
 
-        // Update summary statistics - isto kot v dashboard
+        // Update summary statistics
         function updateSummary() {
             let total = 0;
             let overdue = 0;
@@ -1204,7 +1224,7 @@
             document.getElementById('maintenanceNeeded').textContent = needsMaintenance;
         }
 
-        // Filter functions - isto kot v dashboard
+        // Filter functions
         function filterOverdue() {
             document.getElementById('statusFilter').value = 'overdue';
             filterLocations();
@@ -1215,7 +1235,7 @@
             filterLocations();
         }
 
-        // Enhanced location rendering with inspection status and access control - isto kot v dashboard
+        // Enhanced location rendering with inspection status and access control
         function renderLocations() {
             const container = document.getElementById("locationsContainer");
             container.innerHTML = "";
@@ -1223,6 +1243,13 @@
             const accessibleLocations = getAccessibleLocations();
             
             if (accessibleLocations.length === 0) {
+                container.innerHTML = `
+                    <div class="no-access">
+                        <h2>🔍 Ni dostopnih lokacij</h2>
+                        <p>Ni najdenih lokacij za vaše dostopne sisteme: ${currentUser.accessibleSystems ? currentUser.accessibleSystems.join(', ') : 'None'}</p>
+                        <p>Skupaj lokacij v bazi: ${locations.length}</p>
+                    </div>
+                `;
                 return;
             }
             
@@ -1327,7 +1354,7 @@
             return rackData ? rackData.lastInspection : null;
         }
 
-        // Simple filtering with access control - isto kot v dashboard
+        // Simple filtering with access control
         function filterLocations() {
             const system = document.getElementById("systemFilter").value;
             const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
@@ -1375,7 +1402,7 @@
             });
         }
 
-        // Export inspection report - isto kot v dashboard
+        // Export inspection report
         function exportInspectionReport() {
             const accessibleLocations = getAccessibleLocations();
             
@@ -1420,7 +1447,7 @@
             document.body.removeChild(link);
         }
 
-        // Show inspection logs modal - isto kot v dashboard
+        // Show inspection logs modal
         function showInspectionLogs() {
             document.getElementById('logsModal').style.display = 'block';
             loadInspectionLogs();
@@ -1610,7 +1637,7 @@
             filterLocations();
         }
 
-        // Enhanced municipalities update with access control - isto kot v dashboard
+        // Enhanced municipalities update with access control
         function updateMunicipalities() {
             const system = document.getElementById("systemFilter").value;
             const municipalitySelect = document.getElementById("municipalityFilter");
@@ -1668,7 +1695,7 @@
             filterLocations();
         }
 
-        // Logout function - isto kot v dashboard
+        // Logout function
         function logout() {
             if (confirm('Ste prepričani, da se želite odjaviti?')) {
                 sessionStorage.removeItem('currentUser');
@@ -1704,6 +1731,7 @@
                     document.getElementById('connectionStatus').style.display = 'none';
                     
                     console.log('Inspection system successfully initialized');
+                    console.log('Accessible locations:', getAccessibleLocations().length);
                 } else {
                     document.getElementById('connectionStatus').innerHTML = `
                         <div class="connection-status" style="color: var(--fail);">
@@ -1733,7 +1761,7 @@
             // Restore filters if they exist
             restoreFilters();
 
-            // Theme toggle functionality - isto kot v dashboard
+            // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
             
             // Check localStorage for saved theme
@@ -1758,7 +1786,7 @@
                 }
             });
 
-            // Adjust logo size for mobile - isto kot v dashboard
+            // Adjust logo size for mobile
             function adjustLogoSize() {
                 const logos = document.querySelectorAll('.logo-left, .logo-center');
                 const size = window.innerWidth <= 768 ? '40px' : '50px';
@@ -1779,7 +1807,7 @@
             }, 5 * 60 * 1000);
         });
 
-        // Global functions - enake kot v dashboard
+        // Global functions
         window.updateRackStatus = updateRackStatus;
         window.filterOverdue = filterOverdue;
         window.filterDueSoon = filterDueSoon;
