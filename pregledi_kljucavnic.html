@@ -1,4 +1,1264 @@
-<!DOCTYPE html>
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .dark-mode .inspection-notes {
+            border-color: #555;
+            background: var(--bg-color);
+        }
+
+        /* Status barve */
+        .status-BP { background: var(--ok); color: white; }
+        .status-X { background: var(--fail); color: white; }
+        .status-NP { background: var(--warn); color: white; }
+        .status-NZ { background: var(--lockfail); color: white; }
+        .status-NO { background: var(--unlockfail); color: white; }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .dark-mode .modal-header {
+            border-bottom-color: #555;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .dark-mode .modal-header h2 {
+            color: var(--secondary-yellow);
+        }
+
+        .close-btn {
+            background: var(--fail);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .log-filters {
+            margin-bottom: 1rem;
+        }
+
+        .log-filters input, .log-filters select {
+            margin-bottom: 8px;
+        }
+
+        .log-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--light-blue);
+        }
+
+        .dark-mode .log-item {
+            border-color: #555;
+            background: var(--menu-bg);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .logo-left, .logo-center {
+                height: 40px;
+            }
+            
+            .user-info {
+                right: 60px;
+                font-size: 14px;
+                max-width: 150px;
+            }
+            
+            .menu a {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+            }
+            
+            select, input {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .rack-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
+        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
+        <div class="user-info" id="userInfo">
+            <span id="userName">Nalaganje...</span>
+            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
+    </div>
+
+    <div class="nav"></div>
+
+    <div class="container">
+        <div class="menu">
+            <a href="dashboard.html">🏠 Baza</a>
+            <a href="#" class="active">🔧 Pregledi</a>
+            <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
+            <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
+            <a href="settings.html">⚙️ Nastavitve</a>
+            <a href="#" onclick="logout()">🚪 Odjavi se</a>
+        </div>
+
+        <div class="content">
+            <!-- Connection Status -->
+            <div class="access-info" id="connectionStatus">
+                <div class="connection-status">
+                    <span>🔄</span> Povezovanje s Firebase...
+                </div>
+            </div>
+
+            <!-- User access info -->
+            <div class="access-info" id="accessInfo" style="display: none;">
+                <div class="connection-status">
+                    <span>🔄</span> Povezano s Firebase
+                </div>
+                <!-- Access info will be shown here -->
+            </div>
+
+            <!-- No access message -->
+            <div class="no-access" id="noAccessMessage" style="display: none;">
+                <h2>🚫 Ni dostopa</h2>
+                <p>Nimate dostopa do nobenih sistemov za preglede ključavnic. Kontaktirajte administratorja.</p>
+            </div>
+            
+            <!-- Alerts for overdue and due soon inspections -->
+            <div class="alerts-bar" id="alertsBar"></div>
+            
+            <!-- Summary statistics -->
+            <div class="stats-grid" id="summaryCard" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStations">0</div>
+                    <div>Postaje skupaj</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRacks">0</div>
+                    <div>Ključavnice skupaj</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="overdueRacks">0</div>
+                    <div>Zamujene ključavnice</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="dueSoonRacks">0</div>
+                    <div>Pregledi kmalu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="maintenanceNeeded">0</div>
+                    <div>Potrebno vzdrževanje</div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filter-section" id="filterSection" style="display: none;">
+                <h3>🔍 Filtri in iskanje</h3>
+                <div class="filter-bar">
+                    <select id="systemFilter">
+                        <option value="">Vsi sistemi</option>
+                    </select>
+                    
+                    <select id="municipalityFilter">
+                        <option value="">Vse občine</option>
+                    </select>
+                    
+                    <select id="statusFilter">
+                        <option value="">Vsi statusi</option>
+                        <option value="overdue">Zamujeni pregledi</option>
+                        <option value="due-soon">Pregledi kmalu</option>
+                        <option value="ok">V redu</option>
+                    </select>
+                    
+                    <input type="text" id="searchInput" placeholder="Iskanje...">
+                    
+                    <button class="export-button" onclick="exportInspectionReport()">
+                        📊 Izvozi poročilo
+                    </button>
+                    
+                    <button class="export-button btn-success" onclick="showInspectionLogs()">
+                        📋 Ogled logov
+                    </button>
+                </div>
+            </div>
+
+            <div id="locationsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal for inspection logs -->
+    <div id="logsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Logi pregledov</h2>
+                <button onclick="closeLogsModal()" class="close-btn">✕ Zapri</button>
+            </div>
+            
+            <div class="log-filters">
+                <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; margin-bottom: 8px;" oninput="filterLogs()">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <select id="logTerminalFilter" onchange="filterLogs()">
+                        <option value="">Vsi terminali</option>
+                    </select>
+                    <select id="logStatusFilter" onchange="filterLogs()">
+                        <option value="">Vsi statusi</option>
+                        <option value="BP">BP</option>
+                        <option value="X">X</option>
+                        <option value="NP">NP</option>
+                        <option value="NZ">NZ</option>
+                        <option value="NO">NO</option>
+                    </select>
+                    <select id="logDateFilter" onchange="filterLogs()">
+                        <option value="">Vsi datumi</option>
+                        <option value="today">Danes</option>
+                        <option value="week">Zadnjih 7 dni</option>
+                        <option value="month">Zadnjih 30 dni</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
+                <!-- Logs will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Integration Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs, 
+            deleteDoc,
+            updateDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+        // Firebase config - isti projekt kot dashboard
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
+            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
+            projectId: "nomago-bikes-portal-f33da",
+            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
+            messagingSenderId: "647987655592",
+            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
+            measurementId: "G-D1CBD3V7ZV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase functions globally available
+        window.firebaseDb = db;
+        window.firebaseFunctions = {
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            updateDoc,
+            serverTimestamp
+        };
+
+        console.log("Firebase initialized in fixed inspection system");
+    </script>
+
+    <script>
+        // Global variables - iste kot v dashboard
+        let currentUser = null;
+        let inspectionData = {};
+        let inspectionLog = [];
+        let locations = [];
+
+        // Check authentication - isto kot v dashboard
+        function checkAuth() {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
+                window.location.href = 'index.html';
+                return null;
+            }
+            return currentUser;
+        }
+
+        // POPRAVLJENA FUNKCIJA - vsi prijavljeni imajo dostop
+        function initializeUserDisplay() {
+            if (currentUser.ime) {
+                document.getElementById('userName').textContent = 
+                    `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
+                
+                // Show admin-only elements
+                if (currentUser.vloga === 'admin') {
+                    document.getElementById('usersMenuLink').style.display = 'inline-block';
+                    document.getElementById('notificationsMenuLink').style.display = 'inline-block';
+                }
+                
+                // VSI PRIJAVLJENI UPORABNIKI IMAJO DOSTOP DO PREGLEDOV
+                // Če ni nastavljenih sistemov, prikaži vse (admin)
+                if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                    currentUser.accessibleSystems = ['KolesCE', 'ZaNaprej', 'GO2GO', 'Ljubljana'];
+                }
+
+                const accessInfo = document.getElementById('accessInfo');
+                accessInfo.style.display = 'block';
+                accessInfo.innerHTML = `
+                    <div class="connection-status">
+                        <span>🔄</span> Povezano s Firebase
+                    </div>
+                    🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+                    (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 'Vse'} lokacij)
+                `;
+                
+                // Show main interface
+                document.getElementById('filterSection').style.display = 'block';
+                document.getElementById('summaryCard').style.display = 'grid';
+                
+                // Populate system filter with user's accessible systems
+                populateSystemFilter();
+                
+                return true;
+            } else {
+                // No user data
+                document.getElementById('noAccessMessage').style.display = 'block';
+                document.getElementById('noAccessMessage').innerHTML = `
+                    <h2>⚠️ Napaka</h2>
+                    <p>Ni podatkov o uporabniku. Prosimo, se ponovno prijavite preko BAZA portala.</p>
+                `;
+                return false;
+            }
+        }
+
+        function populateSystemFilter() {
+            const systemFilter = document.getElementById('systemFilter');
+            systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
+            
+            if (currentUser.accessibleSystems) {
+                currentUser.accessibleSystems.forEach(system => {
+                    systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
+                });
+            }
+        }
+
+        // Load inspection data from Firebase - ista struktura kot v dashboard
+        async function loadInspectionData() {
+            try {
+                // Load locations
+                const locationsDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
+                );
+                locations = locationsDoc.exists() ? locationsDoc.data().data || [] : [];
+                
+                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
+                );
+                
+                if (inspectionDataDoc.exists()) {
+                    inspectionData = inspectionDataDoc.data().data || {};
+                }
+                
+                const inspectionLogDoc = await window.firebaseFunctions.getDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
+                );
+                
+                if (inspectionLogDoc.exists()) {
+                    inspectionLog = inspectionLogDoc.data().data || [];
+                }
+                
+                console.log('Inspection data loaded from Firebase');
+                return true;
+            } catch (error) {
+                console.error('Error loading inspection data:', error);
+                return false;
+            }
+        }
+
+        // Save inspection data to Firebase - isto kot v dashboard
+        async function saveInspectionData() {
+            try {
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
+                    {
+                        data: inspectionData,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                await window.firebaseFunctions.setDoc(
+                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
+                    {
+                        data: inspectionLog,
+                        lastUpdated: window.firebaseFunctions.serverTimestamp()
+                    }
+                );
+                
+                console.log('Inspection data saved to Firebase');
+            } catch (error) {
+                console.error('Error saving inspection data:', error);
+            }
+        }
+
+        // POPRAVLJENA FUNKCIJA - vsi imajo dostop do pregledov
+        function getAccessibleLocations() {
+            // Če ni nastavljenih sistemov, uporabnik ima dostop do vseh
+            if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                return locations; // Vračaj vse lokacije
+            }
+            
+            // Če so nastavljeni sistemi, filtriraj po sistemih
+            return locations.filter(location => {
+                const hasSystemAccess = currentUser.accessibleSystems.includes(location.system);
+                
+                // Če ni nastavljenih specifičnih lokacij, dostop do vseh v sistemu
+                if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
+                    return hasSystemAccess;
+                }
+                
+                // Preveri specifične lokacije
+                return hasSystemAccess && 
+                       currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
+            });
+        }
+
+        // Calculate next inspection date (every 3 months) - isto kot v dashboard
+        function getNextInspectionDate(lastInspection) {
+            if (!lastInspection) {
+                return new Date(); // If never inspected, it's overdue
+            }
+            
+            const lastDate = new Date(lastInspection);
+            const nextDate = new Date(lastDate);
+            nextDate.setMonth(nextDate.getMonth() + 3);
+            return nextDate;
+        }
+
+        // Get inspection status for a rack - isto kot v dashboard
+        function getInspectionStatus(terminal, rackNumber) {
+            const key = `${terminal}-${rackNumber}`;
+            const rackData = inspectionData[key];
+            
+            if (!rackData || !rackData.lastInspection) {
+                return 'overdue';
+            }
+            
+            const nextDue = getNextInspectionDate(rackData.lastInspection);
+            const now = new Date();
+            const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilDue < 0) {
+                return 'overdue';
+            } else if (daysUntilDue <= 14) {
+                return 'due-soon';
+            } else {
+                return 'ok';
+            }
+        }
+
+        // Format inspection status display - isto kot v dashboard
+        function formatInspectionStatus(status, nextDue) {
+            const now = new Date();
+            const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+            
+            switch (status) {
+                case 'overdue':
+                    const overdueDays = Math.abs(daysUntilDue);
+                    return { text: `${overdueDays}d ZAMUDA`, class: 'overdue' };
+                case 'due-soon':
+                    return { text: `${daysUntilDue}d DO`, class: 'due-soon' };
+                case 'ok':
+                    return { text: `${daysUntilDue}d`, class: 'ok' };
+                default:
+                    return { text: 'N/A', class: 'ok' };
+            }
+        }
+
+        // Update rack status and log the change - isto kot v dashboard
+        async function updateRackStatus(select) {
+            const terminal = select.dataset.terminal;
+            const rackNumber = select.dataset.rack;
+            const newStatus = select.value;
+            const notes = document.querySelector(`[data-terminal="${terminal}"][data-rack="${rackNumber}"].notes-input`).value;
+            
+            // Remove all status classes
+            select.className = "rack-select";
+            
+            // Add current status class if selected
+            if (newStatus) {
+                select.classList.add(`status-${newStatus}`);
+            }
+            
+            // Get old status for logging
+            const key = `${terminal}-${rackNumber}`;
+            const oldData = inspectionData[key] || {};
+            const oldStatus = oldData.currentStatus || '';
+            
+            // Only update and log if there's actually a status change to something real
+            if (newStatus) {
+                // Update inspection data only if new status is not empty
+                const now = new Date().toISOString();
+                inspectionData[key] = {
+                    ...oldData,
+                    currentStatus: newStatus,
+                    lastInspection: now,
+                    notes: notes,
+                    inspector: currentUser.uporabniskoIme || 'unknown'
+                };
+                
+                // Log the change only if it's a real status (not empty)
+                inspectionLog.push({
+                    timestamp: now,
+                    terminal: terminal,
+                    rackNumber: rackNumber,
+                    oldStatus: oldStatus,
+                    newStatus: newStatus,
+                    inspector: currentUser.uporabniskoIme || 'unknown',
+                    notes: notes
+                });
+                
+            } else {
+                // If new status is empty, completely remove this rack's data
+                // This means it goes back to "never inspected" state
+                if (inspectionData[key]) {
+                    delete inspectionData[key];
+                }
+            }
+            
+            // Save to Firebase
+            await saveInspectionData();
+            
+            // Update the display
+            updateLocationDisplay();
+            updateAlerts();
+            updateSummary();
+            
+            console.log(`Rack ${terminal}-${rackNumber} updated: ${oldStatus} → ${newStatus || 'reset to never inspected'}`);
+        }
+
+        // Update alerts display - isto kot v dashboard
+        function updateAlerts() {
+            const alertsBar = document.getElementById('alertsBar');
+            const overdue = [];
+            const dueSoon = [];
+            
+            const accessibleLocations = getAccessibleLocations();
+            
+            accessibleLocations.forEach(location => {
+                for (let i = 1; i <= location.racks; i++) {
+                    const status = getInspectionStatus(location.terminal, i);
+                    if (status === 'overdue') {
+                        overdue.push(`${location.name} - Ključavnica ${i}`);
+                    } else if (status === 'due-soon') {
+                        dueSoon.push(`${location.name} - Ključavnica ${i}`);
+                    }
+                }
+            });
+            
+            let alertsHtml = '';
+            
+            if (overdue.length > 0) {
+                alertsHtml += `
+                    <div class="alert alert-overdue">
+                        <span>⚠️ <strong>${overdue.length} zamujenih pregledov:</strong> ${overdue.slice(0, 3).join(', ')}${overdue.length > 3 ? ` in ${overdue.length - 3} več...` : ''}</span>
+                        <button onclick="filterOverdue()" style="background: var(--overdue); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
+                    </div>
+                `;
+            }
+            
+            if (dueSoon.length > 0) {
+                alertsHtml += `
+                    <div class="alert alert-due-soon">
+                        <span>📅 <strong>${dueSoon.length} pregledov kmalu:</strong> ${dueSoon.slice(0, 3).join(', ')}${dueSoon.length > 3 ? ` in ${dueSoon.length - 3} več...` : ''}</span>
+                        <button onclick="filterDueSoon()" style="background: var(--due-soon); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
+                    </div>
+                `;
+            }
+            
+            alertsBar.innerHTML = alertsHtml;
+        }
+
+        // Update summary statistics - isto kot v dashboard
+        function updateSummary() {
+            let total = 0;
+            let overdue = 0;
+            let dueSoon = 0;
+            let ok = 0;
+            let needsMaintenance = 0;
+            
+            const accessibleLocations = getAccessibleLocations();
+            
+            accessibleLocations.forEach(location => {
+                for (let i = 1; i <= location.racks; i++) {
+                    total++;
+                    const status = getInspectionStatus(location.terminal, i);
+                    
+                    if (status === 'overdue') overdue++;
+                    else if (status === 'due-soon') dueSoon++;
+                    else ok++;
+                    
+                    // Check current maintenance status
+                    const key = `${location.terminal}-${i}`;
+                    const rackData = inspectionData[key];
+                    if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
+                        needsMaintenance++;
+                    }
+                }
+            });
+            
+            // Update UI
+            document.getElementById('totalStations').textContent = accessibleLocations.length;
+            document.getElementById('totalRacks').textContent = total;
+            document.getElementById('overdueRacks').textContent = overdue;
+            document.getElementById('dueSoonRacks').textContent = dueSoon;
+            document.getElementById('maintenanceNeeded').textContent = needsMaintenance;
+        }
+
+        // Filter functions - isto kot v dashboard
+        function filterOverdue() {
+            document.getElementById('statusFilter').value = 'overdue';
+            filterLocations();
+        }
+
+        function filterDueSoon() {
+            document.getElementById('statusFilter').value = 'due-soon';
+            filterLocations();
+        }
+
+        // Enhanced location rendering with inspection status and access control - isto kot v dashboard
+        function renderLocations() {
+            const container = document.getElementById("locationsContainer");
+            container.innerHTML = "";
+            
+            const accessibleLocations = getAccessibleLocations();
+            
+            if (accessibleLocations.length === 0) {
+                return;
+            }
+            
+            accessibleLocations.forEach(location => {
+                // Check if location has any overdue or due soon racks
+                let hasOverdue = false;
+                let hasDueSoon = false;
+                
+                for (let i = 1; i <= location.racks; i++) {
+                    const status = getInspectionStatus(location.terminal, i);
+                    if (status === 'overdue') hasOverdue = true;
+                    if (status === 'due-soon') hasDueSoon = true;
+                }
+                
+                const card = document.createElement("div");
+                card.className = "location-card";
+                card.dataset.system = location.system;
+                card.dataset.municipality = location.municipality;
+                card.dataset.name = location.name.toLowerCase();
+                card.dataset.terminal = location.terminal;
+                
+                if (hasOverdue) card.classList.add('has-overdue');
+                else if (hasDueSoon) card.classList.add('has-due-soon');
+                
+                // Create alert badges
+                let alertBadges = '';
+                if (hasOverdue) {
+                    const overdueCount = Array.from({length: location.racks}, (_, i) => 
+                        getInspectionStatus(location.terminal, i + 1) === 'overdue').filter(Boolean).length;
+                    alertBadges += `<span class="alert-badge overdue">${overdueCount} zamujenih</span>`;
+                }
+                if (hasDueSoon) {
+                    const dueSoonCount = Array.from({length: location.racks}, (_, i) => 
+                        getInspectionStatus(location.terminal, i + 1) === 'due-soon').filter(Boolean).length;
+                    alertBadges += `<span class="alert-badge due-soon">${dueSoonCount} kmalu</span>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="location-header">
+                        <div class="last-inspection">
+                            Zadnji: ${rackData.lastInspection ? 
+                                new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli'}
+                        </div>
+                        <select class="rack-select ${rackData.currentStatus ? `status-${rackData.currentStatus}` : ''}" 
+                                data-terminal="${location.terminal}" 
+                                data-rack="${i}"
+                                onchange="updateRackStatus(this)">
+                            <option value=""></option>
+                            <option value="BP" ${rackData.currentStatus === 'BP' ? 'selected' : ''}>BP</option>
+                            <option value="X" ${rackData.currentStatus === 'X' ? 'selected' : ''}>X</option>
+                            <option value="NP" ${rackData.currentStatus === 'NP' ? 'selected' : ''}>NP</option>
+                            <option value="NZ" ${rackData.currentStatus === 'NZ' ? 'selected' : ''}>NZ</option>
+                            <option value="NO" ${rackData.currentStatus === 'NO' ? 'selected' : ''}>NO</option>
+                        </select>
+                        <textarea class="inspection-notes notes-input" 
+                                  data-terminal="${location.terminal}" 
+                                  data-rack="${i}"
+                                  placeholder="Opombe...">${rackData.notes || ''}</textarea>
+                    `;
+                    rackContainer.appendChild(rackItem);
+                }
+            });
+        }
+
+        function getLastInspectionDate(terminal, rackNumber) {
+            const key = `${terminal}-${rackNumber}`;
+            const rackData = inspectionData[key];
+            return rackData ? rackData.lastInspection : null;
+        }
+
+        // Simple filtering with access control - isto kot v dashboard
+        function filterLocations() {
+            const system = document.getElementById("systemFilter").value;
+            const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
+            const statusFilter = document.getElementById("statusFilter").value;
+            const search = document.getElementById("searchInput").value.toLowerCase();
+            
+            // Store filters in sessionStorage
+            sessionStorage.setItem('currentFilters', JSON.stringify({
+                system, municipality, statusFilter, search
+            }));
+            
+            document.querySelectorAll(".location-card").forEach(card => {
+                const cardSystem = card.dataset.system;
+                const cardMunicipality = card.dataset.municipality.toLowerCase();
+                const cardName = card.dataset.name;
+                const cardTerminal = card.dataset.terminal.toLowerCase();
+                
+                let matches = (
+                    (!system || cardSystem === system) &&
+                    (!municipality || cardMunicipality.includes(municipality)) &&
+                    (!search || cardName.includes(search) || cardTerminal.includes(search))
+                );
+                
+                // Filter by inspection status
+                if (matches && statusFilter) {
+                    let hasMatchingStatus = false;
+                    const terminal = card.dataset.terminal;
+                    const accessibleLocations = getAccessibleLocations();
+                    const location = accessibleLocations.find(loc => loc.terminal === terminal);
+                    
+                    if (location) {
+                        for (let i = 1; i <= location.racks; i++) {
+                            const inspectionStatus = getInspectionStatus(terminal, i);
+                            if (inspectionStatus === statusFilter) {
+                                hasMatchingStatus = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    matches = hasMatchingStatus;
+                }
+                
+                card.style.display = matches ? "block" : "none";
+            });
+        }
+
+        // Export inspection report - isto kot v dashboard
+        function exportInspectionReport() {
+            const accessibleLocations = getAccessibleLocations();
+            
+            if (accessibleLocations.length === 0) {
+                alert('Nimate dostopa do nobenih lokacij za izvoz poročila.');
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Terminal,Lokacija,Ključavnica,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
+            
+            accessibleLocations.forEach(location => {
+                for (let i = 1; i <= location.racks; i++) {
+                    const key = `${location.terminal}-${i}`;
+                    const rackData = inspectionData[key] || {};
+                    const inspectionStatus = getInspectionStatus(location.terminal, i);
+                    const nextDue = getNextInspectionDate(rackData.lastInspection);
+                    
+                    const row = [
+                        location.terminal,
+                        location.name,
+                        i,
+                        inspectionStatus === 'overdue' ? 'ZAMUJEN' : 
+                        inspectionStatus === 'due-soon' ? 'KMALU' : 'V REDU',
+                        rackData.lastInspection ? new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
+                        nextDue.toLocaleDateString('sl-SI'),
+                        rackData.currentStatus || 'Ni podatka',
+                        (rackData.notes || '').replace(/,/g, ';'),
+                        rackData.inspector || 'Ni podatka'
+                    ].map(field => `"${field}"`).join(',');
+                    
+                    csvContent += row + "\n";
+                }
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `pregled_porocilo_${currentUser.uporabniskoIme}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Show inspection logs modal - isto kot v dashboard
+        function showInspectionLogs() {
+            document.getElementById('logsModal').style.display = 'block';
+            loadInspectionLogs();
+            populateLogFilters();
+        }
+
+        function closeLogsModal() {
+            document.getElementById('logsModal').style.display = 'none';
+        }
+
+        function populateLogFilters() {
+            const accessibleLocations = getAccessibleLocations();
+            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
+            
+            // Filter logs to only show user's accessible locations
+            const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
+            const terminals = [...new Set(accessibleLogs.map(log => log.terminal))].sort();
+            
+            const terminalFilter = document.getElementById('logTerminalFilter');
+            terminalFilter.innerHTML = '<option value="">Vsi terminali</option>';
+            
+            terminals.forEach(terminal => {
+                const location = accessibleLocations.find(loc => loc.terminal === terminal);
+                const locationName = location ? location.name : terminal;
+                terminalFilter.innerHTML += `<option value="${terminal}">${terminal} - ${locationName}</option>`;
+            });
+        }
+
+        function loadInspectionLogs() {
+            const accessibleLocations = getAccessibleLocations();
+            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
+            
+            // Filter logs to only show user's accessible locations
+            const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
+            
+            const logsContent = document.getElementById('logsContent');
+            
+            if (accessibleLogs.length === 0) {
+                logsContent.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 2rem;">Ni zapisov pregledov za vaše dostopne lokacije.</p>';
+                return;
+            }
+            
+            displayLogs(accessibleLogs);
+        }
+
+        function displayLogs(logs) {
+            const logsContent = document.getElementById('logsContent');
+            const accessibleLocations = getAccessibleLocations();
+            
+            // Sort logs by timestamp (newest first)
+            const sortedLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            let html = '';
+            sortedLogs.forEach((log, index) => {
+                const location = accessibleLocations.find(loc => loc.terminal === log.terminal);
+                const locationName = location ? location.name : 'Neznana lokacija';
+                const date = new Date(log.timestamp);
+                const statusColor = getStatusColor(log.newStatus);
+                const oldStatusColor = getStatusColor(log.oldStatus);
+                
+                html += `
+                    <div class="log-item" data-log-index="${index}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <div>
+                                <strong style="color: var(--primary-blue);">${locationName}</strong>
+                                <span style="color: var(--text-light); font-size: 0.9rem;">(${log.terminal})</span>
+                                <div style="font-size: 0.9rem; color: var(--text-light);">
+                                    Ključavnica ${log.rackNumber} • ${date.toLocaleDateString('sl-SI')} ${date.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'})}
+                                </div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">
+                                ${log.inspector}
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; ${oldStatusColor}">
+                                ${log.oldStatus || 'Brez statusa'}
+                            </span>
+                            <span style="color: var(--text-light);">→</span>
+                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; ${statusColor}">
+                                ${log.newStatus}
+                            </span>
+                        </div>
+                        
+                        ${log.notes ? `<div style="background: var(--card-bg); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid var(--primary-blue);">
+                          <strong>Opomba:</strong> ${log.notes}
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+            
+            logsContent.innerHTML = html;
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'BP': return 'background: var(--ok); color: white;';
+                case 'X': return 'background: var(--fail); color: white;';
+                case 'NP': return 'background: var(--warn); color: white;';
+                case 'NZ': return 'background: var(--lockfail); color: white;';
+                case 'NO': return 'background: var(--unlockfail); color: white;';
+                default: return 'background: #ccc; color: black;';
+            }
+        }
+
+        function filterLogs() {
+            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+            const terminalFilter = document.getElementById('logTerminalFilter').value;
+            const statusFilter = document.getElementById('logStatusFilter').value;
+            const dateFilter = document.getElementById('logDateFilter').value;
+            
+            const accessibleLocations = getAccessibleLocations();
+            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
+            
+            // Filter logs to only show user's accessible locations
+            let filteredLogs = inspectionLog.filter(log => {
+                if (!accessibleTerminals.includes(log.terminal)) return false;
+                
+                const location = accessibleLocations.find(loc => loc.terminal === log.terminal);
+                const locationName = location ? location.name.toLowerCase() : '';
+                
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    locationName.includes(searchTerm) ||
+                    log.terminal.toLowerCase().includes(searchTerm) ||
+                    log.inspector.toLowerCase().includes(searchTerm);
+                
+                // Terminal filter
+                const matchesTerminal = !terminalFilter || log.terminal === terminalFilter;
+                
+                // Status filter
+                const matchesStatus = !statusFilter || log.newStatus === statusFilter;
+                
+                // Date filter
+                let matchesDate = true;
+                if (dateFilter) {
+                    const logDate = new Date(log.timestamp);
+                    const now = new Date();
+                    const daysDiff = Math.floor((now - logDate) / (1000 * 60 * 60 * 24));
+                    
+                    switch(dateFilter) {
+                        case 'today':
+                            matchesDate = daysDiff === 0;
+                            break;
+                        case 'week':
+                            matchesDate = daysDiff <= 7;
+                            break;
+                        case 'month':
+                            matchesDate = daysDiff <= 30;
+                            break;
+                    }
+                }
+                
+                return matchesSearch && matchesTerminal && matchesStatus && matchesDate;
+            });
+            
+            displayLogs(filteredLogs);
+        }
+
+        function updateLocationDisplay() {
+            const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
+            
+            renderLocations();
+            updateMunicipalities();
+            
+            if (savedFilters.system) {
+                document.getElementById("systemFilter").value = savedFilters.system;
+                updateMunicipalities();
+            }
+            
+            if (savedFilters.municipality) {
+                const municipalitySelect = document.getElementById("municipalityFilter");
+                if (Array.from(municipalitySelect.options).some(opt => opt.value === savedFilters.municipality)) {
+                    municipalitySelect.value = savedFilters.municipality;
+                }
+            }
+            
+            if (savedFilters.statusFilter) {
+                document.getElementById("statusFilter").value = savedFilters.statusFilter;
+            }
+            
+            if (savedFilters.search) {
+                document.getElementById("searchInput").value = savedFilters.search;
+            }
+            
+            filterLocations();
+        }
+
+        // Enhanced municipalities update with access control - isto kot v dashboard
+        function updateMunicipalities() {
+            const system = document.getElementById("systemFilter").value;
+            const municipalitySelect = document.getElementById("municipalityFilter");
+            
+            municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
+            
+            const accessibleLocations = getAccessibleLocations();
+            
+            if (system) {
+                const municipalities = new Set();
+                accessibleLocations.forEach(loc => {
+                    if (loc.system === system) {
+                        municipalities.add(loc.municipality);
+                    }
+                });
+                
+                Array.from(municipalities).sort().forEach(m => {
+                    municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            } else {
+                const allMunicipalities = new Set();
+                accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
+                
+                Array.from(allMunicipalities).sort().forEach(m => {
+                    municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
+                });
+            }
+            
+            filterLocations();
+        }
+
+        // Restore filters after update
+        function restoreFilters() {
+            const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
+            
+            if (Object.keys(savedFilters).length === 0) return;
+            
+            if (savedFilters.system) {
+                document.getElementById("systemFilter").value = savedFilters.system;
+                updateMunicipalities();
+            }
+            
+            if (savedFilters.municipality) {
+                document.getElementById("municipalityFilter").value = savedFilters.municipality;
+            }
+            
+            if (savedFilters.statusFilter) {
+                document.getElementById("statusFilter").value = savedFilters.statusFilter;
+            }
+            
+            if (savedFilters.search) {
+                document.getElementById("searchInput").value = savedFilters.search;
+            }
+            
+            filterLocations();
+        }
+
+        // Logout function - isto kot v dashboard
+        function logout() {
+            if (confirm('Ste prepričani, da se želite odjaviti?')) {
+                sessionStorage.removeItem('currentUser');
+                sessionStorage.removeItem('dismissedNotifications');
+                sessionStorage.removeItem('currentFilters');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize the app - glavna funkcija
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication first
+            if (!checkAuth()) {
+                return;
+            }
+            
+            if (!initializeUserDisplay()) {
+                document.getElementById('connectionStatus').style.display = 'none';
+                return; // Stop if no access
+            }
+            
+            try {
+                // Load inspection data from Firebase
+                const dataLoaded = await loadInspectionData();
+                
+                if (dataLoaded) {
+                    renderLocations();
+                    updateMunicipalities();
+                    updateAlerts();
+                    updateSummary();
+                    
+                    // Hide connection status, show main content
+                    document.getElementById('connectionStatus').style.display = 'none';
+                    
+                    console.log('Inspection system successfully initialized');
+                } else {
+                    document.getElementById('connectionStatus').innerHTML = `
+                        <div class="connection-status" style="color: var(--fail);">
+                            <span>❌</span> Napaka pri povezovanju s Firebase
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('connectionStatus').innerHTML = `
+                    <div class="connection-status" style="color: var(--fail);">
+                        <span>❌</span> Napaka pri inicializaciji: ${error.message}
+                    </div>
+                `;
+            }
+            
+            // Add event listeners
+            document.getElementById('systemFilter').addEventListener('change', function() {
+                updateMunicipalities();
+                filterLocations();
+            });
+            
+            document.getElementById('municipalityFilter').addEventListener('change', filterLocations);
+            document.getElementById('statusFilter').addEventListener('change', filterLocations);
+            document.getElementById('searchInput').addEventListener('input', filterLocations);
+            
+            // Restore filters if they exist
+            restoreFilters();
+
+            // Theme toggle functionality - isto kot v dashboard
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Check localStorage for saved theme
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            } else {
+                themeToggle.textContent = '🌙';
+            }
+            
+            // Theme toggle event listener
+            themeToggle.addEventListener('click', function() {
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+
+            // Adjust logo size for mobile - isto kot v dashboard
+            function adjustLogoSize() {
+                const logos = document.querySelectorAll('.logo-left, .logo-center');
+                const size = window.innerWidth <= 768 ? '40px' : '50px';
+                logos.forEach(logo => {
+                    logo.style.height = size;
+                });
+            }
+
+            window.addEventListener('resize', adjustLogoSize);
+            adjustLogoSize();
+
+            // Refresh data every 5 minutes
+            setInterval(async () => {
+                await loadInspectionData();
+                updateLocationDisplay();
+                updateAlerts();
+                updateSummary();
+            }, 5 * 60 * 1000);
+        });
+
+        // Global functions - enake kot v dashboard
+        window.updateRackStatus = updateRackStatus;
+        window.filterOverdue = filterOverdue;
+        window.filterDueSoon = filterDueSoon;
+        window.filterLocations = filterLocations;
+        window.exportInspectionReport = exportInspectionReport;
+        window.showInspectionLogs = showInspectionLogs;
+        window.closeLogsModal = closeLogsModal;
+        window.filterLogs = filterLogs;
+        window.logout = logout;
+    </script>
+</body>
+</html>="location-info">
+                            <div style="font-weight: bold; font-size: 1.1rem;">${location.name}</div>
+                            <div style="font-size: 0.9rem; opacity: 0.9;">Terminal: ${location.terminal}</div>
+                        </div>
+                        <div class="location-alerts">
+                            ${alertBadges}
+                        </div>
+                    </div>
+                    <div class="location-body">
+                        <div style="margin-bottom: 15px; color: var(--text-light); font-size: 0.9rem;">
+                            ${location.system} • ${location.municipality}
+                        </div>
+                        <div class="rack-grid" id="racks-${location.terminal}"></div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+                
+                const rackContainer = document.getElementById(`racks-${location.terminal}`);
+                for (let i = 1; i <= location.racks; i++) {
+                    const inspectionStatus = getInspectionStatus(location.terminal, i);
+                    const nextDue = getNextInspectionDate(getLastInspectionDate(location.terminal, i));
+                    const statusInfo = formatInspectionStatus(inspectionStatus, nextDue);
+                    
+                    const key = `${location.terminal}-${i}`;
+                    const rackData = inspectionData[key] || {};
+                    
+                    const rackItem = document.createElement("div");
+                    rackItem.className = `rack-item ${inspectionStatus}`;
+                    rackItem.innerHTML = `
+                        <div class="rack-header">
+                            <div class="rack-number">${i}</div>
+                            <div class="inspection-due ${statusInfo.class}">${statusInfo.text}</div>
+                        </div>
+                        <div class<!DOCTYPE html>
 <html lang="sl">
 <head>
     <meta charset="UTF-8">
@@ -541,1254 +1801,3 @@
             font-size: 0.8rem;
             resize: vertical;
             height: 50px;
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .dark-mode .inspection-notes {
-            border-color: #555;
-            background: var(--bg-color);
-        }
-
-        /* Status barve */
-        .status-BP { background: var(--ok); color: white; }
-        .status-X { background: var(--fail); color: white; }
-        .status-NP { background: var(--warn); color: white; }
-        .status-NZ { background: var(--lockfail); color: white; }
-        .status-NO { background: var(--unlockfail); color: white; }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            margin: 2% auto;
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 1rem;
-        }
-
-        .dark-mode .modal-header {
-            border-bottom-color: #555;
-        }
-
-        .modal-header h2 {
-            color: var(--primary-blue);
-            margin: 0;
-        }
-
-        .dark-mode .modal-header h2 {
-            color: var(--secondary-yellow);
-        }
-
-        .close-btn {
-            background: var(--fail);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .log-filters {
-            margin-bottom: 1rem;
-        }
-
-        .log-filters input, .log-filters select {
-            margin-bottom: 8px;
-        }
-
-        .log-item {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            background: var(--light-blue);
-        }
-
-        .dark-mode .log-item {
-            border-color: #555;
-            background: var(--menu-bg);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 15px;
-            }
-            
-            .logo-left, .logo-center {
-                height: 40px;
-            }
-            
-            .user-info {
-                right: 60px;
-                font-size: 14px;
-                max-width: 150px;
-            }
-            
-            .menu a {
-                padding: 8px 5px;
-                font-size: 14px;
-            }
-            
-            .filter-bar {
-                flex-direction: column;
-            }
-            
-            select, input {
-                width: 100%;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .rack-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <a href="dashboard.html"><img src="Bikes_kolesar_belorumen_RGB.png" alt="NOMAGO kolesar logo" class="logo-left" onerror="this.style.display='none'" style="cursor: pointer;"></a>
-        <img src="Bikes_belorumen_RGB.png" alt="NOMAGO bikes logo" class="logo-center" onerror="this.style.display='none'">
-        <div class="user-info" id="userInfo">
-            <span id="userName">Nalaganje...</span>
-            <button class="logout-btn" onclick="logout()" title="Odjavi se">🚪</button>
-        </div>
-        <button class="theme-toggle" id="themeToggle" title="Preklopi temo">🌓</button>
-    </div>
-
-    <div class="nav"></div>
-
-    <div class="container">
-        <div class="menu">
-            <a href="dashboard.html">🏠 Baza</a>
-            <a href="#" class="active">🔧 Pregledi</a>
-            <a href="users.html" id="usersMenuLink" style="display: none;">👥 Uporabniki</a>
-            <a href="notifications.html" id="notificationsMenuLink" style="display: none;">📢 Obvestila</a>
-            <a href="settings.html">⚙️ Nastavitve</a>
-            <a href="#" onclick="logout()">🚪 Odjavi se</a>
-        </div>
-
-        <div class="content">
-            <!-- Connection Status -->
-            <div class="access-info" id="connectionStatus">
-                <div class="connection-status">
-                    <span>🔄</span> Povezovanje s Firebase...
-                </div>
-            </div>
-
-            <!-- User access info -->
-            <div class="access-info" id="accessInfo" style="display: none;">
-                <div class="connection-status">
-                    <span>🔄</span> Povezano s Firebase
-                </div>
-                <!-- Access info will be shown here -->
-            </div>
-
-            <!-- No access message -->
-            <div class="no-access" id="noAccessMessage" style="display: none;">
-                <h2>🚫 Ni dostopa</h2>
-                <p>Nimate dostopa do nobenih sistemov za preglede ključavnic. Kontaktirajte administratorja.</p>
-            </div>
-            
-            <!-- Alerts for overdue and due soon inspections -->
-            <div class="alerts-bar" id="alertsBar"></div>
-            
-            <!-- Summary statistics -->
-            <div class="stats-grid" id="summaryCard" style="display: none;">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalStations">0</div>
-                    <div>Postaje skupaj</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="totalRacks">0</div>
-                    <div>Ključavnice skupaj</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="overdueRacks">0</div>
-                    <div>Zamujene ključavnice</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="dueSoonRacks">0</div>
-                    <div>Pregledi kmalu</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="maintenanceNeeded">0</div>
-                    <div>Potrebno vzdrževanje</div>
-                </div>
-            </div>
-            
-            <!-- Filters -->
-            <div class="filter-section" id="filterSection" style="display: none;">
-                <h3>🔍 Filtri in iskanje</h3>
-                <div class="filter-bar">
-                    <select id="systemFilter">
-                        <option value="">Vsi sistemi</option>
-                    </select>
-                    
-                    <select id="municipalityFilter">
-                        <option value="">Vse občine</option>
-                    </select>
-                    
-                    <select id="statusFilter">
-                        <option value="">Vsi statusi</option>
-                        <option value="overdue">Zamujeni pregledi</option>
-                        <option value="due-soon">Pregledi kmalu</option>
-                        <option value="ok">V redu</option>
-                    </select>
-                    
-                    <input type="text" id="searchInput" placeholder="Iskanje...">
-                    
-                    <button class="export-button" onclick="exportInspectionReport()">
-                        📊 Izvozi poročilo
-                    </button>
-                    
-                    <button class="export-button btn-success" onclick="showInspectionLogs()">
-                        📋 Ogled logov
-                    </button>
-                </div>
-            </div>
-
-            <div id="locationsContainer"></div>
-        </div>
-    </div>
-
-    <!-- Modal for inspection logs -->
-    <div id="logsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📋 Logi pregledov</h2>
-                <button onclick="closeLogsModal()" class="close-btn">✕ Zapri</button>
-            </div>
-            
-            <div class="log-filters">
-                <input type="text" id="logSearch" placeholder="Iskanje po lokaciji, terminalu, serviserju..." style="width: 100%; margin-bottom: 8px;" oninput="filterLogs()">
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <select id="logTerminalFilter" onchange="filterLogs()">
-                        <option value="">Vsi terminali</option>
-                    </select>
-                    <select id="logStatusFilter" onchange="filterLogs()">
-                        <option value="">Vsi statusi</option>
-                        <option value="BP">BP</option>
-                        <option value="X">X</option>
-                        <option value="NP">NP</option>
-                        <option value="NZ">NZ</option>
-                        <option value="NO">NO</option>
-                    </select>
-                    <select id="logDateFilter" onchange="filterLogs()">
-                        <option value="">Vsi datumi</option>
-                        <option value="today">Danes</option>
-                        <option value="week">Zadnjih 7 dni</option>
-                        <option value="month">Zadnjih 30 dni</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div id="logsContent" style="max-height: 60vh; overflow-y: auto;">
-                <!-- Logs will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase Integration Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            setDoc, 
-            getDoc, 
-            getDocs, 
-            deleteDoc,
-            updateDoc,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-        // Firebase config - isti projekt kot dashboard
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrhPYvef_YZbISHxWeZL0MuQVAQYtTN4M",
-            authDomain: "nomago-bikes-portal-f33da.firebaseapp.com",
-            projectId: "nomago-bikes-portal-f33da",
-            storageBucket: "nomago-bikes-portal-f33da.firebasestorage.app",
-            messagingSenderId: "647987655592",
-            appId: "1:647987655592:web:7731d4ca344ce804bdc96d",
-            measurementId: "G-D1CBD3V7ZV"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Make Firebase functions globally available
-        window.firebaseDb = db;
-        window.firebaseFunctions = {
-            collection,
-            doc,
-            setDoc,
-            getDoc,
-            getDocs,
-            deleteDoc,
-            updateDoc,
-            serverTimestamp
-        };
-
-        console.log("Firebase initialized in new inspection system");
-    </script>
-
-    <script>
-        // Global variables - iste kot v dashboard
-        let currentUser = null;
-        let inspectionData = {};
-        let inspectionLog = [];
-        let locations = [];
-
-        // Check authentication - isto kot v dashboard
-        function checkAuth() {
-            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-            if (!currentUser) {
-                alert('Niste prijavljeni. Preusmerjamo vas na prijavno stran.');
-                window.location.href = 'index.html';
-                return null;
-            }
-            return currentUser;
-        }
-
-        // Initialize user display and access control - isto kot v dashboard
-        function initializeUserDisplay() {
-            if (currentUser.ime) {
-                document.getElementById('userName').textContent = 
-                    `${currentUser.ime} ${currentUser.priimek} (${currentUser.vloga})`;
-                
-                // Show admin-only elements
-                if (currentUser.vloga === 'admin') {
-                    document.getElementById('usersMenuLink').style.display = 'inline-block';
-                    document.getElementById('notificationsMenuLink').style.display = 'inline-block';
-                }
-                
-                if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
-                    const accessInfo = document.getElementById('accessInfo');
-                    accessInfo.style.display = 'block';
-                    accessInfo.innerHTML = `
-                        <div class="connection-status">
-                            <span>🔄</span> Povezano s Firebase
-                        </div>
-                        🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
-                        (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
-                    `;
-                    
-                    // Show main interface
-                    document.getElementById('filterSection').style.display = 'block';
-                    document.getElementById('summaryCard').style.display = 'grid';
-                    
-                    // Populate system filter with user's accessible systems
-                    populateSystemFilter();
-                    
-                } else {
-                    // No access
-                    document.getElementById('noAccessMessage').style.display = 'block';
-                    return false;
-                }
-            } else {
-                // No user data
-                document.getElementById('noAccessMessage').style.display = 'block';
-                document.getElementById('noAccessMessage').innerHTML = `
-                    <h2>⚠️ Napaka</h2>
-                    <p>Ni podatkov o uporabniku. Prosimo, se ponovno prijavite preko BAZA portala.</p>
-                `;
-                return false;
-            }
-            return true;
-        }
-
-        function populateSystemFilter() {
-            const systemFilter = document.getElementById('systemFilter');
-            systemFilter.innerHTML = '<option value="">Vsi sistemi</option>';
-            
-            if (currentUser.accessibleSystems) {
-                currentUser.accessibleSystems.forEach(system => {
-                    systemFilter.innerHTML += `<option value="${system}">${system}</option>`;
-                });
-            }
-        }
-
-        // Load inspection data from Firebase - ista struktura kot v dashboard
-        async function loadInspectionData() {
-            try {
-                // Load locations
-                const locationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
-                );
-                locations = locationsDoc.exists() ? locationsDoc.data().data || [] : [];
-                
-                const inspectionDataDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
-                );
-                
-                if (inspectionDataDoc.exists()) {
-                    inspectionData = inspectionDataDoc.data().data || {};
-                }
-                
-                const inspectionLogDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog')
-                );
-                
-                if (inspectionLogDoc.exists()) {
-                    inspectionLog = inspectionLogDoc.data().data || [];
-                }
-                
-                console.log('Inspection data loaded from Firebase');
-                return true;
-            } catch (error) {
-                console.error('Error loading inspection data:', error);
-                return false;
-            }
-        }
-
-        // Save inspection data to Firebase - isto kot v dashboard
-        async function saveInspectionData() {
-            try {
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData'),
-                    {
-                        data: inspectionData,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                await window.firebaseFunctions.setDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionLog'),
-                    {
-                        data: inspectionLog,
-                        lastUpdated: window.firebaseFunctions.serverTimestamp()
-                    }
-                );
-                
-                console.log('Inspection data saved to Firebase');
-            } catch (error) {
-                console.error('Error saving inspection data:', error);
-            }
-        }
-
-        // Get accessible locations for current user - isto kot v dashboard
-        function getAccessibleLocations() {
-            if (!currentUser.accessibleSystems || !currentUser.accessibleLocations) {
-                return [];
-            }
-
-            return locations.filter(location => {
-                return currentUser.accessibleSystems.includes(location.system) &&
-                       currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
-            });
-        }
-
-        // Calculate next inspection date (every 3 months) - isto kot v dashboard
-        function getNextInspectionDate(lastInspection) {
-            if (!lastInspection) {
-                return new Date(); // If never inspected, it's overdue
-            }
-            
-            const lastDate = new Date(lastInspection);
-            const nextDate = new Date(lastDate);
-            nextDate.setMonth(nextDate.getMonth() + 3);
-            return nextDate;
-        }
-
-        // Get inspection status for a rack - isto kot v dashboard
-        function getInspectionStatus(terminal, rackNumber) {
-            const key = `${terminal}-${rackNumber}`;
-            const rackData = inspectionData[key];
-            
-            if (!rackData || !rackData.lastInspection) {
-                return 'overdue';
-            }
-            
-            const nextDue = getNextInspectionDate(rackData.lastInspection);
-            const now = new Date();
-            const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
-            
-            if (daysUntilDue < 0) {
-                return 'overdue';
-            } else if (daysUntilDue <= 14) {
-                return 'due-soon';
-            } else {
-                return 'ok';
-            }
-        }
-
-        // Format inspection status display - isto kot v dashboard
-        function formatInspectionStatus(status, nextDue) {
-            const now = new Date();
-            const daysUntilDue = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
-            
-            switch (status) {
-                case 'overdue':
-                    const overdueDays = Math.abs(daysUntilDue);
-                    return { text: `${overdueDays}d ZAMUDA`, class: 'overdue' };
-                case 'due-soon':
-                    return { text: `${daysUntilDue}d DO`, class: 'due-soon' };
-                case 'ok':
-                    return { text: `${daysUntilDue}d`, class: 'ok' };
-                default:
-                    return { text: 'N/A', class: 'ok' };
-            }
-        }
-
-        // Update rack status and log the change - isto kot v dashboard
-        async function updateRackStatus(select) {
-            const terminal = select.dataset.terminal;
-            const rackNumber = select.dataset.rack;
-            const newStatus = select.value;
-            const notes = document.querySelector(`[data-terminal="${terminal}"][data-rack="${rackNumber}"].notes-input`).value;
-            
-            // Remove all status classes
-            select.className = "rack-select";
-            
-            // Add current status class if selected
-            if (newStatus) {
-                select.classList.add(`status-${newStatus}`);
-            }
-            
-            // Get old status for logging
-            const key = `${terminal}-${rackNumber}`;
-            const oldData = inspectionData[key] || {};
-            const oldStatus = oldData.currentStatus || '';
-            
-            // Only update and log if there's actually a status change to something real
-            if (newStatus) {
-                // Update inspection data only if new status is not empty
-                const now = new Date().toISOString();
-                inspectionData[key] = {
-                    ...oldData,
-                    currentStatus: newStatus,
-                    lastInspection: now,
-                    notes: notes,
-                    inspector: currentUser.uporabniskoIme || 'unknown'
-                };
-                
-                // Log the change only if it's a real status (not empty)
-                inspectionLog.push({
-                    timestamp: now,
-                    terminal: terminal,
-                    rackNumber: rackNumber,
-                    oldStatus: oldStatus,
-                    newStatus: newStatus,
-                    inspector: currentUser.uporabniskoIme || 'unknown',
-                    notes: notes
-                });
-                
-            } else {
-                // If new status is empty, completely remove this rack's data
-                // This means it goes back to "never inspected" state
-                if (inspectionData[key]) {
-                    delete inspectionData[key];
-                }
-            }
-            
-            // Save to Firebase
-            await saveInspectionData();
-            
-            // Update the display
-            updateLocationDisplay();
-            updateAlerts();
-            updateSummary();
-            
-            console.log(`Rack ${terminal}-${rackNumber} updated: ${oldStatus} → ${newStatus || 'reset to never inspected'}`);
-        }
-
-        // Update alerts display - isto kot v dashboard
-        function updateAlerts() {
-            const alertsBar = document.getElementById('alertsBar');
-            const overdue = [];
-            const dueSoon = [];
-            
-            const accessibleLocations = getAccessibleLocations();
-            
-            accessibleLocations.forEach(location => {
-                for (let i = 1; i <= location.racks; i++) {
-                    const status = getInspectionStatus(location.terminal, i);
-                    if (status === 'overdue') {
-                        overdue.push(`${location.name} - Ključavnica ${i}`);
-                    } else if (status === 'due-soon') {
-                        dueSoon.push(`${location.name} - Ključavnica ${i}`);
-                    }
-                }
-            });
-            
-            let alertsHtml = '';
-            
-            if (overdue.length > 0) {
-                alertsHtml += `
-                    <div class="alert alert-overdue">
-                        <span>⚠️ <strong>${overdue.length} zamujenih pregledov:</strong> ${overdue.slice(0, 3).join(', ')}${overdue.length > 3 ? ` in ${overdue.length - 3} več...` : ''}</span>
-                        <button onclick="filterOverdue()" style="background: var(--overdue); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
-                    </div>
-                `;
-            }
-            
-            if (dueSoon.length > 0) {
-                alertsHtml += `
-                    <div class="alert alert-due-soon">
-                        <span>📅 <strong>${dueSoon.length} pregledov kmalu:</strong> ${dueSoon.slice(0, 3).join(', ')}${dueSoon.length > 3 ? ` in ${dueSoon.length - 3} več...` : ''}</span>
-                        <button onclick="filterDueSoon()" style="background: var(--due-soon); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Prikaži vse</button>
-                    </div>
-                `;
-            }
-            
-            alertsBar.innerHTML = alertsHtml;
-        }
-
-        // Update summary statistics - isto kot v dashboard
-        function updateSummary() {
-            let total = 0;
-            let overdue = 0;
-            let dueSoon = 0;
-            let ok = 0;
-            let needsMaintenance = 0;
-            
-            const accessibleLocations = getAccessibleLocations();
-            
-            accessibleLocations.forEach(location => {
-                for (let i = 1; i <= location.racks; i++) {
-                    total++;
-                    const status = getInspectionStatus(location.terminal, i);
-                    
-                    if (status === 'overdue') overdue++;
-                    else if (status === 'due-soon') dueSoon++;
-                    else ok++;
-                    
-                    // Check current maintenance status
-                    const key = `${location.terminal}-${i}`;
-                    const rackData = inspectionData[key];
-                    if (rackData && rackData.currentStatus && rackData.currentStatus !== 'BP') {
-                        needsMaintenance++;
-                    }
-                }
-            });
-            
-            // Update UI
-            document.getElementById('totalStations').textContent = accessibleLocations.length;
-            document.getElementById('totalRacks').textContent = total;
-            document.getElementById('overdueRacks').textContent = overdue;
-            document.getElementById('dueSoonRacks').textContent = dueSoon;
-            document.getElementById('maintenanceNeeded').textContent = needsMaintenance;
-        }
-
-        // Filter functions - isto kot v dashboard
-        function filterOverdue() {
-            document.getElementById('statusFilter').value = 'overdue';
-            filterLocations();
-        }
-
-        function filterDueSoon() {
-            document.getElementById('statusFilter').value = 'due-soon';
-            filterLocations();
-        }
-
-        // Enhanced location rendering with inspection status and access control - isto kot v dashboard
-        function renderLocations() {
-            const container = document.getElementById("locationsContainer");
-            container.innerHTML = "";
-            
-            const accessibleLocations = getAccessibleLocations();
-            
-            if (accessibleLocations.length === 0) {
-                return;
-            }
-            
-            accessibleLocations.forEach(location => {
-                // Check if location has any overdue or due soon racks
-                let hasOverdue = false;
-                let hasDueSoon = false;
-                
-                for (let i = 1; i <= location.racks; i++) {
-                    const status = getInspectionStatus(location.terminal, i);
-                    if (status === 'overdue') hasOverdue = true;
-                    if (status === 'due-soon') hasDueSoon = true;
-                }
-                
-                const card = document.createElement("div");
-                card.className = "location-card";
-                card.dataset.system = location.system;
-                card.dataset.municipality = location.municipality;
-                card.dataset.name = location.name.toLowerCase();
-                card.dataset.terminal = location.terminal;
-                
-                if (hasOverdue) card.classList.add('has-overdue');
-                else if (hasDueSoon) card.classList.add('has-due-soon');
-                
-                // Create alert badges
-                let alertBadges = '';
-                if (hasOverdue) {
-                    const overdueCount = Array.from({length: location.racks}, (_, i) => 
-                        getInspectionStatus(location.terminal, i + 1) === 'overdue').filter(Boolean).length;
-                    alertBadges += `<span class="alert-badge overdue">${overdueCount} zamujenih</span>`;
-                }
-                if (hasDueSoon) {
-                    const dueSoonCount = Array.from({length: location.racks}, (_, i) => 
-                        getInspectionStatus(location.terminal, i + 1) === 'due-soon').filter(Boolean).length;
-                    alertBadges += `<span class="alert-badge due-soon">${dueSoonCount} kmalu</span>`;
-                }
-                
-                card.innerHTML = `
-                    <div class="location-header">
-                        <div class="location-info">
-                            <div style="font-weight: bold; font-size: 1.1rem;">${location.name}</div>
-                            <div style="font-size: 0.9rem; opacity: 0.9;">Terminal: ${location.terminal}</div>
-                        </div>
-                        <div class="location-alerts">
-                            ${alertBadges}
-                        </div>
-                    </div>
-                    <div class="location-body">
-                        <div style="margin-bottom: 15px; color: var(--text-light); font-size: 0.9rem;">
-                            ${location.system} • ${location.municipality}
-                        </div>
-                        <div class="rack-grid" id="racks-${location.terminal}"></div>
-                    </div>
-                `;
-                
-                container.appendChild(card);
-                
-                const rackContainer = document.getElementById(`racks-${location.terminal}`);
-                for (let i = 1; i <= location.racks; i++) {
-                    const inspectionStatus = getInspectionStatus(location.terminal, i);
-                    const nextDue = getNextInspectionDate(getLastInspectionDate(location.terminal, i));
-                    const statusInfo = formatInspectionStatus(inspectionStatus, nextDue);
-                    
-                    const key = `${location.terminal}-${i}`;
-                    const rackData = inspectionData[key] || {};
-                    
-                    const rackItem = document.createElement("div");
-                    rackItem.className = `rack-item ${inspectionStatus}`;
-                    rackItem.innerHTML = `
-                        <div class="rack-header">
-                            <div class="rack-number">${i}</div>
-                            <div class="inspection-due ${statusInfo.class}">${statusInfo.text}</div>
-                        </div>
-                        <div class="last-inspection">
-                            Zadnji: ${rackData.lastInspection ? 
-                                new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli'}
-                        </div>
-                        <select class="rack-select ${rackData.currentStatus ? `status-${rackData.currentStatus}` : ''}" 
-                                data-terminal="${location.terminal}" 
-                                data-rack="${i}"
-                                onchange="updateRackStatus(this)">
-                            <option value=""></option>
-                            <option value="BP" ${rackData.currentStatus === 'BP' ? 'selected' : ''}>BP</option>
-                            <option value="X" ${rackData.currentStatus === 'X' ? 'selected' : ''}>X</option>
-                            <option value="NP" ${rackData.currentStatus === 'NP' ? 'selected' : ''}>NP</option>
-                            <option value="NZ" ${rackData.currentStatus === 'NZ' ? 'selected' : ''}>NZ</option>
-                            <option value="NO" ${rackData.currentStatus === 'NO' ? 'selected' : ''}>NO</option>
-                        </select>
-                        <textarea class="inspection-notes notes-input" 
-                                  data-terminal="${location.terminal}" 
-                                  data-rack="${i}"
-                                  placeholder="Opombe...">${rackData.notes || ''}</textarea>
-                    `;
-                    rackContainer.appendChild(rackItem);
-                }
-            });
-        }
-
-        function getLastInspectionDate(terminal, rackNumber) {
-            const key = `${terminal}-${rackNumber}`;
-            const rackData = inspectionData[key];
-            return rackData ? rackData.lastInspection : null;
-        }
-
-        // Simple filtering with access control - isto kot v dashboard
-        function filterLocations() {
-            const system = document.getElementById("systemFilter").value;
-            const municipality = document.getElementById("municipalityFilter").value.toLowerCase();
-            const statusFilter = document.getElementById("statusFilter").value;
-            const search = document.getElementById("searchInput").value.toLowerCase();
-            
-            // Store filters in sessionStorage
-            sessionStorage.setItem('currentFilters', JSON.stringify({
-                system, municipality, statusFilter, search
-            }));
-            
-            document.querySelectorAll(".location-card").forEach(card => {
-                const cardSystem = card.dataset.system;
-                const cardMunicipality = card.dataset.municipality.toLowerCase();
-                const cardName = card.dataset.name;
-                const cardTerminal = card.dataset.terminal.toLowerCase();
-                
-                let matches = (
-                    (!system || cardSystem === system) &&
-                    (!municipality || cardMunicipality.includes(municipality)) &&
-                    (!search || cardName.includes(search) || cardTerminal.includes(search))
-                );
-                
-                // Filter by inspection status
-                if (matches && statusFilter) {
-                    let hasMatchingStatus = false;
-                    const terminal = card.dataset.terminal;
-                    const accessibleLocations = getAccessibleLocations();
-                    const location = accessibleLocations.find(loc => loc.terminal === terminal);
-                    
-                    if (location) {
-                        for (let i = 1; i <= location.racks; i++) {
-                            const inspectionStatus = getInspectionStatus(terminal, i);
-                            if (inspectionStatus === statusFilter) {
-                                hasMatchingStatus = true;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    matches = hasMatchingStatus;
-                }
-                
-                card.style.display = matches ? "block" : "none";
-            });
-        }
-
-        // Export inspection report - isto kot v dashboard
-        function exportInspectionReport() {
-            const accessibleLocations = getAccessibleLocations();
-            
-            if (accessibleLocations.length === 0) {
-                alert('Nimate dostopa do nobenih lokacij za izvoz poročila.');
-                return;
-            }
-            
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Terminal,Lokacija,Ključavnica,Status pregleda,Zadnji pregled,Naslednji pregled,Trenutno stanje,Opombe,Serviser\n";
-            
-            accessibleLocations.forEach(location => {
-                for (let i = 1; i <= location.racks; i++) {
-                    const key = `${location.terminal}-${i}`;
-                    const rackData = inspectionData[key] || {};
-                    const inspectionStatus = getInspectionStatus(location.terminal, i);
-                    const nextDue = getNextInspectionDate(rackData.lastInspection);
-                    
-                    const row = [
-                        location.terminal,
-                        location.name,
-                        i,
-                        inspectionStatus === 'overdue' ? 'ZAMUJEN' : 
-                        inspectionStatus === 'due-soon' ? 'KMALU' : 'V REDU',
-                        rackData.lastInspection ? new Date(rackData.lastInspection).toLocaleDateString('sl-SI') : 'Nikoli',
-                        nextDue.toLocaleDateString('sl-SI'),
-                        rackData.currentStatus || 'Ni podatka',
-                        (rackData.notes || '').replace(/,/g, ';'),
-                        rackData.inspector || 'Ni podatka'
-                    ].map(field => `"${field}"`).join(',');
-                    
-                    csvContent += row + "\n";
-                }
-            });
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `pregled_porocilo_${currentUser.uporabniskoIme}_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Show inspection logs modal - isto kot v dashboard
-        function showInspectionLogs() {
-            document.getElementById('logsModal').style.display = 'block';
-            loadInspectionLogs();
-            populateLogFilters();
-        }
-
-        function closeLogsModal() {
-            document.getElementById('logsModal').style.display = 'none';
-        }
-
-        function populateLogFilters() {
-            const accessibleLocations = getAccessibleLocations();
-            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
-            
-            // Filter logs to only show user's accessible locations
-            const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
-            const terminals = [...new Set(accessibleLogs.map(log => log.terminal))].sort();
-            
-            const terminalFilter = document.getElementById('logTerminalFilter');
-            terminalFilter.innerHTML = '<option value="">Vsi terminali</option>';
-            
-            terminals.forEach(terminal => {
-                const location = accessibleLocations.find(loc => loc.terminal === terminal);
-                const locationName = location ? location.name : terminal;
-                terminalFilter.innerHTML += `<option value="${terminal}">${terminal} - ${locationName}</option>`;
-            });
-        }
-
-        function loadInspectionLogs() {
-            const accessibleLocations = getAccessibleLocations();
-            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
-            
-            // Filter logs to only show user's accessible locations
-            const accessibleLogs = inspectionLog.filter(log => accessibleTerminals.includes(log.terminal));
-            
-            const logsContent = document.getElementById('logsContent');
-            
-            if (accessibleLogs.length === 0) {
-                logsContent.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 2rem;">Ni zapisov pregledov za vaše dostopne lokacije.</p>';
-                return;
-            }
-            
-            displayLogs(accessibleLogs);
-        }
-
-        function displayLogs(logs) {
-            const logsContent = document.getElementById('logsContent');
-            const accessibleLocations = getAccessibleLocations();
-            
-            // Sort logs by timestamp (newest first)
-            const sortedLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            let html = '';
-            sortedLogs.forEach((log, index) => {
-                const location = accessibleLocations.find(loc => loc.terminal === log.terminal);
-                const locationName = location ? location.name : 'Neznana lokacija';
-                const date = new Date(log.timestamp);
-                const statusColor = getStatusColor(log.newStatus);
-                const oldStatusColor = getStatusColor(log.oldStatus);
-                
-                html += `
-                    <div class="log-item" data-log-index="${index}">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                            <div>
-                                <strong style="color: var(--primary-blue);">${locationName}</strong>
-                                <span style="color: var(--text-light); font-size: 0.9rem;">(${log.terminal})</span>
-                                <div style="font-size: 0.9rem; color: var(--text-light);">
-                                    Ključavnica ${log.rackNumber} • ${date.toLocaleDateString('sl-SI')} ${date.toLocaleTimeString('sl-SI', {hour: '2-digit', minute: '2-digit'})}
-                                </div>
-                            </div>
-                            <div style="font-size: 0.8rem; color: var(--text-light);">
-                                ${log.inspector}
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; ${oldStatusColor}">
-                                ${log.oldStatus || 'Brez statusa'}
-                            </span>
-                            <span style="color: var(--text-light);">→</span>
-                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; ${statusColor}">
-                                ${log.newStatus}
-                            </span>
-                        </div>
-                        
-                        ${log.notes ? `<div style="background: var(--card-bg); padding: 0.5rem; border-radius: 4px; font-size: 0.9rem; border-left: 3px solid var(--primary-blue);">
-                          <strong>Opomba:</strong> ${log.notes}
-                        </div>` : ''}
-                    </div>
-                `;
-            });
-            
-            logsContent.innerHTML = html;
-        }
-
-        function getStatusColor(status) {
-            switch(status) {
-                case 'BP': return 'background: var(--ok); color: white;';
-                case 'X': return 'background: var(--fail); color: white;';
-                case 'NP': return 'background: var(--warn); color: white;';
-                case 'NZ': return 'background: var(--lockfail); color: white;';
-                case 'NO': return 'background: var(--unlockfail); color: white;';
-                default: return 'background: #ccc; color: black;';
-            }
-        }
-
-        function filterLogs() {
-            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
-            const terminalFilter = document.getElementById('logTerminalFilter').value;
-            const statusFilter = document.getElementById('logStatusFilter').value;
-            const dateFilter = document.getElementById('logDateFilter').value;
-            
-            const accessibleLocations = getAccessibleLocations();
-            const accessibleTerminals = accessibleLocations.map(loc => loc.terminal);
-            
-            // Filter logs to only show user's accessible locations
-            let filteredLogs = inspectionLog.filter(log => {
-                if (!accessibleTerminals.includes(log.terminal)) return false;
-                
-                const location = accessibleLocations.find(loc => loc.terminal === log.terminal);
-                const locationName = location ? location.name.toLowerCase() : '';
-                
-                // Search filter
-                const matchesSearch = !searchTerm || 
-                    locationName.includes(searchTerm) ||
-                    log.terminal.toLowerCase().includes(searchTerm) ||
-                    log.inspector.toLowerCase().includes(searchTerm);
-                
-                // Terminal filter
-                const matchesTerminal = !terminalFilter || log.terminal === terminalFilter;
-                
-                // Status filter
-                const matchesStatus = !statusFilter || log.newStatus === statusFilter;
-                
-                // Date filter
-                let matchesDate = true;
-                if (dateFilter) {
-                    const logDate = new Date(log.timestamp);
-                    const now = new Date();
-                    const daysDiff = Math.floor((now - logDate) / (1000 * 60 * 60 * 24));
-                    
-                    switch(dateFilter) {
-                        case 'today':
-                            matchesDate = daysDiff === 0;
-                            break;
-                        case 'week':
-                            matchesDate = daysDiff <= 7;
-                            break;
-                        case 'month':
-                            matchesDate = daysDiff <= 30;
-                            break;
-                    }
-                }
-                
-                return matchesSearch && matchesTerminal && matchesStatus && matchesDate;
-            });
-            
-            displayLogs(filteredLogs);
-        }
-
-        function updateLocationDisplay() {
-            const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
-            
-            renderLocations();
-            updateMunicipalities();
-            
-            if (savedFilters.system) {
-                document.getElementById("systemFilter").value = savedFilters.system;
-                updateMunicipalities();
-            }
-            
-            if (savedFilters.municipality) {
-                const municipalitySelect = document.getElementById("municipalityFilter");
-                if (Array.from(municipalitySelect.options).some(opt => opt.value === savedFilters.municipality)) {
-                    municipalitySelect.value = savedFilters.municipality;
-                }
-            }
-            
-            if (savedFilters.statusFilter) {
-                document.getElementById("statusFilter").value = savedFilters.statusFilter;
-            }
-            
-            if (savedFilters.search) {
-                document.getElementById("searchInput").value = savedFilters.search;
-            }
-            
-            filterLocations();
-        }
-
-        // Enhanced municipalities update with access control - isto kot v dashboard
-        function updateMunicipalities() {
-            const system = document.getElementById("systemFilter").value;
-            const municipalitySelect = document.getElementById("municipalityFilter");
-            
-            municipalitySelect.innerHTML = "<option value=''>Vse občine</option>";
-            
-            const accessibleLocations = getAccessibleLocations();
-            
-            if (system) {
-                const municipalities = new Set();
-                accessibleLocations.forEach(loc => {
-                    if (loc.system === system) {
-                        municipalities.add(loc.municipality);
-                    }
-                });
-                
-                Array.from(municipalities).sort().forEach(m => {
-                    municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
-                });
-            } else {
-                const allMunicipalities = new Set();
-                accessibleLocations.forEach(loc => allMunicipalities.add(loc.municipality));
-                
-                Array.from(allMunicipalities).sort().forEach(m => {
-                    municipalitySelect.innerHTML += `<option value="${m}">${m}</option>`;
-                });
-            }
-            
-            filterLocations();
-        }
-
-        // Restore filters after update
-        function restoreFilters() {
-            const savedFilters = JSON.parse(sessionStorage.getItem('currentFilters') || '{}');
-            
-            if (Object.keys(savedFilters).length === 0) return;
-            
-            if (savedFilters.system) {
-                document.getElementById("systemFilter").value = savedFilters.system;
-                updateMunicipalities();
-            }
-            
-            if (savedFilters.municipality) {
-                document.getElementById("municipalityFilter").value = savedFilters.municipality;
-            }
-            
-            if (savedFilters.statusFilter) {
-                document.getElementById("statusFilter").value = savedFilters.statusFilter;
-            }
-            
-            if (savedFilters.search) {
-                document.getElementById("searchInput").value = savedFilters.search;
-            }
-            
-            filterLocations();
-        }
-
-        // Logout function - isto kot v dashboard
-        function logout() {
-            if (confirm('Ste prepričani, da se želite odjaviti?')) {
-                sessionStorage.removeItem('currentUser');
-                sessionStorage.removeItem('dismissedNotifications');
-                sessionStorage.removeItem('currentFilters');
-                window.location.href = 'index.html';
-            }
-        }
-
-        // Initialize the app - glavna funkcija
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Check authentication first
-            if (!checkAuth()) {
-                return;
-            }
-            
-            if (!initializeUserDisplay()) {
-                document.getElementById('connectionStatus').style.display = 'none';
-                return; // Stop if no access
-            }
-            
-            try {
-                // Load inspection data from Firebase
-                const dataLoaded = await loadInspectionData();
-                
-                if (dataLoaded) {
-                    renderLocations();
-                    updateMunicipalities();
-                    updateAlerts();
-                    updateSummary();
-                    
-                    // Hide connection status, show main content
-                    document.getElementById('connectionStatus').style.display = 'none';
-                    
-                    console.log('Inspection system successfully initialized');
-                } else {
-                    document.getElementById('connectionStatus').innerHTML = `
-                        <div class="connection-status" style="color: var(--fail);">
-                            <span>❌</span> Napaka pri povezovanju s Firebase
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Initialization error:', error);
-                document.getElementById('connectionStatus').innerHTML = `
-                    <div class="connection-status" style="color: var(--fail);">
-                        <span>❌</span> Napaka pri inicializaciji: ${error.message}
-                    </div>
-                `;
-            }
-            
-            // Add event listeners
-            document.getElementById('systemFilter').addEventListener('change', function() {
-                updateMunicipalities();
-                filterLocations();
-            });
-            
-            document.getElementById('municipalityFilter').addEventListener('change', filterLocations);
-            document.getElementById('statusFilter').addEventListener('change', filterLocations);
-            document.getElementById('searchInput').addEventListener('input', filterLocations);
-            
-            // Restore filters if they exist
-            restoreFilters();
-
-            // Theme toggle functionality - isto kot v dashboard
-            const themeToggle = document.getElementById('themeToggle');
-            
-            // Check localStorage for saved theme
-            const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-            } else {
-                themeToggle.textContent = '🌙';
-            }
-            
-            // Theme toggle event listener
-            themeToggle.addEventListener('click', function() {
-                if (document.body.classList.contains('dark-mode')) {
-                    document.body.classList.remove('dark-mode');
-                    localStorage.setItem('theme', 'light');
-                    themeToggle.textContent = '🌙';
-                } else {
-                    document.body.classList.add('dark-mode');
-                    localStorage.setItem('theme', 'dark');
-                    themeToggle.textContent = '☀️';
-                }
-            });
-
-            // Adjust logo size for mobile - isto kot v dashboard
-            function adjustLogoSize() {
-                const logos = document.querySelectorAll('.logo-left, .logo-center');
-                const size = window.innerWidth <= 768 ? '40px' : '50px';
-                logos.forEach(logo => {
-                    logo.style.height = size;
-                });
-            }
-
-            window.addEventListener('resize', adjustLogoSize);
-            adjustLogoSize();
-
-            // Refresh data every 5 minutes
-            setInterval(async () => {
-                await loadInspectionData();
-                updateLocationDisplay();
-                updateAlerts();
-                updateSummary();
-            }, 5 * 60 * 1000);
-        });
-
-        // Global functions - enake kot v dashboard
-        window.updateRackStatus = updateRackStatus;
-        window.filterOverdue = filterOverdue;
-        window.filterDueSoon = filterDueSoon;
-        window.filterLocations = filterLocations;
-        window.exportInspectionReport = exportInspectionReport;
-        window.showInspectionLogs = showInspectionLogs;
-        window.closeLogsModal = closeLogsModal;
-        window.filterLogs = filterLogs;
-        window.logout = logout;
-    </script>
-</body>
-</html>

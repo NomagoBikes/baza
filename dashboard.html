@@ -651,7 +651,7 @@
             serverTimestamp
         };
 
-        console.log("Firebase initialized in renovated dashboard");
+        console.log("Firebase initialized in fixed dashboard");
     </script>
 
     <script>
@@ -673,61 +673,9 @@
             return currentUser;
         }
 
-        // Debug: Check user access and Firebase data
-        async function debugFirebaseAccess() {
-            console.log('=== DEBUG: Firebase Access Check ===');
-            console.log('Current user:', currentUser);
-            console.log('Accessible systems:', currentUser?.accessibleSystems);
-            console.log('Accessible locations:', currentUser?.accessibleLocations);
-            
-            try {
-                // Check locations document
-                const locationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
-                );
-                console.log('Locations document exists:', locationsDoc.exists());
-                if (locationsDoc.exists()) {
-                    const locationsData = locationsDoc.data().data || [];
-                    console.log('Total locations in Firebase:', locationsData.length);
-                    console.log('Sample locations:', locationsData.slice(0, 3));
-                } else {
-                    console.log('⚠️ No locations document found in Firebase!');
-                }
-                
-                // Check inspection data document
-                const inspectionDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'inspectionData')
-                );
-                console.log('Inspection data document exists:', inspectionDoc.exists());
-                if (inspectionDoc.exists()) {
-                    const inspectionData = inspectionDoc.data().data || {};
-                    console.log('Total inspection records:', Object.keys(inspectionData).length);
-                    console.log('Sample inspection keys:', Object.keys(inspectionData).slice(0, 5));
-                }
-                
-                // Check notifications document
-                const notificationsDoc = await window.firebaseFunctions.getDoc(
-                    window.firebaseFunctions.doc(window.firebaseDb, 'system', 'notifications')
-                );
-                console.log('Notifications document exists:', notificationsDoc.exists());
-                if (notificationsDoc.exists()) {
-                    const notifications = notificationsDoc.data().data || [];
-                    console.log('Total notifications:', notifications.length);
-                    console.log('Active notifications:', notifications.filter(n => n.active).length);
-                }
-                
-            } catch (error) {
-                console.error('❌ Firebase access error:', error);
-            }
-            console.log('=== END DEBUG ===');
-        }
-
         // Load inspection statistics from Firebase
         async function loadInspectionStats() {
             try {
-                // Debug Firebase access
-                await debugFirebaseAccess();
-                
                 // Load locations
                 const locationsDoc = await window.firebaseFunctions.getDoc(
                     window.firebaseFunctions.doc(window.firebaseDb, 'system', 'locations')
@@ -764,13 +712,24 @@
             }
         }
 
+        // POPRAVLJENA FUNKCIJA - vsi imajo dostop do pregledov
         function getAccessibleLocations() {
-            if (!currentUser.accessibleSystems || !currentUser.accessibleLocations) {
-                return [];
+            // Če ni nastavljenih sistemov, uporabnik ima dostop do vseh
+            if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                return locations; // Vračaj vse lokacije
             }
-
+            
+            // Če so nastavljeni sistemi, filtriraj po sistemih
             return locations.filter(location => {
-                return currentUser.accessibleSystems.includes(location.system) &&
+                const hasSystemAccess = currentUser.accessibleSystems.includes(location.system);
+                
+                // Če ni nastavljenih specifičnih lokacij, dostop do vseh v sistemu
+                if (!currentUser.accessibleLocations || currentUser.accessibleLocations.length === 0) {
+                    return hasSystemAccess;
+                }
+                
+                // Preveri specifične lokacije
+                return hasSystemAccess && 
                        currentUser.accessibleLocations.some(acc => acc.terminal === location.terminal);
             });
         }
@@ -806,10 +765,6 @@
             
             accessibleLocations.forEach(location => {
                 totalRacks += location.racks;
-                
-                // Check station status (commented out as not implemented in original)
-                // const stationStatus = getInspectionStatus('station', location.terminal);
-                // if (stationStatus === 'overdue') overdueStations++;
                 
                 // Check racks
                 for (let i = 1; i <= location.racks; i++) {
@@ -1085,9 +1040,9 @@
             return priorities[priority] || priority;
         }
 
-        // Initialize user display
+        // POPRAVLJENA FUNKCIJA - vsi prijavljeni imajo dostop
         function initializeUserDisplay() {
-            if (currentUser.ime) {
+            if (currentUser && currentUser.ime) {
                 document.getElementById('userName').textContent = `${currentUser.ime} ${currentUser.priimek}`;
                 
                 // Show admin-only elements
@@ -1098,18 +1053,22 @@
                     document.getElementById('usersQuickAction').style.display = 'block';
                 }
                 
-                // Show access info
-                if (currentUser.accessibleSystems && currentUser.accessibleSystems.length > 0) {
-                    const accessInfo = document.getElementById('accessInfo');
-                    accessInfo.style.display = 'block';
-                    accessInfo.innerHTML = `
-                        <div class="connection-status">
-                            <span>🔄</span> Povezano s Firebase
-                        </div>
-                        🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
-                        (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 0} lokacij)
-                    `;
+                // VSI PRIJAVLJENI UPORABNIKI IMAJO DOSTOP DO PREGLEDOV
+                // Če ni nastavljenih sistemov, prikaži vse (admin)
+                if (!currentUser.accessibleSystems || currentUser.accessibleSystems.length === 0) {
+                    currentUser.accessibleSystems = ['KolesCE', 'ZaNaprej', 'GO2GO', 'Ljubljana'];
                 }
+
+                // Show access info
+                const accessInfo = document.getElementById('accessInfo');
+                accessInfo.style.display = 'block';
+                accessInfo.innerHTML = `
+                    <div class="connection-status">
+                        <span>🔄</span> Povezano s Firebase
+                    </div>
+                    🔐 <strong>Dostop:</strong> ${currentUser.accessibleSystems.join(', ')} 
+                    (${currentUser.accessibleLocations ? currentUser.accessibleLocations.length : 'Vse'} lokacij)
+                `;
             }
         }
 
@@ -1123,7 +1082,6 @@
                 loadNotifications();
                 loadInspectionStats();
                 
-                // Debug: Check user access
                 console.log('Current user:', currentUser);
                 console.log('Accessible systems:', currentUser.accessibleSystems);
                 console.log('Accessible locations:', currentUser.accessibleLocations);
@@ -1185,7 +1143,6 @@
         window.logout = logout;
         window.dismissNotification = dismissNotification;
         window.exportDashboardReport = exportDashboardReport;
-        window.debugFirebaseAccess = debugFirebaseAccess;
     </script>
 </body>
 </html>
